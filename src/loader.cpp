@@ -13,22 +13,9 @@ namespace cps_config::loader {
         template <typename T>
         T get_required(const Json::Value & parent, std::string_view parent_name,
                        const std::string & name) {
-            try {
-                const Json::Value value = parent[name];
-                try {
-                    if constexpr (std::is_same_v<T, std::string>) {
-                        return value.asString();
-                    } else {
-                        // static_assert(false, "Unhandled type");
-                    }
-                } catch (Json::LogicError &) {
-                    std::cerr << "Required field " << name << " in " << parent_name
-                              << " is not a " << typeid(T).name() << " !\n";
-                    abort();
-                }
-            } catch (Json::LogicError &) {
+            if (!parent.isMember(name)) {
                 // TODO: it would be nice to have the parent name…
-                std::cerr << " Required field " << name << " in " << parent_name
+                std::cerr << "Required field " << name << " in " << parent_name
                           << " is missing!\n";
                 abort();
             }
