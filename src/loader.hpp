@@ -27,8 +27,8 @@ namespace cps_config::loader {
     /// @brief Component type
     enum class Type {
         EXECUTABLE,
-        STATIC_LIBRARY,
-        DYNAMIC_LIBRARY,
+        ARCHIVE,
+        DYLIB,
         MODULE,
         JAR,
         INTERFACE,
@@ -41,7 +41,9 @@ namespace cps_config::loader {
     class Component {
       public:
         Component();
+        Component(Type type);
 
+        Type type;
         LangValues compile_flags;
         // TODO: configurations
         // TODO: LangValues definitions;
@@ -54,7 +56,6 @@ namespace cps_config::loader {
         // TODO: link_requires
         // TODO: location
         // TODO: requires
-        Type type;
     };
 
     class Configuration {
@@ -110,12 +111,13 @@ namespace cps_config::loader {
     class Package {
       public:
         Package();
-        Package(std::string name, std::string cps_version);
+        Package(std::string name, std::string cps_version,
+                std::unordered_map<std::string, Component> && components);
 
         std::string name;
         std::string cps_version;
-        // TODO: compat-version
         std::unordered_map<std::string, Component> components;
+        // TODO: compat-version
         // TODO: configuration
         // TODO: configurations
         // TODO: cps_path

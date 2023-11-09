@@ -14,6 +14,9 @@ int main(int argc, char * argv[]) {
 
     std::cout << "name is: " << package.name << "\n";
     std::cout << "uses cps-version: " << package.cps_version << "\n";
+    for (auto && [k, v] : package.components) {
+        std::cout << "has component: " << k << "\n";
+    }
 
     return 0;
 }
