@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -109,19 +110,22 @@ namespace cps_config::loader {
     class Package {
       public:
         Package();
+        Package(std::string name, std::string cps_version);
 
+        std::string name;
+        std::string cps_version;
         // TODO: compat-version
         std::unordered_map<std::string, Component> components;
         // TODO: configuration
         // TODO: configurations
         // TODO: cps_path
-        std::string cps_version;
         // TODO: default_components
-        std::string name;
         std::optional<Platform> platform;
         // TODO: requires
         std::optional<std::string> version;
         VersionSchema version_schema;
     };
+
+    Package load(const std::filesystem::path & path);
 
 } // namespace cps_config::loader
