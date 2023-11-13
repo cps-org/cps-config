@@ -8,7 +8,7 @@
 #include <json/json.h>
 #include <tl/expected.hpp>
 
-namespace cps_config::loader {
+namespace loader {
 
     namespace {
 

@@ -10,7 +10,7 @@ int main(int argc, char * argv[]) {
     }
 
     std::filesystem::path p{argv[1]};
-    const auto package = cps_config::loader::load(p);
+    const auto package = loader::load(p);
 
     std::cout << "name is: " << package.name << "\n";
     std::cout << "uses cps-version: " << package.cps_version << "\n";

@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace cps_config::loader {
+namespace loader {
 
     /// @brief  Known Programming languages
     enum class KnownLanguages {
