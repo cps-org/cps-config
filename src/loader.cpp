@@ -36,6 +36,27 @@ namespace loader {
                             parent_name, typeid(T).name()));
         }
 
+        template <typename T>
+        tl::expected<std::optional<T>, std::string>
+        get_optional(const Json::Value & parent, std::string_view parent_name,
+                     const std::string & name) {
+            // It's okay for a member to be missing from an optional value
+            if (!parent.isMember(name)) {
+                return std::nullopt;
+            }
+            const Json::Value value = parent[name];
+
+            if constexpr (std::is_same_v<T, std::string>) {
+                if (value.isString()) {
+                    return value.asString();
+                }
+            }
+
+            return tl::unexpected(
+                fmt::format("Optional field {} in {} is not of type {}!", name,
+                            parent_name, typeid(T).name()));
+        };
+
         Type from_string(std::string_view str) {
             if (str == "executable") {
                 return Type::EXECUTABLE;
@@ -117,9 +138,11 @@ namespace loader {
 
     Package::Package() = default;
     Package::Package(std::string name, std::string cps_version,
-                     std::unordered_map<std::string, Component> && components)
+                     std::unordered_map<std::string, Component> && components,
+                     std::optional<std::vector<std::string>> && default_comps)
         : name{std::move(name)}, cps_version{std::move(cps_version)},
-          components{components} {};
+          components{std::move(components)},
+          default_components{std::move(default_comps)} {};
 
     tl::expected<Package, std::string>
     load(const std::filesystem::path & path) {
@@ -133,6 +156,8 @@ namespace loader {
             TRY(get_required<std::string>(root, "package", "Name")),
             TRY(get_required<std::string>(root, "package", "Cps-Version")),
             TRY(get_components(root, "package", "Components")),
+            TRY(get_optional<std::vector<std::string>>(root, "package",
+                                                       "Default-Components")),
         };
     }
 } // namespace loader

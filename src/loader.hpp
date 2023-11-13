@@ -114,7 +114,8 @@ namespace loader {
       public:
         Package();
         Package(std::string name, std::string cps_version,
-                std::unordered_map<std::string, Component> && components);
+                std::unordered_map<std::string, Component> && components,
+                std::optional<std::vector<std::string>> && default_comps);
 
         std::string name;
         std::string cps_version;
@@ -123,7 +124,7 @@ namespace loader {
         // TODO: configuration
         // TODO: configurations
         // TODO: cps_path
-        std::vector<std::string> default_components;
+        std::optional<std::vector<std::string>> default_components;
         std::optional<Platform> platform;
         // TODO: requires
         std::optional<std::string> version;
