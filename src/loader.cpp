@@ -2,22 +2,29 @@
 // SPDX-License-Identifier: MIT
 
 #include "loader.hpp"
+#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <json/json.h>
+#include <tl/expected.hpp>
 
 namespace cps_config::loader {
 
     namespace {
 
+        void handle_error(std::string_view str) {
+            fmt::print(stderr, str);
+            abort();
+        };
+
         template <typename T>
-        T get_required(const Json::Value & parent, std::string_view parent_name,
-                       const std::string & name) {
+        tl::expected<T, std::string> get_required(const Json::Value & parent,
+                                                  std::string_view parent_name,
+                                                  const std::string & name) {
             if (!parent.isMember(name)) {
                 // TODO: it would be nice to have the parent name…
-                std::cerr << "Required field " << name << " in " << parent_name
-                          << " is missing!\n";
-                abort();
+                return fmt::format("Required field {} in {} is missing!", name,
+                                   parent_name);
             }
             const Json::Value value = parent[name];
 
@@ -30,9 +37,8 @@ namespace cps_config::loader {
             }
 
             // TODO: better than typeid
-            std::cerr << "Required field " << name << " in " << parent_name
-                      << " is not of type " << typeid(T).name() << "!\n";
-            abort();
+            return fmt::format("Required field {} in {} is not of type {}!",
+                               name, parent_name, typeid(T).name());
         }
 
         Type from_string(std::string_view str) {
@@ -59,14 +65,14 @@ namespace cps_config::loader {
             abort();
         }
 
-        std::unordered_map<std::string, Component>
+        tl::expected<std::unordered_map<std::string, Component>, std::string>
         get_components(const Json::Value & parent, std::string_view parent_name,
                        const std::string & name) {
             Json::Value compmap;
             if (!parent.isMember("Components")) {
-                std::cerr << "Required field Components of " << parent_name
-                          << " is missing!\n";
-                abort();
+                return tl::unexpected(
+                    fmt::format("Required field Components of {} is missing!",
+                                parent_name));
             }
 
             std::unordered_map<std::string, Component> components{};
@@ -74,14 +80,14 @@ namespace cps_config::loader {
             // TODO: error handling for not an object
             compmap = parent["Components"];
             if (!compmap.isObject()) {
-                std::cerr << "Components field of " << parent_name
-                          << " is not an object\n";
-                abort();
+                return tl::unexpected(fmt::format(
+                    "Components field of {} is not an object", parent_name));
             }
             if (compmap.empty()) {
-                std::cerr << "Components field of " << parent_name
-                          << " is empty, but must have at least one component\n";
-                abort();
+                return tl::unexpected(
+                    fmt::format("Components field of {} is empty, but must "
+                                "have at least one component",
+                                parent_name));
             }
 
             for (auto && itr = compmap.begin(); itr != compmap.end(); ++itr) {
@@ -90,12 +96,15 @@ namespace cps_config::loader {
                 const Json::Value comp = *itr;
 
                 if (!comp.isObject()) {
-                    std::cerr << "Component " << key << " is not an object\n";
-                    abort();
+                    return tl::unexpected(
+                        fmt::format("Component {} is not an object", key));
                 }
 
-                const auto rawtype = get_required<std::string>(comp, "Component", "Type");
-                const Type type = from_string(rawtype);
+                const Type type =
+                    get_required<std::string>(comp, "Component", "Type")
+                        .map_error(handle_error)
+                        .map(from_string)
+                        .value();
 
                 components[key] = Component{type};
             }
@@ -128,9 +137,15 @@ namespace cps_config::loader {
         file >> root;
 
         return Package{
-            get_required<std::string>(root, "package", "Name"),
-            get_required<std::string>(root, "package", "Cps-Version"),
-            get_components(root, "package", "Components"),
+            get_required<std::string>(root, "package", "Name")
+                .map_error(handle_error)
+                .value(),
+            get_required<std::string>(root, "package", "Cps-Version")
+                .map_error(handle_error)
+                .value(),
+            get_components(root, "package", "Components")
+                .map_error(handle_error)
+                .value(),
         };
     }
 } // namespace cps_config::loader
