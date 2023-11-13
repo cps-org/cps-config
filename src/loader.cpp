@@ -19,8 +19,8 @@ namespace loader {
                                                   const std::string & name) {
             if (!parent.isMember(name)) {
                 // TODO: it would be nice to have the parent name…
-                return fmt::format("Required field {} in {} is missing!", name,
-                                   parent_name);
+                return tl::unexpected(fmt::format(
+                    "Required field {} in {} is missing!", name, parent_name));
             }
             const Json::Value value = parent[name];
 
@@ -28,13 +28,12 @@ namespace loader {
                 if (value.isString()) {
                     return value.asString();
                 }
-            } else {
-                // static_assert(false, "Unhandled type");
             }
 
             // TODO: better than typeid
-            return fmt::format("Required field {} in {} is not of type {}!",
-                               name, parent_name, typeid(T).name());
+            return tl::unexpected(
+                fmt::format("Required field {} in {} is not of type {}!", name,
+                            parent_name, typeid(T).name()));
         }
 
         Type from_string(std::string_view str) {
