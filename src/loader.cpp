@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "loader.hpp"
+#include "error.hpp"
 #include <fmt/core.h>
 #include <fstream>
 #include <iostream>
@@ -11,11 +12,6 @@
 namespace loader {
 
     namespace {
-
-        void handle_error(std::string_view str) {
-            fmt::print(stderr, str);
-            abort();
-        };
 
         template <typename T>
         tl::expected<T, std::string> get_required(const Json::Value & parent,
@@ -100,13 +96,10 @@ namespace loader {
                         fmt::format("Component {} is not an object", key));
                 }
 
-                const Type type =
-                    get_required<std::string>(comp, "Component", "Type")
-                        .map_error(handle_error)
-                        .map(from_string)
-                        .value();
-
-                components[key] = Component{type};
+                components[key] = Component{
+                    TRY(get_required<std::string>(comp, "Component", "Type")
+                            .map(from_string)),
+                };
             }
 
             return components;
@@ -129,7 +122,8 @@ namespace loader {
         : name{std::move(name)}, cps_version{std::move(cps_version)},
           components{components} {};
 
-    Package load(const std::filesystem::path & path) {
+    tl::expected<Package, std::string>
+    load(const std::filesystem::path & path) {
         std::ifstream file;
         file.open(path);
 
@@ -137,15 +131,9 @@ namespace loader {
         file >> root;
 
         return Package{
-            get_required<std::string>(root, "package", "Name")
-                .map_error(handle_error)
-                .value(),
-            get_required<std::string>(root, "package", "Cps-Version")
-                .map_error(handle_error)
-                .value(),
-            get_components(root, "package", "Components")
-                .map_error(handle_error)
-                .value(),
+            TRY(get_required<std::string>(root, "package", "Name")),
+            TRY(get_required<std::string>(root, "package", "Cps-Version")),
+            TRY(get_components(root, "package", "Components")),
         };
     }
-} // namespace cps_config::loader
+} // namespace loader

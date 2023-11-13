@@ -10,7 +10,10 @@ int main(int argc, char * argv[]) {
     }
 
     std::filesystem::path p{argv[1]};
-    const auto package = loader::load(p);
+    const auto package =
+        loader::load(p)
+            .map_error([](const std::string & v) { throw std::runtime_error(v); })
+            .value();
 
     std::cout << "name is: " << package.name << "\n";
     std::cout << "uses cps-version: " << package.cps_version << "\n";

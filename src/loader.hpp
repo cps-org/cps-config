@@ -8,6 +8,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <tl/expected.hpp>
+#include "error.hpp"
 
 namespace loader {
 
@@ -121,13 +123,13 @@ namespace loader {
         // TODO: configuration
         // TODO: configurations
         // TODO: cps_path
-        // TODO: default_components
+        std::vector<std::string> default_components;
         std::optional<Platform> platform;
         // TODO: requires
         std::optional<std::string> version;
         VersionSchema version_schema;
     };
 
-    Package load(const std::filesystem::path & path);
+    tl::expected<Package, std::string> load(const std::filesystem::path & path);
 
 } // namespace cps_config::loader
