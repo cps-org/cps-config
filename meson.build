@@ -15,6 +15,7 @@ executable(
   'cps-config',
   'src/main.cpp',
   'src/loader.cpp',
+  'src/printer.cpp',
   dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
   install : true,
 )

@@ -3,6 +3,7 @@
 
 #include <fmt/format.h>
 #include "loader.hpp"
+#include "printer.hpp"
 
 int main(int argc, char * argv[]) {
     if (argc != 2) {
@@ -16,11 +17,7 @@ int main(int argc, char * argv[]) {
             .map_error([](const std::string & v) { throw std::runtime_error(v); })
             .value();
 
-    fmt::println("name is: {}", package.name);
-    fmt::println("uses cps-version: {}", package.cps_version);
-    for (auto && [k, v] : package.components) {
-        fmt::println("has component: {}", k);
-    }
+    printer::pkgconf(package, printer::Config{});
 
     return 0;
 }

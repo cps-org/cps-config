@@ -3,10 +3,12 @@
     "Cps-Version": "0.9.0",
     "Components": {
         "sample1": {
-            "Type": "executable"
+            "Type": "archive",
+            "Compile-Flags": ["-fopemp"],
         },
         "sample2": {
-            "Type": "executable"
+            "Type": "archive"
         }
-    }
+    },
+    "Default-Components": ["sample1"]
 }

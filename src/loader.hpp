@@ -43,10 +43,10 @@ namespace loader {
     class Component {
       public:
         Component();
-        Component(Type type);
+        Component(Type type, std::optional<LangValues> cflags);
 
         Type type;
-        LangValues compile_flags;
+        std::optional<LangValues> compile_flags;
         // TODO: configurations
         // TODO: LangValues definitions;
         // TODO: LangValues includes;
@@ -63,6 +63,7 @@ namespace loader {
     class Configuration {
       public:
         Configuration();
+        Configuration(LangValues cflags);
 
         LangValues compile_flags;
         // TODO: LangValues definitions;

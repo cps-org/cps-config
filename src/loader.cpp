@@ -50,6 +50,28 @@ namespace loader {
                 if (value.isString()) {
                     return value.asString();
                 }
+            } else if constexpr (std::is_same_v<T, std::vector<std::string>>) {
+                if (value.isArray()) {
+                    std::vector<std::string> ret;
+                    for (auto && v : value) {
+                        // TODO: Error handling?
+                        ret.emplace_back(v.asString());
+                    }
+                    return ret;
+                }
+            } else if constexpr (std::is_same_v<
+                                     T, std::unordered_map<
+                                            std::string,
+                                            std::vector<std::string>>>) {
+                if (value.isArray()) {
+                    std::unordered_map<std::string, std::vector<std::string>>
+                        ret;
+                    for (auto && [k, v] : value) {
+                        // TODO: Error handling?
+                        ret.emplace(k.asString(), v.asString());
+                    }
+                    return ret;
+                }
             }
 
             return tl::unexpected(
@@ -79,6 +101,34 @@ namespace loader {
 
             std::cerr << "Unknown type: " << str << "\n";
             abort();
+        }
+
+        tl::expected<LangValues, std::string>
+        get_lang_values(const Json::Value & parent,
+                        std::string_view parent_name,
+                        const std::string & name) {
+            LangValues ret{};
+            if (!parent.isMember(name)) {
+                return ret;
+            }
+
+            Json::Value value = parent[name];
+            if (value.isObject()) {
+            } else if (value.isArray()) {
+                std::vector<std::string> fin;
+                for (auto && v : value) {
+                    fin.emplace_back(v.asString());
+                }
+                for (auto && v : {KnownLanguages::C, KnownLanguages::CPP,
+                                  KnownLanguages::FORTRAN}) {
+                    ret.emplace(v, fin);
+                }
+                return ret;
+            }
+
+            return tl::unexpected(fmt::format(
+                "Section {} of {} is neither an object nor an array!",
+                parent_name, name));
         }
 
         tl::expected<std::unordered_map<std::string, Component>, std::string>
@@ -119,6 +169,10 @@ namespace loader {
                 components[key] = Component{
                     TRY(get_required<std::string>(comp, "Component", "Type")
                             .map(from_string)),
+                    TRY(get_lang_values(comp, "Component", "Compile-Flags")),
+                    // TODO: rransform the above into a LangValues object.
+                    // TODO: deal with the fact that the above can't handle the
+                    // variant
                 };
             }
 
@@ -128,9 +182,12 @@ namespace loader {
     } // namespace
 
     Component::Component() = default;
-    Component::Component(Type type) : type{type} {};
+    Component::Component(Type type, std::optional<LangValues> cflags)
+        : type{type}, compile_flags{cflags} {};
 
     Configuration::Configuration() = default;
+    Configuration::Configuration(LangValues cflags)
+        : compile_flags{std::move(cflags)} {};
 
     Requirement::Requirement() = default;
 
