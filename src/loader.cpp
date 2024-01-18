@@ -14,29 +14,6 @@ namespace loader {
     namespace {
 
         template <typename T>
-        tl::expected<T, std::string> get_required(const Json::Value & parent,
-                                                  std::string_view parent_name,
-                                                  const std::string & name) {
-            if (!parent.isMember(name)) {
-                // TODO: it would be nice to have the parent name…
-                return tl::unexpected(fmt::format(
-                    "Required field {} in {} is missing!", name, parent_name));
-            }
-            const Json::Value value = parent[name];
-
-            if constexpr (std::is_same_v<T, std::string>) {
-                if (value.isString()) {
-                    return value.asString();
-                }
-            }
-
-            // TODO: better than typeid
-            return tl::unexpected(
-                fmt::format("Required field {} in {} is not of type {}!", name,
-                            parent_name, typeid(T).name()));
-        }
-
-        template <typename T>
         tl::expected<std::optional<T>, std::string>
         get_optional(const Json::Value & parent, std::string_view parent_name,
                      const std::string & name) {
@@ -78,6 +55,25 @@ namespace loader {
                 fmt::format("Optional field {} in {} is not of type {}!", name,
                             parent_name, typeid(T).name()));
         };
+
+        template <typename T>
+        tl::expected<T, std::string> get_required(const Json::Value & parent,
+                                                  std::string_view parent_name,
+                                                  const std::string & name) {
+            if (!parent.isMember(name)) {
+                // TODO: it would be nice to have the parent name…
+                return tl::unexpected(fmt::format(
+                    "Required field {} in {} is missing!", name, parent_name));
+            }
+
+            return get_optional<T>(parent, parent_name, name)
+                .and_then([](auto && v) -> tl::expected<T, std::string> {
+                    if (v)
+                        return v.value();
+                    return "bad";
+                });
+                // TODO: also need to fixup error message for "Optional type ..."
+        }
 
         Type from_string(std::string_view str) {
             if (str == "executable") {
