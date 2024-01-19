@@ -110,6 +110,30 @@ namespace loader {
 
             Json::Value value = parent[name];
             if (value.isObject()) {
+                // TODO: simplify this
+                ret[KnownLanguages::C] =
+                    TRY(get_optional<std::vector<std::string>>(value, "C", name)
+                            .map([](auto && r) {
+                                return r.value_or(std::vector<std::string>{});
+                            }));
+                if (auto && k = value.get("C", Json::Value{}); !k.empty()) {
+                    ret[KnownLanguages::C] = {};
+                    for (auto && v : k) {
+                        ret[KnownLanguages::C].emplace_back(v.asString());
+                    }
+                } else if (auto && k = value.get("CPP", Json::Value{});
+                           !k.empty()) {
+                    ret[KnownLanguages::CPP] = {};
+                    for (auto && v : k) {
+                        ret[KnownLanguages::CPP].emplace_back(v.asString());
+                    }
+                } else if (auto && k = value.get("Fortran", Json::Value{});
+                           !k.empty()) {
+                    ret[KnownLanguages::FORTRAN] = {};
+                    for (auto && v : k) {
+                        ret[KnownLanguages::FORTRAN].emplace_back(v.asString());
+                    }
+                }
             } else if (value.isArray()) {
                 std::vector<std::string> fin;
                 for (auto && v : value) {
