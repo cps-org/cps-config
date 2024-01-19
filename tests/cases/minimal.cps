@@ -4,7 +4,7 @@
     "Components": {
         "sample1": {
             "Type": "archive",
-            "Compile-Flags": ["-fopemp"],
+            "Compile-Flags": ["-fopenmp"],
         },
         "sample2": {
             "Type": "archive"

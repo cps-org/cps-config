@@ -1,5 +1,6 @@
 [[case]]
   name = "cflags"
   cps = "cases/minimal.cps"
-  args = ["pkgconf", "--cflags"]
+  args = ["--cflags"]
   expected = "-fopenmp"
+  mode = "pkgconf"

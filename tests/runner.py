@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import dataclasses
 import os
+import sys
 import tomllib
 import typing
 
@@ -24,13 +25,15 @@ if typing.TYPE_CHECKING:
         cps: str
         args: list[str]
         expected: str
+        mode: typing.Literal['pkgconf']
 
     class TestDescription(typing.TypedDict):
 
         case: list[TestCase]
 
 
-SOURCE_DIR = os.path.dirname(os.path.dirname(__file__))
+TEST_DIR = os.path.dirname(__file__)
+SOURCE_DIR = os.path.dirname(TEST_DIR)
 
 
 @dataclasses.dataclass(slots=True)
@@ -43,18 +46,20 @@ class Result:
 
 
 async def test(runner: str, case_: TestCase) -> Result:
+    cmd = [runner, case_['mode'], os.path.join(TEST_DIR, case_['cps'])] + case_['args']
     proc = await asyncio.create_subprocess_exec(
-        runner,
-         os.path.join(SOURCE_DIR, case_['cps']),
-        *case_['args'],
+        *cmd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
-    out, err = await proc.communicate()
+    bout, berr = await proc.communicate()
+
+    out = bout.decode().strip()
+    err = berr.decode().strip()
 
     return Result(
         case_['name'],
-        proc.returncode == 0 and out.strip() == case_['expected'],
+        proc.returncode == 0 and out == case_['expected'],
         out, err)
 
 
@@ -80,4 +85,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    sys.exit(asyncio.run(main()))

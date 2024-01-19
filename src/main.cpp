@@ -11,7 +11,10 @@ int main(int argc, char * argv[]) {
         return 1;
     }
 
-    std::filesystem::path p{argv[1]};
+    const std::string_view mode = argv[1];
+    const std::string_view cps = argv[2];
+
+    std::filesystem::path p{cps};
     const loader::Package package =
         loader::load(p)
             .map_error([](const std::string & v) { throw std::runtime_error(v); })
@@ -27,13 +30,12 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    const std::string_view mode = argv[2];
     if (mode == "pkgconf") {
         printer::pkgconf(package, conf);
+        return 0;
     } else {
-        fmt::println(stderr, "Unknown mode {}", argv[2]);
-        return 1;
+        fmt::println(stderr, "Unknown mode {}", mode);
     }
 
-    return 0;
+    return 1;
 }
