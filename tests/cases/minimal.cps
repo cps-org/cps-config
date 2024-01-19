@@ -5,9 +5,8 @@
         "sample1": {
             "Type": "archive",
             "Compile-Flags": ["-fopenmp"],
-        },
-        "sample2": {
-            "Type": "archive"
+            "Includes": {"C": ["/usr/local/include", "/opt/include"]},
+            "Defines": {"C": ["FOO=1", "BAR=2", "!BAR"], "C++": ["!FOO"]}
         }
     },
     "Default-Components": ["sample1"]

@@ -8,9 +8,9 @@
 namespace printer {
 
     struct Config {
-        bool defines = false;
-        bool includes = false;
-        bool cflags = false;
+        bool defines = true;
+        bool includes = true;
+        bool cflags = true;
     };
 
     void pkgconf(const loader::Package & p, const Config & conf);

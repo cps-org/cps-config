@@ -21,16 +21,23 @@ int main(int argc, char * argv[]) {
             .value();
 
     printer::Config conf{};
-    if (argc > 3) {
-        for (int i = 3; i < argc; ++i) {
-            const std::string_view arg = argv[i];
-            if (arg == "--cflags") {
-                conf.cflags = true;
-            }
-        }
-    }
 
     if (mode == "pkgconf") {
+        if (argc > 3) {
+            for (int i = 3; i < argc; ++i) {
+                const std::string_view arg = argv[i];
+                if (arg == "--cflags") {
+                } else if (arg == "--cflags-only-other") {
+                    conf.includes = false;
+                } else if (arg == "--cflags-only-I") {
+                    conf.cflags = false;
+                    conf.defines = false;
+                } else {
+                    fmt::println(stderr, "Unknown command like argument {}", arg);
+                    return 1;
+                }
+            }
+        }
         printer::pkgconf(package, conf);
         return 0;
     } else {

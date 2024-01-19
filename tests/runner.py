@@ -36,7 +36,7 @@ TEST_DIR = os.path.dirname(__file__)
 SOURCE_DIR = os.path.dirname(TEST_DIR)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass(slots=True, order=True)
 class Result:
 
     name: str

@@ -3,13 +3,13 @@
 
 #pragma once
 
+#include "error.hpp"
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <tl/expected.hpp>
 #include <unordered_map>
 #include <vector>
-#include <tl/expected.hpp>
-#include "error.hpp"
 
 namespace loader {
 
@@ -43,13 +43,14 @@ namespace loader {
     class Component {
       public:
         Component();
-        Component(Type type, std::optional<LangValues> cflags);
+        Component(Type type, LangValues cflags,
+                  LangValues includes);
 
         Type type;
-        std::optional<LangValues> compile_flags;
+        LangValues compile_flags;
+        LangValues includes;
         // TODO: configurations
         // TODO: LangValues definitions;
-        // TODO: LangValues includes;
         // TODO: std::vector<std::string> link_features;
         // TODO: std::vector<std::string> link_flags;
         // TODO: std::vector<LinkLanguage> link_languages;
@@ -134,4 +135,4 @@ namespace loader {
 
     tl::expected<Package, std::string> load(const std::filesystem::path & path);
 
-} // namespace cps_config::loader
+} // namespace loader

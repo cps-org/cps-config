@@ -115,13 +115,14 @@ namespace loader {
                     return r.value_or(std::vector<std::string>{});
                 };
                 ret[KnownLanguages::C] =
-                    TRY(get_optional<std::vector<std::string>>(value, "C", name)
+                    TRY(get_optional<std::vector<std::string>>(value, name, "C")
                             .map(cb));
-                ret[KnownLanguages::CPP] =
-                    TRY(get_optional<std::vector<std::string>>(value, "CPP", name)
-                            .map(cb));
+                ret[KnownLanguages::CPP] = TRY(
+                    get_optional<std::vector<std::string>>(value, name, "C++")
+                        .map(cb));
                 ret[KnownLanguages::FORTRAN] =
-                    TRY(get_optional<std::vector<std::string>>(value, "Fortran", name)
+                    TRY(get_optional<std::vector<std::string>>(value, name,
+                                                               "Fortran")
                             .map(cb));
             } else if (value.isArray()) {
                 std::vector<std::string> fin;
@@ -132,12 +133,12 @@ namespace loader {
                                   KnownLanguages::FORTRAN}) {
                     ret.emplace(v, fin);
                 }
-                return ret;
+            } else {
+                return tl::unexpected(fmt::format(
+                    "Section {} of {} is neither an object nor an array!",
+                    parent_name, name));
             }
-
-            return tl::unexpected(fmt::format(
-                "Section {} of {} is neither an object nor an array!",
-                parent_name, name));
+            return ret;
         }
 
         tl::expected<std::unordered_map<std::string, Component>, std::string>
@@ -179,9 +180,7 @@ namespace loader {
                     TRY(get_required<std::string>(comp, "Component", "Type")
                             .map(from_string)),
                     TRY(get_lang_values(comp, "Component", "Compile-Flags")),
-                    // TODO: rransform the above into a LangValues object.
-                    // TODO: deal with the fact that the above can't handle the
-                    // variant
+                    TRY(get_lang_values(comp, "Component", "Includes")),
                 };
             }
 
@@ -191,8 +190,8 @@ namespace loader {
     } // namespace
 
     Component::Component() = default;
-    Component::Component(Type type, std::optional<LangValues> cflags)
-        : type{type}, compile_flags{cflags} {};
+    Component::Component(Type type, LangValues cflags, LangValues includes)
+        : type{type}, compile_flags{std::move(cflags)}, includes{std::move(includes)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags)
