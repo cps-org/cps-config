@@ -141,6 +141,30 @@ namespace loader {
             return ret;
         }
 
+        tl::expected<Defines, std::string>
+        get_defines(const Json::Value & parent, std::string_view parent_name,
+                    const std::string & name) {
+            LangValues && lang =
+                TRY(get_lang_values(parent, parent_name, name));
+            Defines ret;
+            for (auto && [k, values] : lang) {
+                ret[k] = {};
+                for (auto && value : values) {
+                    if (value.front() == '!') {
+                        ret[k].emplace_back(Define{value.substr(1), false});
+                    } else if (const size_t sep = value.find("=");
+                               sep != value.npos) {
+                        std::string dkey = value.substr(0, sep);
+                        std::string dvalue = value.substr(sep + 1);
+                        ret[k].emplace_back(Define{dkey, dvalue});
+                    } else {
+                        ret[k].emplace_back(Define{value});
+                    }
+                }
+            }
+            return ret;
+        };
+
         tl::expected<std::unordered_map<std::string, Component>, std::string>
         get_components(const Json::Value & parent, std::string_view parent_name,
                        const std::string & name) {
@@ -181,7 +205,7 @@ namespace loader {
                             .map(from_string)),
                     TRY(get_lang_values(comp, "Component", "Compile-Flags")),
                     TRY(get_lang_values(comp, "Component", "Includes")),
-                };
+                    TRY(get_defines(comp, "Component", "Defines"))};
             }
 
             return components;
@@ -189,9 +213,25 @@ namespace loader {
 
     } // namespace
 
+    Define::Define(std::string name)
+        : name{std::move(name)}, value{}, define{true} {};
+    Define::Define(std::string name, std::string value)
+        : name{std::move(name)}, value{std::move(value)}, define{true} {};
+    Define::Define(std::string name, bool define)
+        : name{std::move(name)}, value{}, define{define} {};
+
+    bool Define::is_undefine() const { return !define; }
+
+    bool Define::is_define() const { return define && value.empty(); }
+
+    std::string Define::get_name() const { return name; }
+    std::string Define::get_value() const { return value; }
+
     Component::Component() = default;
-    Component::Component(Type type, LangValues cflags, LangValues includes)
-        : type{type}, compile_flags{std::move(cflags)}, includes{std::move(includes)} {};
+    Component::Component(Type type, LangValues cflags, LangValues includes,
+                         Defines defines)
+        : type{type}, compile_flags{std::move(cflags)},
+          includes{std::move(includes)}, defines{std::move(defines)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags)

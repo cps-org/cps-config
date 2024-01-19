@@ -37,20 +37,40 @@ namespace loader {
         SYMBOLIC,
     };
 
+    class Define {
+      public:
+        Define(std::string name);
+        Define(std::string name, std::string value);
+        Define(std::string name, bool define);
+
+        bool is_undefine() const;
+        bool is_define() const;
+        std::string get_name() const;
+        std::string get_value() const;
+
+      private:
+        std::string name;
+        std::string value;
+        bool define;
+    };
+
     using LangValues =
         std::unordered_map<KnownLanguages, std::vector<std::string>>;
+
+    using Defines =
+        std::unordered_map<KnownLanguages, std::vector<Define>>;
 
     class Component {
       public:
         Component();
         Component(Type type, LangValues cflags,
-                  LangValues includes);
+                  LangValues includes, Defines defines);
 
         Type type;
         LangValues compile_flags;
         LangValues includes;
+        Defines defines;
         // TODO: configurations
-        // TODO: LangValues definitions;
         // TODO: std::vector<std::string> link_features;
         // TODO: std::vector<std::string> link_flags;
         // TODO: std::vector<LinkLanguage> link_languages;

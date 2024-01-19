@@ -27,6 +27,7 @@ namespace printer {
                 need_space = true;
             }
         }
+
         if (conf.includes) {
             if (auto && c = comp.includes.find(loader::KnownLanguages::C);
                 c != comp.includes.end() && !c->second.empty()) {
@@ -37,6 +38,26 @@ namespace printer {
                 need_space = true;
             }
         }
+
+        if (conf.defines) {
+            if (auto && c = comp.defines.find(loader::KnownLanguages::C);
+                c != comp.defines.end() && !c->second.empty()) {
+                for (auto && d : c->second) {
+                    if (need_space) {
+                        fmt::print(" ");
+                    }
+                    need_space = true;
+                    if (d.is_define()) {
+                        fmt::print("-D{}", d.get_name());
+                    } else if (d.is_undefine()) {
+                        fmt::print("-U{}", d.get_name());
+                    } else {
+                        fmt::print("-D{}={}", d.get_name(), d.get_value());
+                    }
+                }
+            }
+        }
+
         fmt::print("\n");
     }
 

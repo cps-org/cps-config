@@ -2,14 +2,14 @@
   name = "cflags"
   cps = "cases/minimal.cps"
   args = ["--cflags"]
-  expected = "-fopenmp -I/usr/local/include -I/opt/include"
+  expected = "-fopenmp -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHER"
   mode = "pkgconf"
 
 [[case]]
   name = "cflags-only-other"
   cps = "cases/minimal.cps"
   args = ["--cflags-only-other"]
-  expected = "-fopenmp"
+  expected = "-fopenmp -DFOO=1 -DBAR=2 -UBAR -DOTHER"
   mode = "pkgconf"
 
 [[case]]
