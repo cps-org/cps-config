@@ -5,16 +5,22 @@
 #include "loader.hpp"
 #include "printer.hpp"
 #include <fmt/format.h>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 int main(int argc, char * argv[]) {
     if (argc < 2) {
-        fmt::println(
-            stderr,
-            "Error: Got wrong number of arguments, expected at least 2");
+        fmt::println(stderr, "Error: Got {} arguments, expected at least 2",
+                     argc);
         return 1;
     }
 
     const std::string_view cps = argv[1];
+    if (!fs::exists(cps)) {
+        fmt::println("CPS file {} does not exist", cps);
+        return 1;
+    }
 
     std::filesystem::path p{cps};
     const loader::Package package = loader::load(p)
