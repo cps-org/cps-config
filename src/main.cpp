@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include "loader.hpp"
 #include "printer.hpp"
+#include "cps-config-config.hpp"
 
 int main(int argc, char * argv[]) {
     if (argc < 3) {
@@ -13,6 +14,10 @@ int main(int argc, char * argv[]) {
 
     const std::string_view mode = argv[1];
     const std::string_view cps = argv[2];
+    if (cps == "--version") {
+        fmt::println(VERSION);
+        return 0;
+    }
 
     std::filesystem::path p{cps};
     const loader::Package package =
@@ -37,6 +42,9 @@ int main(int argc, char * argv[]) {
                     conf.components.push_back(argv[++i]);
                 } else if (arg.find("--component=") != std::string::npos) {
                     conf.components.emplace_back(arg.substr(0, 13));
+                } else if (arg == "--version") {
+                    fmt::println(VERSION);
+                    return 0;
                 } else {
                     fmt::println(stderr, "Unknown command like argument {}", arg);
                     return 1;

@@ -14,6 +14,7 @@ dep_fmt = dependency('fmt', version : '>= 10.1')
 cpp = meson.get_compiler('cpp')
 
 conf = configuration_data()
+conf.set_quoted('VERSION', meson.project_version())
 foreach f : ['unreachable']
   conf.set10(f'HAVE_@f@'.to_upper(), cpp.has_function(f))
 endforeach

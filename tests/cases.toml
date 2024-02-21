@@ -39,3 +39,10 @@
   args = ["--cflags-only-I", "--component", "sample2"]
   expected = "-I/opt/include"
   mode = "pkgconf"
+
+[[case]]
+  name = "version"
+  cps = "cases/minimal.cps"
+  args = ["--version"]
+  expected = "0.0.1"
+  mode = "pkgconf"
