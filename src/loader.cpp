@@ -212,12 +212,12 @@ namespace loader {
 
     } // namespace
 
-    Define::Define(std::string name)
-        : name{std::move(name)}, value{}, define{true} {};
-    Define::Define(std::string name, std::string value)
-        : name{std::move(name)}, value{std::move(value)}, define{true} {};
-    Define::Define(std::string name, bool define)
-        : name{std::move(name)}, value{}, define{define} {};
+    Define::Define(std::string name_)
+        : name{std::move(name_)}, value{}, define{true} {};
+    Define::Define(std::string name_, std::string value_)
+        : name{std::move(name_)}, value{std::move(value_)}, define{true} {};
+    Define::Define(std::string name_, bool define_)
+        : name{std::move(name_)}, value{}, define{define_} {};
 
     bool Define::is_undefine() const { return !define; }
 
@@ -227,10 +227,10 @@ namespace loader {
     std::string Define::get_value() const { return value; }
 
     Component::Component() = default;
-    Component::Component(Type type, LangValues cflags, LangValues includes,
-                         Defines defines)
-        : type{type}, compile_flags{std::move(cflags)},
-          includes{std::move(includes)}, defines{std::move(defines)} {};
+    Component::Component(Type _type, LangValues _cflags, LangValues _includes,
+                         Defines _defines)
+        : type{_type}, compile_flags{std::move(_cflags)},
+          includes{std::move(_includes)}, defines{std::move(_defines)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags)
@@ -241,12 +241,12 @@ namespace loader {
     Platform::Platform() = default;
 
     Package::Package() = default;
-    Package::Package(std::string name, std::string cps_version,
-                     std::unordered_map<std::string, Component> && components,
-                     std::optional<std::vector<std::string>> && default_comps)
-        : name{std::move(name)}, cps_version{std::move(cps_version)},
-          components{std::move(components)},
-          default_components{std::move(default_comps)} {};
+    Package::Package(std::string _name, std::string _cps_version,
+                     std::unordered_map<std::string, Component> && _components,
+                     std::optional<std::vector<std::string>> && _default_comps)
+        : name{std::move(_name)}, cps_version{std::move(_cps_version)},
+          components{std::move(_components)},
+          default_components{std::move(_default_comps)} {};
 
     tl::expected<Package, std::string>
     load(const std::filesystem::path & path) {
