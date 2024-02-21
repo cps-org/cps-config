@@ -207,7 +207,12 @@ namespace loader {
                     TRY(get_defines(comp, "Component", "Defines")),
                     TRY(get_optional<std::vector<std::string>>(
                             comp, "Component", "Link-Libraries"))
-                        .value_or(std::vector<std::string>{})};
+                        .value_or(std::vector<std::string>{}),
+                    TRY(get_required<std::string>(comp, "Component",
+                                                  "Location")),
+                    // XXX: https://github.com/cps-org/cps/issues/34
+                    TRY(get_optional<std::string>(comp, "Component",
+                                                  "Link-Location"))};
             }
 
             return components;
@@ -231,10 +236,13 @@ namespace loader {
 
     Component::Component() = default;
     Component::Component(Type _type, LangValues _cflags, LangValues _includes,
-                         Defines _defines, std::vector<std::string> _link_libs)
+                         Defines _defines, std::vector<std::string> _link_libs,
+                         std::optional<std::string> _loc,
+                         std::optional<std::string> _link_loc)
         : type{_type}, compile_flags{std::move(_cflags)},
           includes{std::move(_includes)}, defines{std::move(_defines)},
-          link_libraries{std::move(_link_libs)} {};
+          link_libraries{std::move(_link_libs)}, location{std::move(_loc)},
+          link_location{std::move(_link_loc)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags)

@@ -63,7 +63,9 @@ namespace loader {
       public:
         Component();
         Component(Type type, LangValues cflags, LangValues includes,
-                  Defines defines, std::vector<std::string> link_libraries);
+                  Defines defines, std::vector<std::string> link_libraries,
+                  std::optional<std::string> location,
+                  std::optional<std::string> link_location);
 
         Type type;
         LangValues compile_flags;
@@ -74,9 +76,9 @@ namespace loader {
         // TODO: std::vector<std::string> link_flags;
         // TODO: std::vector<LinkLanguage> link_languages;
         std::vector<std::string> link_libraries;
-        // TODO: link_location
         // TODO: link_requires
-        // TODO: location
+        std::optional<std::string> location;
+        std::optional<std::string> link_location;
         // TODO: requires
     };
 

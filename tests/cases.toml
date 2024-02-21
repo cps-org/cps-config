@@ -48,8 +48,15 @@
   mode = "pkgconf"
 
 [[case]]
-  name = "link libs only"
+  name = "link libs only with link-location"
   cps = "cases/multiple-components.cps"
   args = ["--libs-only-l", "--component", "sample3"]
-  expected = "-ldl -lrt"
+  expected = "-l/something/lib/libfoo.so -ldl -lrt"
+  mode = "pkgconf"
+
+[[case]]
+  name = "link libs only without link-location"
+  cps = "cases/multiple-components.cps"
+  args = ["--libs-only-l", "--component", "sample2"]
+  expected = "-l/something/lib/libfoo.so.1.2.0"
   mode = "pkgconf"

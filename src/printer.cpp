@@ -71,6 +71,11 @@ namespace printer {
             }
 
             if (conf.libs_link) {
+                // Use the Link-Location if it is set, otherwise fallback to the
+                // Location which should always be set
+                args.emplace_back(fmt::format(
+                    "-l{}",
+                    comp.link_location.value_or(comp.location.value())));
                 if (auto && f = comp.link_libraries; !f.empty()) {
                     args.reserve(args.size() + f.size());
                     std::transform(f.begin(), f.end(), std::back_inserter(args),
