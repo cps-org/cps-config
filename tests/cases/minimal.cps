@@ -2,6 +2,12 @@
     "Name": "minimal",
     "Cps-Version": "0.9.0",
     "Components": {
+        "sample0": {
+            "Type": "archive",
+            "Compile-Flags": ["-fsentinal"],
+            "Includes": {"C": ["/err"]},
+            "Defines": {"C": ["-DFAIL"]}
+        },
         "sample1": {
             "Type": "archive",
             "Compile-Flags": ["-fopenmp"],
