@@ -1,6 +1,7 @@
 {
     "Name": "minimal",
     "Cps-Version": "0.9.0",
+    "Version": "1.0.0",
     "Components": {
         "sample0": {
             "Type": "archive",

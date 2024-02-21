@@ -18,6 +18,11 @@ namespace printer {
             conf.components.empty() ? p.default_components.value()
                                     : conf.components;
 
+        if (conf.mod_version) {
+            fmt::println(p.version.value_or("undefined"));
+            return 0;
+        }
+
         for (auto && c : components) {
 
             auto && trial = p.components.find(c);

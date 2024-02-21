@@ -60,3 +60,10 @@
   args = ["--libs-only-l", "--component", "sample2"]
   expected = "-l/something/lib/libfoo.so.1.2.0"
   mode = "pkgconf"
+
+[[case]]
+  name = "mod version"
+  cps = "cases/minimal.cps"
+  args = ["--modversion"]
+  expected = "1.0.0"
+  mode = "pkgconf"

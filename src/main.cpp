@@ -50,6 +50,8 @@ int main(int argc, char * argv[]) {
                     conf.libs_search = true;
                 } else if (arg == "--libs-only-other") {
                     conf.libs_other = true;
+                } else if (arg == "--modversion") {
+                    conf.mod_version = true;
                 } else if (arg == "--component") {
                     // TODO: error handling
                     conf.components.push_back(argv[++i]);

@@ -14,6 +14,7 @@ namespace printer {
         bool libs_link = false;
         bool libs_search = false;
         bool libs_other = false;
+        bool mod_version = false;
         std::vector<std::string> components{}; // If empty Default-Components will be used
     };
 

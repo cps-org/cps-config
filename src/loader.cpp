@@ -255,10 +255,12 @@ namespace loader {
     Package::Package() = default;
     Package::Package(std::string _name, std::string _cps_version,
                      std::unordered_map<std::string, Component> && _components,
-                     std::optional<std::vector<std::string>> && _default_comps)
+                     std::optional<std::vector<std::string>> && _default_comps,
+                     std::optional<std::string> ver)
         : name{std::move(_name)}, cps_version{std::move(_cps_version)},
           components{std::move(_components)},
-          default_components{std::move(_default_comps)} {};
+          default_components{std::move(_default_comps)},
+          version{std::move(ver)} {};
 
     tl::expected<Package, std::string>
     load(const std::filesystem::path & path) {
@@ -274,6 +276,7 @@ namespace loader {
             TRY(get_components(root, "package", "Components")),
             TRY(get_optional<std::vector<std::string>>(root, "package",
                                                        "Default-Components")),
+            TRY(get_optional<std::string>(root, "package", "Version")),
         };
     }
 } // namespace loader
