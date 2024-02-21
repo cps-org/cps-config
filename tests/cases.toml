@@ -32,3 +32,10 @@
   args = ["--cflags-only-I", "--component", "sample1"]
   expected = "-I/usr/local/include"
   mode = "pkgconf"
+
+[[case]]
+  name = "no language specified"
+  cps = "cases/multiple-components.cps"
+  args = ["--cflags-only-I", "--component", "sample2"]
+  expected = "-I/opt/include"
+  mode = "pkgconf"
