@@ -110,7 +110,7 @@ namespace loader {
             Json::Value value = parent[name];
             if (value.isObject()) {
                 // TODO: simplify this further, maybe with a loop?
-                auto cb = [](auto && r) {
+                auto && cb = [](auto && r) {
                     return r.value_or(std::vector<std::string>{});
                 };
                 ret[KnownLanguages::C] =
