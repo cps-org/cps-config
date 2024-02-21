@@ -6,9 +6,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import dataclasses
 import os
-import sys
 import tomllib
 import typing
 
@@ -35,32 +33,22 @@ if typing.TYPE_CHECKING:
 TEST_DIR = os.path.dirname(__file__)
 SOURCE_DIR = os.path.dirname(TEST_DIR)
 
-
-@dataclasses.dataclass(slots=True, order=True)
-class Result:
-
-    name: str
-    success: bool
-    stdout: str | None
-    stderr: str | None
+_PRINT_LOCK = asyncio.Lock()
 
 
-async def test(runner: str, case_: TestCase) -> Result:
+async def test(runner: str, case_: TestCase):
     cmd = [runner, case_['mode'], os.path.join(TEST_DIR, case_['cps'])] + case_['args']
     proc = await asyncio.create_subprocess_exec(
         *cmd,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.DEVNULL,
     )
-    bout, berr = await proc.communicate()
-
+    bout, _ = await proc.communicate()
     out = bout.decode().strip()
-    err = berr.decode().strip()
 
-    return Result(
-        case_['name'],
-        proc.returncode == 0 and out == case_['expected'],
-        out, err)
+    success = proc.returncode == 0 and out == case_['expected']
+    async with _PRINT_LOCK:
+        print('ok' if success else 'not ok', '-', case_['name'])
 
 
 async def main() -> None:
@@ -72,17 +60,10 @@ async def main() -> None:
     with open(os.path.join(SOURCE_DIR, args.cases), 'rb') as f:
         tests = typing.cast('TestDescription', tomllib.load(f))
 
-    results = typing.cast('list[Result]', sorted(await asyncio.gather(*[test(args.runner, c) for c in tests['case']])))
-    success = True
-    for r in results:
-        print(f'{r.name}:', 'OK' if r.success else 'Error')
-        if not r.success:
-            print('  stdout:', r.stderr)
-            print('  stderr:', r.stderr)
-            success = False
+    print(f'1..{len(tests["case"])}')
 
-    return 0 if success else 1
+    await asyncio.gather(*[test(args.runner, c) for c in tests['case']])
 
 
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main()))
+    asyncio.run(main())
