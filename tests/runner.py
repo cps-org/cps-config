@@ -23,7 +23,7 @@ if typing.TYPE_CHECKING:
         cps: str
         args: list[str]
         expected: str
-        mode: typing.Literal['pkgconf']
+        mode: typing.NotRequired[typing.Literal['pkgconf']]
 
     class TestDescription(typing.TypedDict):
 
@@ -37,11 +37,12 @@ _PRINT_LOCK = asyncio.Lock()
 
 
 async def test(runner: str, case_: TestCase):
-    cmd = [runner, case_['mode'], os.path.join(TEST_DIR, case_['cps'])] + case_['args']
+    cmd = [runner, os.path.join(TEST_DIR, case_['cps'])] + case_['args']
+    if 'mode' in case_:
+        cmd.extend([f"--format={case_['mode']}"])
     proc = await asyncio.create_subprocess_exec(
         *cmd,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.DEVNULL,
     )
     bout, _ = await proc.communicate()
     out = bout.decode().strip()

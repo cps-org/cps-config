@@ -1,35 +1,45 @@
 // Copyright © 2023 Dylan Baker
 // SPDX-License-Identifier: MIT
 
-#include <fmt/format.h>
+#include "cps-config-config.hpp"
 #include "loader.hpp"
 #include "printer.hpp"
-#include "cps-config-config.hpp"
+#include <fmt/format.h>
 
 int main(int argc, char * argv[]) {
-    if (argc < 3) {
-        fmt::println(stderr, "Error: Got wrong number of arguments, expected at least 3");
+    if (argc < 2) {
+        fmt::println(
+            stderr,
+            "Error: Got wrong number of arguments, expected at least 2");
         return 1;
     }
 
-    const std::string_view mode = argv[1];
-    const std::string_view cps = argv[2];
-    if (cps == "--version") {
-        fmt::println(VERSION);
-        return 0;
-    }
+    const std::string_view cps = argv[1];
 
     std::filesystem::path p{cps};
-    const loader::Package package =
-        loader::load(p)
-            .map_error([](const std::string & v) { throw std::runtime_error(v); })
-            .value();
+    const loader::Package package = loader::load(p)
+                                        .map_error([](const std::string & v) {
+                                            throw std::runtime_error(v);
+                                        })
+                                        .value();
 
     printer::Config conf{};
 
+    const std::string_view mode = [&]() -> std::string_view {
+        for (int i = 2; i < argc; ++i) {
+            const std::string_view arg = argv[i];
+            if (arg == "--format") {
+                return argv[i + 1];
+            } else if (arg.substr(0, 10) == "--format=") {
+                return arg.substr(10, arg.length());
+            }
+        }
+        return "pkgconf";
+    }();
+
     if (mode == "pkgconf") {
-        if (argc > 3) {
-            for (int i = 3; i < argc; ++i) {
+        if (argc > 2) {
+            for (int i = 2; i < argc; ++i) {
                 const std::string_view arg = argv[i];
                 if (arg == "--cflags") {
                     conf.cflags = true;
@@ -60,8 +70,12 @@ int main(int argc, char * argv[]) {
                 } else if (arg == "--version") {
                     fmt::println(VERSION);
                     return 0;
-                } else {
-                    fmt::println(stderr, "Unknown command like argument {}", arg);
+                } else if (arg == "--format") {
+                    // Roll forward to consume argument to --format
+                    i++;
+                } else if (arg.substr(0, 9) != "--format=") {
+                    fmt::println(stderr, "Unknown command like argument {}",
+                                 arg);
                     return 1;
                 }
             }
