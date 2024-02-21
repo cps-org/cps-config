@@ -23,12 +23,17 @@ conf_h = configure_file(
   output : 'cps-config-config.hpp',
 )
 
+warn_args = cpp.get_supported_arguments(
+  '-Wshadow',
+)
+
 cps_config = executable(
   'cps-config',
   'src/main.cpp',
   'src/loader.cpp',
   'src/printer.cpp',
   conf_h,
+  cpp_args : warn_args,
   dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
   install : true,
 )

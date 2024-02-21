@@ -32,17 +32,20 @@ int main(int argc, char * argv[]) {
                 } else if (arg == "--cflags-only-I") {
                     conf.cflags = false;
                     conf.defines = false;
+                } else if (arg == "--component") {
+                    // TODO: error handling
+                    conf.components.push_back(argv[++i]);
+                } else if (arg.find("--component=") != std::string::npos) {
+                    conf.components.emplace_back(arg.substr(0, 13));
                 } else {
                     fmt::println(stderr, "Unknown command like argument {}", arg);
                     return 1;
                 }
             }
         }
-        printer::pkgconf(package, conf);
-        return 0;
-    } else {
-        fmt::println(stderr, "Unknown mode {}", mode);
+        return printer::pkgconf(package, conf);
     }
 
+    fmt::println(stderr, "Unknown mode {}", mode);
     return 1;
 }

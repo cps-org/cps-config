@@ -11,8 +11,9 @@ namespace printer {
         bool defines = true;
         bool includes = true;
         bool cflags = true;
+        std::vector<std::string> components{}; // If empty Default-Components will be used
     };
 
-    void pkgconf(const loader::Package & p, const Config & conf);
+    int pkgconf(const loader::Package & p, const Config & conf);
 
 }

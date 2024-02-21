@@ -10,31 +10,40 @@
 
 namespace printer {
 
-    void pkgconf(const loader::Package & p, const Config & conf) {
-        // XXX: assumes default_components
+    int pkgconf(const loader::Package & p, const Config & conf) {
         // XXX: assumes everything is valid? Maybe that's fine?
         std::vector<std::string> args{};
 
-        for (auto && c : p.default_components.value()) {
+        const std::vector<std::string> & components =
+            conf.components.empty() ? p.default_components.value()
+                                    : conf.components;
 
-            const loader::Component & comp = p.components.find(c)->second;
+        for (auto && c : components) {
+
+            auto && trial = p.components.find(c);
+            if (trial == p.components.end()) {
+                fmt::println(stderr, "Component {} not found in package {}", c,
+                             p.name);
+                return 1;
+            }
+            const loader::Component comp = trial->second;
 
             if (conf.cflags) {
-                if (auto && c =
+                if (auto && f =
                         comp.compile_flags.find(loader::KnownLanguages::C);
-                    c != comp.includes.end() && !c->second.empty()) {
+                    f != comp.includes.end() && !f->second.empty()) {
                     // XXX: assumes compile flags
                     // XXX: assumes C
-                    args.reserve(args.size() + c->second.size());
-                    args.insert(args.end(), c->second.begin(), c->second.end());
+                    args.reserve(args.size() + f->second.size());
+                    args.insert(args.end(), f->second.begin(), f->second.end());
                 }
             }
 
             if (conf.includes) {
-                if (auto && c = comp.includes.find(loader::KnownLanguages::C);
-                    c != comp.includes.end() && !c->second.empty()) {
-                    args.reserve(args.size() + c->second.size());
-                    std::transform(c->second.begin(), c->second.end(),
+                if (auto && f = comp.includes.find(loader::KnownLanguages::C);
+                    f != comp.includes.end() && !f->second.empty()) {
+                    args.reserve(args.size() + f->second.size());
+                    std::transform(f->second.begin(), f->second.end(),
                                    std::back_inserter(args),
                                    [](std::string_view s) {
                                        return fmt::format("-I{}", s);
@@ -43,24 +52,26 @@ namespace printer {
             }
 
             if (conf.defines) {
-                if (auto && c = comp.defines.find(loader::KnownLanguages::C);
-                    c != comp.defines.end() && !c->second.empty()) {
+                if (auto && f = comp.defines.find(loader::KnownLanguages::C);
+                    f != comp.defines.end() && !f->second.empty()) {
                     auto && transformer = [](auto && d) {
                         if (d.is_define()) {
                             return fmt::format("-D{}", d.get_name());
                         } else if (d.is_undefine()) {
                             return fmt::format("-U{}", d.get_name());
                         } else {
-                            return fmt::format("-D{}={}", d.get_name(), d.get_value());
+                            return fmt::format("-D{}={}", d.get_name(),
+                                               d.get_value());
                         }
                     };
-                    args.reserve(args.size() + c->second.size());
-                    std::transform(c->second.begin(), c->second.end(),
+                    args.reserve(args.size() + f->second.size());
+                    std::transform(f->second.begin(), f->second.end(),
                                    std::back_inserter(args), transformer);
                 }
             }
         }
         fmt::print("{}\n", fmt::join(args, " "));
+        return 0;
     }
 
 } // namespace printer
