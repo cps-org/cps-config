@@ -18,3 +18,10 @@
   args = ["--cflags-only-I"]
   expected = "-I/usr/local/include -I/opt/include"
   mode = "pkgconf"
+
+[[case]]
+  name = "multiple components"
+  cps = "cases/multiple-components.cps"
+  args = ["--cflags-only-I"]
+  expected = "-I/usr/local/include -I/opt/include"
+  mode = "pkgconf"
