@@ -69,6 +69,16 @@ namespace printer {
                                    std::back_inserter(args), transformer);
                 }
             }
+
+            if (conf.libs_link) {
+                if (auto && f = comp.link_libraries; !f.empty()) {
+                    args.reserve(args.size() + f.size());
+                    std::transform(f.begin(), f.end(), std::back_inserter(args),
+                                   [](std::string_view s) {
+                                       return fmt::format("-l{}", s);
+                                   });
+                }
+            }
         }
         fmt::print("{}\n", fmt::join(args, " "));
         return 0;

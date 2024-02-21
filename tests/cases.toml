@@ -46,3 +46,10 @@
   args = ["--version"]
   expected = "0.0.1"
   mode = "pkgconf"
+
+[[case]]
+  name = "link libs only"
+  cps = "cases/multiple-components.cps"
+  args = ["--libs-only-l", "--component", "sample3"]
+  expected = "-ldl -lrt"
+  mode = "pkgconf"

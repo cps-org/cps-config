@@ -16,7 +16,8 @@
         },
         "sample3": {
             "Type": "archive",
-            "Includes": {"C": ["/something"]}
+            "Includes": {"C": ["/something"]},
+            "Link-Libraries": ["dl", "rt"]
         }
     },
     "Default-Components": ["sample1", "sample2"]

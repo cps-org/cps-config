@@ -204,7 +204,10 @@ namespace loader {
                             .map(from_string)),
                     TRY(get_lang_values(comp, "Component", "Compile-Flags")),
                     TRY(get_lang_values(comp, "Component", "Includes")),
-                    TRY(get_defines(comp, "Component", "Defines"))};
+                    TRY(get_defines(comp, "Component", "Defines")),
+                    TRY(get_optional<std::vector<std::string>>(
+                            comp, "Component", "Link-Libraries"))
+                        .value_or(std::vector<std::string>{})};
             }
 
             return components;
@@ -228,9 +231,10 @@ namespace loader {
 
     Component::Component() = default;
     Component::Component(Type _type, LangValues _cflags, LangValues _includes,
-                         Defines _defines)
+                         Defines _defines, std::vector<std::string> _link_libs)
         : type{_type}, compile_flags{std::move(_cflags)},
-          includes{std::move(_includes)}, defines{std::move(_defines)} {};
+          includes{std::move(_includes)}, defines{std::move(_defines)},
+          link_libraries{std::move(_link_libs)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags)

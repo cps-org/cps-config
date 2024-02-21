@@ -57,14 +57,13 @@ namespace loader {
     using LangValues =
         std::unordered_map<KnownLanguages, std::vector<std::string>>;
 
-    using Defines =
-        std::unordered_map<KnownLanguages, std::vector<Define>>;
+    using Defines = std::unordered_map<KnownLanguages, std::vector<Define>>;
 
     class Component {
       public:
         Component();
-        Component(Type type, LangValues cflags,
-                  LangValues includes, Defines defines);
+        Component(Type type, LangValues cflags, LangValues includes,
+                  Defines defines, std::vector<std::string> link_libraries);
 
         Type type;
         LangValues compile_flags;
@@ -74,7 +73,7 @@ namespace loader {
         // TODO: std::vector<std::string> link_features;
         // TODO: std::vector<std::string> link_flags;
         // TODO: std::vector<LinkLanguage> link_languages;
-        // TODO: link_libraries
+        std::vector<std::string> link_libraries;
         // TODO: link_location
         // TODO: link_requires
         // TODO: location

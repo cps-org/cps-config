@@ -32,11 +32,24 @@ int main(int argc, char * argv[]) {
             for (int i = 3; i < argc; ++i) {
                 const std::string_view arg = argv[i];
                 if (arg == "--cflags") {
+                    conf.cflags = true;
+                    conf.defines = true;
+                    conf.includes = true;
                 } else if (arg == "--cflags-only-other") {
-                    conf.includes = false;
+                    conf.cflags = true;
+                    conf.defines = true;
                 } else if (arg == "--cflags-only-I") {
-                    conf.cflags = false;
-                    conf.defines = false;
+                    conf.includes = true;
+                } else if (arg == "--libs") {
+                    conf.libs_link = true;
+                    conf.libs_search = true;
+                    conf.libs_other = true;
+                } else if (arg == "--libs-only-l") {
+                    conf.libs_link = true;
+                } else if (arg == "--libs-only-L") {
+                    conf.libs_search = true;
+                } else if (arg == "--libs-only-other") {
+                    conf.libs_other = true;
                 } else if (arg == "--component") {
                     // TODO: error handling
                     conf.components.push_back(argv[++i]);
