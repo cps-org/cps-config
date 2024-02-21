@@ -3,6 +3,7 @@
 
 #include "loader.hpp"
 #include "error.hpp"
+#include "utils.hpp"
 #include <fmt/core.h>
 #include <fstream>
 #include <iostream>
@@ -94,9 +95,7 @@ namespace loader {
             if (str == "symbolic") {
                 return Type::SYMBOLIC;
             }
-
-            std::cerr << "Unknown type: " << str << "\n";
-            abort();
+            unreachable(fmt::format("Unkown type: {}", str).c_str());
         }
 
         tl::expected<LangValues, std::string>

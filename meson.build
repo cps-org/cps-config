@@ -11,11 +11,24 @@ dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
 dep_expected = dependency('tl-expected', version : '>= 1.1')
 dep_fmt = dependency('fmt', version : '>= 10.1')
 
+cpp = meson.get_compiler('cpp')
+
+conf = configuration_data()
+foreach f : ['unreachable']
+  conf.set10(f'HAVE_@f@'.to_upper(), cpp.has_function(f))
+endforeach
+
+conf_h = configure_file(
+  configuration : conf,
+  output : 'cps-config-config.hpp',
+)
+
 cps_config = executable(
   'cps-config',
   'src/main.cpp',
   'src/loader.cpp',
   'src/printer.cpp',
+  conf_h,
   dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
   install : true,
 )
