@@ -49,10 +49,10 @@ namespace search {
 
     }
 
-    tl::expected<fs::path, std::string> find_package(std::string_view name) {
+    tl::expected<loader::Package, std::string> find_package(std::string_view name) {
         // If a path is passed, then just return that.
         if (fs::is_regular_file(name)) {
-            return name;
+            return loader::load(name);
         }
 
         // TODO: Need something like pkgconf's --personality option
@@ -69,7 +69,7 @@ namespace search {
                 // TODO: <name-like>
                 const fs::path file = dir / fmt::format("{}.cps", name);
                 if (fs::is_regular_file(file)) {
-                    return file;
+                    return loader::load(file);
                 }
             }
         }

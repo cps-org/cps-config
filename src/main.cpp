@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 #include "cps-config-config.hpp"
-#include "loader.hpp"
 #include "printer.hpp"
 #include "search.hpp"
 #include <fmt/format.h>
@@ -19,12 +18,7 @@ int main(int argc, char * argv[]) {
         fmt::println(p.error());
         return 1;
     }
-
-    const loader::Package package = loader::load(p.value())
-                                        .map_error([](const std::string & v) {
-                                            throw std::runtime_error(v);
-                                        })
-                                        .value();
+    auto && package = p.value();
 
     printer::Config conf{};
 
