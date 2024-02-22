@@ -164,6 +164,35 @@ namespace loader {
             return ret;
         };
 
+        tl::expected<Requires, std::string>
+        get_requires(const Json::Value & parent, std::string_view parent_name,
+                     const std::string & name) {
+            Requires ret{};
+            if (!parent.isMember(name)) {
+                return ret;
+            }
+
+            Json::Value require = parent["name"];
+            if (!require.isObject()) {
+                return tl::unexpected(fmt::format(
+                    "{} field of {} is not an object", name, parent_name));
+            }
+
+            for (auto && itr = require.begin(); itr != require.end(); ++itr) {
+                // TODO: error handling for not a string?
+                const std::string key = itr.key().asString();
+                const Json::Value obj = *itr;
+
+                ret.emplace(key, Requirement{
+                                     TRY(get_optional<std::vector<std::string>>(
+                                             require, name, "Components"))
+                                         .value_or(std::vector<std::string>{}),
+                                 });
+            }
+
+            return ret;
+        };
+
         tl::expected<std::unordered_map<std::string, Component>, std::string>
         get_components(const Json::Value & parent, std::string_view parent_name,
                        const std::string & name) {
@@ -249,6 +278,8 @@ namespace loader {
         : compile_flags{std::move(cflags)} {};
 
     Requirement::Requirement() = default;
+    Requirement::Requirement(std::vector<std::string> && comps)
+        : components{comps} {};
 
     Platform::Platform() = default;
 
@@ -256,11 +287,11 @@ namespace loader {
     Package::Package(std::string _name, std::string _cps_version,
                      std::unordered_map<std::string, Component> && _components,
                      std::optional<std::vector<std::string>> && _default_comps,
-                     std::optional<std::string> ver)
+                     Requires req, std::optional<std::string> ver)
         : name{std::move(_name)}, cps_version{std::move(_cps_version)},
           components{std::move(_components)},
           default_components{std::move(_default_comps)},
-          version{std::move(ver)} {};
+          require{std::move(req)}, version{std::move(ver)} {};
 
     tl::expected<Package, std::string>
     load(const std::filesystem::path & path) {
@@ -276,6 +307,7 @@ namespace loader {
             TRY(get_components(root, "package", "Components")),
             TRY(get_optional<std::vector<std::string>>(root, "package",
                                                        "Default-Components")),
+            TRY(get_requires(root, "package", "Requires")),
             TRY(get_optional<std::string>(root, "package", "Version")),
         };
     }

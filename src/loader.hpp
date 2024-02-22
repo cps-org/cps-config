@@ -103,10 +103,14 @@ namespace loader {
     class Requirement {
       public:
         Requirement();
+        Requirement(std::vector<std::string> && components);
 
         std::vector<std::string> components;
         // TODO: Hints
+        // TODO: Version
     };
+
+    using Requires = std::unordered_map<std::string, Requirement>;
 
     /// @brief Schema version for comparison
     enum class VersionSchema {
@@ -139,7 +143,7 @@ namespace loader {
         Package(std::string name, std::string cps_version,
                 std::unordered_map<std::string, Component> && components,
                 std::optional<std::vector<std::string>> && default_comps,
-                std::optional<std::string> version);
+                Requires require, std::optional<std::string> version);
 
         std::string name;
         std::string cps_version;
@@ -150,7 +154,7 @@ namespace loader {
         // TODO: cps_path
         std::optional<std::vector<std::string>> default_components;
         std::optional<Platform> platform;
-        // TODO: requires
+        Requires require; // Requires is a keyword
         std::optional<std::string> version;
         VersionSchema version_schema;
     };
