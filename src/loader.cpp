@@ -76,7 +76,7 @@ namespace loader {
             // TODO: also need to fixup error message for "Optional type ..."
         }
 
-        Type from_string(std::string_view str) {
+        Type string_to_type(std::string_view str) {
             if (str == "executable") {
                 return Type::EXECUTABLE;
             }
@@ -96,6 +96,22 @@ namespace loader {
                 return Type::SYMBOLIC;
             }
             unreachable(fmt::format("Unkown type: {}", str).c_str());
+        }
+
+        VersionSchema string_to_schema(std::string_view str) {
+            if (str == "simple") {
+                return VersionSchema::SIMPLE;
+            }
+            if (str == "rpm") {
+                return VersionSchema::RPM;
+            }
+            if (str == "dpkg") {
+                return VersionSchema::DPKG;
+            }
+            if (str == "custom") {
+                return VersionSchema::CUSTOM;
+            }
+            unreachable(fmt::format("Unknown version schema: {}", str).c_str());
         }
 
         tl::expected<LangValues, std::string>
@@ -230,7 +246,7 @@ namespace loader {
 
                 components[key] = Component{
                     TRY(get_required<std::string>(comp, "Component", "Type")
-                            .map(from_string)),
+                            .map(string_to_type)),
                     TRY(get_lang_values(comp, "Component", "Compile-Flags")),
                     TRY(get_lang_values(comp, "Component", "Includes")),
                     TRY(get_defines(comp, "Component", "Defines")),
@@ -287,11 +303,13 @@ namespace loader {
     Package::Package(std::string _name, std::string _cps_version,
                      std::unordered_map<std::string, Component> && _components,
                      std::optional<std::vector<std::string>> && _default_comps,
-                     Requires req, std::optional<std::string> ver)
+                     Requires req, std::optional<std::string> ver,
+                     VersionSchema schema)
         : name{std::move(_name)}, cps_version{std::move(_cps_version)},
           components{std::move(_components)},
           default_components{std::move(_default_comps)},
-          require{std::move(req)}, version{std::move(ver)} {};
+          require{std::move(req)}, version{std::move(ver)},
+          version_schema{schema} {};
 
     tl::expected<Package, std::string>
     load(const std::filesystem::path & path) {
@@ -309,6 +327,8 @@ namespace loader {
                                                        "Default-Components")),
             TRY(get_requires(root, "package", "Requires")),
             TRY(get_optional<std::string>(root, "package", "Version")),
+            TRY(get_optional<std::string>(root, "package", "Version-Schema")
+                .map([](auto && v) { return string_to_schema(v.value_or("simple")); })),
         };
     }
 } // namespace loader

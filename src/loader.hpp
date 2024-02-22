@@ -143,7 +143,8 @@ namespace loader {
         Package(std::string name, std::string cps_version,
                 std::unordered_map<std::string, Component> && components,
                 std::optional<std::vector<std::string>> && default_comps,
-                Requires require, std::optional<std::string> version);
+                Requires require, std::optional<std::string> version,
+                VersionSchema schema);
 
         std::string name;
         std::string cps_version;
