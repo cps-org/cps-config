@@ -30,14 +30,13 @@ if typing.TYPE_CHECKING:
         case: list[TestCase]
 
 
-TEST_DIR = os.path.dirname(__file__)
-SOURCE_DIR = os.path.dirname(TEST_DIR)
+SOURCE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 _PRINT_LOCK = asyncio.Lock()
 
 
 async def test(runner: str, case_: TestCase):
-    cmd = [runner, os.path.join(TEST_DIR, case_['cps'])] + case_['args']
+    cmd = [runner, case_['cps']] + case_['args']
     if 'mode' in case_:
         cmd.extend([f"--format={case_['mode']}"])
     proc = await asyncio.create_subprocess_exec(

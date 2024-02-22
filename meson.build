@@ -41,4 +41,10 @@ cps_config = executable(
   install : true,
 )
 
-test('pkg-config', find_program('tests/runner.py'), args: [cps_config, 'tests/cases.toml'], protocol : 'tap')
+test(
+  'pkg-config',
+  find_program('tests/runner.py'),
+  args: [cps_config, 'tests/cases.toml'],
+  protocol : 'tap',
+  env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cases' },
+)

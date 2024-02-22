@@ -1,69 +1,69 @@
 [[case]]
   name = "cflags"
-  cps = "cases/minimal.cps"
+  cps = "minimal"
   args = ["--cflags"]
   expected = "-fopenmp -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHER"
   mode = "pkgconf"
 
 [[case]]
   name = "cflags-only-other"
-  cps = "cases/minimal.cps"
+  cps = "minimal"
   args = ["--cflags-only-other"]
   expected = "-fopenmp -DFOO=1 -DBAR=2 -UBAR -DOTHER"
   mode = "pkgconf"
 
 [[case]]
   name = "cflags-only-I"
-  cps = "cases/minimal.cps"
+  cps = "minimal"
   args = ["--cflags-only-I"]
   expected = "-I/usr/local/include -I/opt/include"
   mode = "pkgconf"
 
 [[case]]
   name = "multiple components"
-  cps = "cases/multiple-components.cps"
+  cps = "multiple-components"
   args = ["--cflags-only-I"]
   expected = "-I/usr/local/include -I/opt/include"
   mode = "pkgconf"
 
 [[case]]
   name = "select component"
-  cps = "cases/multiple-components.cps"
+  cps = "multiple-components"
   args = ["--cflags-only-I", "--component", "sample1"]
   expected = "-I/usr/local/include"
   mode = "pkgconf"
 
 [[case]]
   name = "no language specified"
-  cps = "cases/multiple-components.cps"
+  cps = "multiple-components"
   args = ["--cflags-only-I", "--component", "sample2"]
   expected = "-I/opt/include"
   mode = "pkgconf"
 
 [[case]]
   name = "version"
-  cps = "cases/minimal.cps"
+  cps = "minimal"
   args = ["--version"]
   expected = "0.0.1"
   mode = "pkgconf"
 
 [[case]]
   name = "link libs only with link-location"
-  cps = "cases/multiple-components.cps"
+  cps = "multiple-components"
   args = ["--libs-only-l", "--component", "sample3"]
   expected = "-l/something/lib/libfoo.so -ldl -lrt"
   mode = "pkgconf"
 
 [[case]]
   name = "link libs only without link-location"
-  cps = "cases/multiple-components.cps"
+  cps = "multiple-components"
   args = ["--libs-only-l", "--component", "sample2"]
   expected = "-l/something/lib/libfoo.so.1.2.0"
   mode = "pkgconf"
 
 [[case]]
   name = "mod version"
-  cps = "cases/minimal.cps"
+  cps = "minimal"
   args = ["--modversion"]
   expected = "1.0.0"
   mode = "pkgconf"
