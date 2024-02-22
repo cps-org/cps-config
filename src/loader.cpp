@@ -98,18 +98,18 @@ namespace loader {
             unreachable(fmt::format("Unkown type: {}", str).c_str());
         }
 
-        VersionSchema string_to_schema(std::string_view str) {
+        version::Schema string_to_schema(std::string_view str) {
             if (str == "simple") {
-                return VersionSchema::SIMPLE;
+                return version::Schema::SIMPLE;
             }
             if (str == "rpm") {
-                return VersionSchema::RPM;
+                return version::Schema::RPM;
             }
             if (str == "dpkg") {
-                return VersionSchema::DPKG;
+                return version::Schema::DPKG;
             }
             if (str == "custom") {
-                return VersionSchema::CUSTOM;
+                return version::Schema::CUSTOM;
             }
             unreachable(fmt::format("Unknown version schema: {}", str).c_str());
         }
@@ -304,7 +304,7 @@ namespace loader {
                      std::unordered_map<std::string, Component> && _components,
                      std::optional<std::vector<std::string>> && _default_comps,
                      Requires req, std::optional<std::string> ver,
-                     VersionSchema schema)
+                     version::Schema schema)
         : name{std::move(_name)}, cps_version{std::move(_cps_version)},
           components{std::move(_components)},
           default_components{std::move(_default_comps)},

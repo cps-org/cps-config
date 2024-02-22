@@ -10,6 +10,7 @@
 #include <tl/expected.hpp>
 #include <unordered_map>
 #include <vector>
+#include "version.hpp"
 
 namespace loader {
 
@@ -112,14 +113,6 @@ namespace loader {
 
     using Requires = std::unordered_map<std::string, Requirement>;
 
-    /// @brief Schema version for comparison
-    enum class VersionSchema {
-        SIMPLE,
-        CUSTOM,
-        RPM,
-        DPKG,
-    };
-
     class Platform {
       public:
         Platform();
@@ -144,7 +137,7 @@ namespace loader {
                 std::unordered_map<std::string, Component> && components,
                 std::optional<std::vector<std::string>> && default_comps,
                 Requires require, std::optional<std::string> version,
-                VersionSchema schema);
+                version::Schema schema);
 
         std::string name;
         std::string cps_version;
@@ -157,7 +150,7 @@ namespace loader {
         std::optional<Platform> platform;
         Requires require; // Requires is a keyword
         std::optional<std::string> version;
-        VersionSchema version_schema;
+        version::Schema version_schema;
     };
 
     tl::expected<Package, std::string> load(const std::filesystem::path & path);
