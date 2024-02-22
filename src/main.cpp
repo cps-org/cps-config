@@ -4,10 +4,8 @@
 #include "cps-config-config.hpp"
 #include "loader.hpp"
 #include "printer.hpp"
+#include "search.hpp"
 #include <fmt/format.h>
-#include <filesystem>
-
-namespace fs = std::filesystem;
 
 int main(int argc, char * argv[]) {
     if (argc < 2) {
@@ -16,14 +14,13 @@ int main(int argc, char * argv[]) {
         return 1;
     }
 
-    const std::string_view cps = argv[1];
-    if (!fs::exists(cps)) {
-        fmt::println("CPS file {} does not exist", cps);
+    auto && p = search::find_package(argv[1]);
+    if (!p) {
+        fmt::println(p.error());
         return 1;
     }
 
-    std::filesystem::path p{cps};
-    const loader::Package package = loader::load(p)
+    const loader::Package package = loader::load(p.value())
                                         .map_error([](const std::string & v) {
                                             throw std::runtime_error(v);
                                         })

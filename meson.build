@@ -33,6 +33,8 @@ cps_config = executable(
   'src/main.cpp',
   'src/loader.cpp',
   'src/printer.cpp',
+  'src/search.cpp',
+  'src/utils.cpp',
   conf_h,
   cpp_args : warn_args,
   dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
