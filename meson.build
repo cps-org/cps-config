@@ -26,6 +26,7 @@ conf_h = configure_file(
 
 warn_args = cpp.get_supported_arguments(
   '-Wshadow',
+  '-Wimplicit-fallthrough',
 )
 
 cps_config = executable(
@@ -35,6 +36,7 @@ cps_config = executable(
   'src/printer.cpp',
   'src/search.cpp',
   'src/utils.cpp',
+  'src/version.cpp',
   conf_h,
   cpp_args : warn_args,
   dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
