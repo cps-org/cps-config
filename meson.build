@@ -29,17 +29,24 @@ warn_args = cpp.get_supported_arguments(
   '-Wimplicit-fallthrough',
 )
 
-cps_config = executable(
-  'cps-config',
-  'src/main.cpp',
+libcps = static_library(
+  'cps',
   'src/loader.cpp',
   'src/printer.cpp',
   'src/search.cpp',
   'src/utils.cpp',
   'src/version.cpp',
   conf_h,
-  cpp_args : warn_args,
   dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
+  cpp_args : warn_args,
+)
+
+cps_config = executable(
+  'cps-config',
+  'src/main.cpp',
+  conf_h,
+  link_with : libcps,
+  dependencies : [dep_expected, dep_fmt],
   install : true,
 )
 
@@ -49,4 +56,30 @@ test(
   args: [cps_config, 'tests/cases.toml'],
   protocol : 'tap',
   env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cases' },
+)
+
+dep_gtest = dependency('gtest', main : true, required : false, disabler : true)
+
+test(
+  'version',
+  executable(
+    'version_test',
+    'tests/version.cpp',
+    dependencies : dep_gtest,
+    link_with : libcps,
+    include_directories : include_directories('src'),
+  ),
+  protocol : 'gtest',
+)
+
+test(
+  'utils',
+  executable(
+    'utils_test',
+    'tests/utils.cpp',
+    dependencies : dep_gtest,
+    link_with : libcps,
+    include_directories : include_directories('src'),
+  ),
+  protocol : 'gtest',
 )

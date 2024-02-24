@@ -11,7 +11,7 @@ namespace utils {
         std::vector<std::string> out;
 
         while ((next = input.find(delim, last)) != std::string_view::npos) {
-            out.emplace_back(input.substr(next, next - last));
+            out.emplace_back(input.substr(last, next - last));
             last = next + 1;
         }
         out.emplace_back(input.substr(last));
