@@ -46,7 +46,7 @@ cps_config = executable(
   'src/main.cpp',
   conf_h,
   link_with : libcps,
-  dependencies : [dep_expected, dep_fmt],
+  dependencies : [dep_fmt],
   install : true,
 )
 
