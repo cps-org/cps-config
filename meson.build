@@ -25,8 +25,8 @@ conf_h = configure_file(
 )
 
 warn_args = cpp.get_supported_arguments(
-  '-Wshadow',
-  '-Wimplicit-fallthrough',
+  '-Werror=shadow',
+  '-Werror=implicit-fallthrough',
 )
 
 libcps = static_library(
