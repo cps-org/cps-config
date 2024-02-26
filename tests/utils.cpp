@@ -22,6 +22,12 @@ TEST(SplitTest, multi) {
     ASSERT_EQ(actual, expected);
 }
 
+TEST(SplitTest, start_delim) {
+    const std::vector<std::string> expected{"", "a"};
+    const std::vector<std::string> actual = utils::split(":a");
+    ASSERT_EQ(actual, expected);
+}
+
 TEST(SplitTest, delim) {
     const std::vector<std::string> expected{"a", "b", "c"};
     const std::vector<std::string> actual = utils::split("a.b.c", ".");
