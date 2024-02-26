@@ -13,15 +13,8 @@ int main(int argc, char * argv[]) {
         return 1;
     }
 
-    auto && p = search::find_package(argv[1]);
-    if (!p) {
-        fmt::println(p.error());
-        return 1;
-    }
-    auto && package = p.value();
-
     printer::Config conf{};
-
+    std::vector<std::string> components;
     std::string format{"pkgconf"};
 
     for (int i = 2; i < argc; ++i) {
@@ -49,9 +42,9 @@ int main(int argc, char * argv[]) {
             conf.mod_version = true;
         } else if (arg == "--component") {
             // TODO: error handling
-            conf.components.push_back(argv[++i]);
+            components.push_back(argv[++i]);
         } else if (arg.find("--component=") != std::string::npos) {
-            conf.components.emplace_back(arg.substr(0, 13));
+            components.emplace_back(arg.substr(0, 13));
         } else if (arg == "--version") {
             fmt::println(VERSION);
             return 0;
@@ -65,8 +58,17 @@ int main(int argc, char * argv[]) {
         }
     }
 
+    auto && p =
+        search::find_package(argv[1], components, components.empty());
+    if (!p) {
+        fmt::println(p.error());
+        return 1;
+    }
+    auto && result = p.value();
+
     if (format == "pkgconf") {
-        return printer::pkgconf(package, conf);
+        return printer::pkgconf(result, conf);
+        return 0;
     }
 
     fmt::println(stderr, "Unknown mode {}", format);

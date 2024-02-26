@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "loader.hpp"
+#include "search.hpp"
 
 namespace printer {
 
@@ -15,9 +15,8 @@ namespace printer {
         bool libs_search = false;
         bool libs_other = false;
         bool mod_version = false;
-        std::vector<std::string> components{}; // If empty Default-Components will be used
     };
 
-    int pkgconf(const loader::Package & p, const Config & conf);
+    int pkgconf(const search::Result & dag, const Config & conf);
 
 }
