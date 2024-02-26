@@ -4,7 +4,7 @@ project(
   version : '0.0.1',
   license : 'MIT',
   meson_version : '>= 1.0.0',
-  default_options : ['cpp_std=c++17'],
+  default_options : ['cpp_std=c++17', 'buildtype=debugoptimized'],
 )
 
 dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
