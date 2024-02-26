@@ -60,26 +60,16 @@ test(
 
 dep_gtest = dependency('gtest', main : true, required : false, disabler : true)
 
-test(
-  'version',
-  executable(
-    'version_test',
-    'tests/version.cpp',
-    dependencies : dep_gtest,
-    link_with : libcps,
-    include_directories : include_directories('src'),
-  ),
-  protocol : 'gtest',
-)
-
-test(
-  'utils',
-  executable(
-    'utils_test',
-    'tests/utils.cpp',
-    dependencies : dep_gtest,
-    link_with : libcps,
-    include_directories : include_directories('src'),
-  ),
-  protocol : 'gtest',
-)
+foreach t : ['version', 'utils']
+  test(
+    t,
+    executable(
+      f'@t@_test',
+      f'tests/@t@.cpp',
+      dependencies : dep_gtest,
+      link_with : libcps,
+      include_directories : include_directories('src'),
+    ),
+    protocol : 'gtest',
+  )
+endforeach
