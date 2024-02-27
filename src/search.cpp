@@ -21,16 +21,21 @@ namespace search {
 
     namespace {
 
+        /// @brief A CPS file, along with the components in that CPS file to
+        /// load
         class Dependency {
           public:
             Dependency(loader::Package && obj,
                        std::vector<std::string> && comps)
                 : package{std::move(obj)}, components{std::move(comps)} {};
 
+            /// @brief The loaded CPS file
             loader::Package package;
+            /// @brief the components from that CPS file to use
             std::vector<std::string> components;
         };
 
+        /// @brief A DAG node
         class Node {
           public:
             Node(Dependency obj) : data{std::move(obj)} {};
@@ -53,6 +58,9 @@ namespace search {
             sorted.emplace_front(node);
         }
 
+        /// @brief Perform a topological sort of the DAG
+        /// @param root The root Node
+        /// @return A linear topological sorting of the DAG
         std::vector<std::shared_ptr<Node>>
         tsort(const std::shared_ptr<Node> & root) {
             std::deque<std::shared_ptr<Node>> sorted;
@@ -96,6 +104,9 @@ namespace search {
             return "lib";
         }
 
+        /// @brief Find all possible paths for a given CPS name
+        /// @param name The name of the CPS file to find
+        /// @return A vector of paths which patch the given name, or an error
         tl::expected<std::vector<fs::path>, std::string>
         find_paths(std::string_view name) {
             // If a path is passed, then just return that.
