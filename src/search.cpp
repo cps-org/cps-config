@@ -23,7 +23,9 @@ namespace search {
 
         class Dependency {
           public:
-            Dependency(loader::Package obj) : package{std::move(obj)} {};
+            Dependency(loader::Package && obj,
+                       std::vector<std::string> && comps)
+                : package{std::move(obj)}, components{std::move(comps)} {};
 
             loader::Package package;
             std::vector<std::string> components;
@@ -32,7 +34,8 @@ namespace search {
         class Node {
           public:
             Node(Dependency obj) : data{std::move(obj)} {};
-            Node(loader::Package obj) : data{std::move(obj)} {};
+            Node(loader::Package obj, std::vector<std::string> comps)
+                : data{std::move(obj), std::move(comps)} {};
 
             Dependency data;
             std::vector<std::shared_ptr<Node>> depends;
@@ -194,8 +197,7 @@ namespace search {
                     continue;
                 }
 
-                auto node = std::make_shared<Node>(p);
-                node->data.components = comps;
+                auto node = std::make_shared<Node>(p, comps);
 
                 // TODO: need to ensure that any version requirements are met
                 // TODO: need to check the graph for cycles and error if there
