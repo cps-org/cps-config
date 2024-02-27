@@ -258,6 +258,16 @@ namespace search {
             }
         }
 
+        template <typename T, typename U>
+        void merge_result(const std::unordered_map<T, std::vector<U>> & input,
+                          std::unordered_map<T, std::vector<U>> & output,
+                          const std::function<U(const U &)> transformer) {
+            for (auto && [l, vals] : input) {
+                std::transform(vals.begin(), vals.end(),
+                               std::back_inserter(output[l]), transformer);
+            }
+        }
+
         template <typename T>
         void merge_result(const std::vector<T> & input,
                           std::vector<T> & output) {
@@ -270,6 +280,30 @@ namespace search {
             if (input) {
                 output.emplace_back(input.value());
             }
+        }
+
+        fs::path calculate_prefix(const fs::path & path) {
+            // TODO: Windows
+            // TODO: /cps/<name-like>
+            std::vector<std::string> split = utils::split(std::string{path}, "/");
+            if (split.back() == "") {
+                split.pop_back();
+            }
+            if (split.back() == "cps") {
+                split.pop_back();
+            }
+            if (split.back() == "share") {
+                split.pop_back();
+            }
+            // TODO: this needs to be generic
+            if (split.back() == "lib") {
+                split.pop_back();
+            }
+            fs::path p{"/"};
+            for (auto && s : split) {
+                p /= s;
+            }
+            return p;
         }
 
     } // namespace
@@ -293,6 +327,21 @@ namespace search {
         result.version = root->data.package.version.value_or("unknown");
 
         for (auto && node : flat) {
+
+            const auto && prefix_replacer =
+                [&](const std::string & s) -> std::string {
+                // TODO: Windows…
+                auto && split = utils::split(s, "/");
+                if (split[0] == "@prefix@") {
+                    fs::path p = calculate_prefix(node->data.package.cps_path);
+                    for (auto it = split.begin() + 1; it != split.end(); ++it) {
+                        p /= *it;
+                    }
+                    return p;
+                }
+                return s;
+            };
+
             for (const auto & c_name : node->data.components) {
                 // We should have already errored if this is not the case
                 auto && f = node->data.package.components.find(c_name);
@@ -302,13 +351,19 @@ namespace search {
                                 c_name, node->data.package.name));
                 auto && comp = f->second;
 
-                merge_result(comp.includes, result.includes);
+                // Convert prefix at this point because:
+                // 1. we are about to lose which CPS file the information came
+                // from
+                // 2. if we do it at the search point we have to plumb overrides
+                // deep into that
+                merge_result<loader::KnownLanguages, std::string>(
+                    comp.includes, result.includes, prefix_replacer);
                 merge_result(comp.defines, result.defines);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);
                 if (comp.type != loader::Type::INTERFACE) {
-                    result.link_location.emplace_back(
-                        comp.link_location.value_or(comp.location.value()));
+                    result.link_location.emplace_back(prefix_replacer(
+                        comp.link_location.value_or(comp.location.value())));
                 }
             }
         }

@@ -4,11 +4,14 @@
 #include "loader.hpp"
 #include "error.hpp"
 #include "utils.hpp"
+#include <filesystem>
 #include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <json/json.h>
 #include <tl/expected.hpp>
+
+namespace fs = std::filesystem;
 
 namespace loader {
 
@@ -307,17 +310,17 @@ namespace loader {
     Package::Package() = default;
     Package::Package(std::string _name, std::string _cps_version,
                      std::unordered_map<std::string, Component> && _components,
+                     std::string cps_path_,
                      std::optional<std::vector<std::string>> && _default_comps,
                      Requires req, std::optional<std::string> ver,
                      version::Schema schema)
         : name{std::move(_name)}, cps_version{std::move(_cps_version)},
-          components{std::move(_components)},
+          components{std::move(_components)}, cps_path{std::move(cps_path_)},
           default_components{std::move(_default_comps)},
           require{std::move(req)}, version{std::move(ver)},
           version_schema{schema} {};
 
-    tl::expected<Package, std::string>
-    load(const std::filesystem::path & path) {
+    tl::expected<Package, std::string> load(const fs::path & path) {
         std::ifstream file;
         file.open(path);
 
@@ -328,6 +331,8 @@ namespace loader {
             TRY(get_required<std::string>(root, "package", "Name")),
             TRY(get_required<std::string>(root, "package", "Cps-Version")),
             TRY(get_components(root, "package", "Components")),
+            TRY(get_optional<std::string>(root, "package", "Cps-Path"))
+                .value_or(path.parent_path()),
             TRY(get_optional<std::vector<std::string>>(root, "package",
                                                        "Default-Components")),
             TRY(get_requires(root, "package", "Requires")),

@@ -136,6 +136,7 @@ namespace loader {
         Package();
         Package(std::string name, std::string cps_version,
                 std::unordered_map<std::string, Component> && components,
+                std::string cps_path,
                 std::optional<std::vector<std::string>> && default_comps,
                 Requires require, std::optional<std::string> version,
                 version::Schema schema);
@@ -146,7 +147,7 @@ namespace loader {
         // TODO: compat-version
         // TODO: configuration
         // TODO: configurations
-        // TODO: cps_path
+        std::string cps_path;
         std::optional<std::vector<std::string>> default_components;
         std::optional<Platform> platform;
         Requires require; // Requires is a keyword
