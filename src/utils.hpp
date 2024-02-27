@@ -4,18 +4,28 @@
 #pragma once
 
 #include "cps-config-config.hpp"
+#include "fmt/core.h"
 #include <cassert>
 #include <string>
 #include <vector>
 
+static inline void assert_fn(bool expr, std::string_view msg) {
+#ifndef NDEBUG
+    if (!expr) {
+        fmt::println(stderr, msg);
+        abort();
+    }
+#endif
+}
+
 #if HAVE_UNREACHABLE
 #define unreachable(msg)                                                       \
     do {                                                                       \
-        assert(!"" && msg);                                                    \
+        assert_fn(false, msg);                                                 \
         __builtin_unreachable();                                               \
     } while (0)
 #else
-#define unreachable(str) assert(!"" str);
+#define unreachable(str) assert_fn(false, msg);
 #endif
 
 namespace utils {
