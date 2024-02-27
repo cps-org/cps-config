@@ -8,18 +8,14 @@
 #include <string>
 #include <vector>
 
-namespace {
-
-    inline void assert_fn(bool expr, std::string_view msg) {
+inline void assert_fn(bool expr, std::string_view msg) {
 #ifndef NDEBUG
-        if (!expr) {
-            fmt::println(stderr, msg);
-            abort();
-        }
-#endif
+    if (!expr) {
+        fmt::println(stderr, msg);
+        abort();
     }
-
-} // namespace
+#endif
+}
 
 #if HAVE_UNREACHABLE
 #define unreachable(msg)                                                       \

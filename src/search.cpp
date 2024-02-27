@@ -6,7 +6,6 @@
 #include "fmt/core.h"
 #include "loader.hpp"
 #include "utils.hpp"
-#include <cassert>
 #include <cstdlib>
 #include <deque>
 #include <filesystem>
@@ -162,11 +161,11 @@ namespace search {
                     }
                 } else {
                     // "" is a special value that means "this dependency"
-                    if (auto x = map.find(""); x != map.end()) {
+                    if (auto x = map.find(vals[0]); x != map.end()) {
                         /// XXX: blarg this is ugly
                         x->second.components.emplace_back(vals[1]);
                     } else {
-                        map.emplace("", vals[1]);
+                        map.emplace(vals[0], vals[1]);
                     }
                 }
             }
@@ -296,8 +295,12 @@ namespace search {
         for (auto && node : flat) {
             for (const auto & c_name : node->data.components) {
                 // We should have already errored if this is not the case
-                auto && comp =
-                    node->data.package.components.find(c_name)->second;
+                auto && f = node->data.package.components.find(c_name);
+                assert_fn(
+                    f != node->data.package.components.end(),
+                    fmt::format("Could not find component {} of pacakge {}",
+                                c_name, node->data.package.name));
+                auto && comp = f->second;
 
                 merge_result(comp.includes, result.includes);
                 merge_result(comp.defines, result.defines);

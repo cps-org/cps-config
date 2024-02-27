@@ -1,5 +1,5 @@
 {
-    "Name": "minimal",
+    "Name": "multiple-components",
     "Cps-Version": "0.9.0",
     "Components": {
         "sample1": {
@@ -26,6 +26,10 @@
         "sample4": {
             "Type": "interface",
             "Requires": [":sample3"]
+        },
+        "requires-external": {
+            "Type": "interface",
+            "Requires": ["minimal:sample0"]
         }
     },
     "Default-Components": ["sample1", "sample2"]

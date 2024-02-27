@@ -69,8 +69,15 @@
   mode = "pkgconf"
 
 [[case]]
-  name = "requires own component"
+  name = "component requires own component"
   cps = "multiple-components"
   args = ["--cflags-only-I", "--component", "sample4"]
   expected = "-I/something"
+  mode = "pkgconf"
+
+[[case]]
+  name = "component requires external component"
+  cps = "multiple-components"
+  args = ["--cflags-only-I", "--component", "requires-external"]
+  expected = "-I/err"
   mode = "pkgconf"
