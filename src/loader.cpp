@@ -89,13 +89,13 @@ namespace loader {
             if (str == "module") {
                 return Type::MODULE;
             }
-            if (str == "interfafce") {
+            if (str == "interface") {
                 return Type::INTERFACE;
             }
             if (str == "symbolic") {
                 return Type::SYMBOLIC;
             }
-            unreachable(fmt::format("Unkown type: {}", str).c_str());
+            unreachable(fmt::format("Unknown type: {}", str).c_str());
         }
 
         version::Schema string_to_schema(std::string_view str) {
