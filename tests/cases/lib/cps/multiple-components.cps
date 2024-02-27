@@ -22,6 +22,10 @@
             "Link-Libraries": ["dl", "rt"],
             "Location": "/something/lib/libfoo.so.1.2.0",
             "Link-Location": "/something/lib/libfoo.so"
+        },
+        "sample4": {
+            "Type": "interface",
+            "Requires": [":sample3"]
         }
     },
     "Default-Components": ["sample1", "sample2"]

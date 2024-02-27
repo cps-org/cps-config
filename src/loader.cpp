@@ -253,11 +253,15 @@ namespace loader {
                     TRY(get_optional<std::vector<std::string>>(
                             comp, "Component", "Link-Libraries"))
                         .value_or(std::vector<std::string>{}),
-                    TRY(get_required<std::string>(comp, "Component",
+                    // TODO: this is required if the type != interface
+                    TRY(get_optional<std::string>(comp, "Component",
                                                   "Location")),
                     // XXX: https://github.com/cps-org/cps/issues/34
                     TRY(get_optional<std::string>(comp, "Component",
-                                                  "Link-Location"))};
+                                                  "Link-Location")),
+                    TRY(get_optional<std::vector<std::string>>(
+                            comp, "Component", "Requires"))
+                        .value_or(std::vector<std::string>{})};
             }
 
             return components;
@@ -283,11 +287,12 @@ namespace loader {
     Component::Component(Type _type, LangValues _cflags, LangValues _includes,
                          Defines _defines, std::vector<std::string> _link_libs,
                          std::optional<std::string> _loc,
-                         std::optional<std::string> _link_loc)
+                         std::optional<std::string> _link_loc,
+                         std::vector<std::string> req)
         : type{_type}, compile_flags{std::move(_cflags)},
           includes{std::move(_includes)}, defines{std::move(_defines)},
           link_libraries{std::move(_link_libs)}, location{std::move(_loc)},
-          link_location{std::move(_link_loc)} {};
+          link_location{std::move(_link_loc)}, require{std::move(req)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags)
@@ -328,7 +333,9 @@ namespace loader {
             TRY(get_requires(root, "package", "Requires")),
             TRY(get_optional<std::string>(root, "package", "Version")),
             TRY(get_optional<std::string>(root, "package", "Version-Schema")
-                .map([](auto && v) { return string_to_schema(v.value_or("simple")); })),
+                    .map([](auto && v) {
+                        return string_to_schema(v.value_or("simple"));
+                    })),
         };
     }
 } // namespace loader

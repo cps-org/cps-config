@@ -67,3 +67,10 @@
   args = ["--modversion"]
   expected = "1.0.0"
   mode = "pkgconf"
+
+[[case]]
+  name = "requires own component"
+  cps = "multiple-components"
+  args = ["--cflags-only-I", "--component", "sample4"]
+  expected = "-I/something"
+  mode = "pkgconf"

@@ -6,6 +6,7 @@
 #include "fmt/core.h"
 #include "loader.hpp"
 #include "utils.hpp"
+#include <cassert>
 #include <cstdlib>
 #include <deque>
 #include <filesystem>
@@ -204,9 +205,34 @@ namespace search {
                 // is a
                 //       cycle
                 // TODO: this needs a  lot of testing
+                // TODO: combine/de duplicate these loops
                 for (auto && r : p.require) {
                     auto && split = process_requires(r.second.components);
                     for (auto && req : split) {
+                        // This shouldn't be possible in this pass
+                        assert(req.first != "");
+                        // XXX: This loop needs to be transactional, if any of
+                        // the nodes is an error, then we need to throw away all
+                        // of the work and go back and try again.
+                        auto && n = build_node(req.first, req.second.components,
+                                               req.second.defaults);
+                        if (n.has_value()) {
+                            node->depends.emplace_back(std::move(n.value()));
+                        }
+                    }
+                }
+                for (auto && c : comps) {
+                    // TODO: Error handling
+                    auto && comp = p.components.at(c);
+                    auto && split = process_requires(comp.require);
+                    for (auto && req : split) {
+                        if (req.first == "") {
+                            node->data.components.insert(
+                                node->data.components.end(),
+                                req.second.components.begin(),
+                                req.second.components.end());
+                            continue;
+                        }
                         // XXX: This loop needs to be transactional, if any of
                         // the nodes is an error, then we need to throw away all
                         // of the work and go back and try again.
@@ -277,9 +303,10 @@ namespace search {
                 merge_result(comp.defines, result.defines);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);
-                // XXX: an interface has neither…
-                result.link_location.emplace_back(
-                    comp.link_location.value_or(comp.location.value()));
+                if (comp.type != loader::Type::INTERFACE) {
+                    result.link_location.emplace_back(
+                        comp.link_location.value_or(comp.location.value()));
+                }
             }
         }
 

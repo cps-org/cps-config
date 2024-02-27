@@ -66,7 +66,8 @@ namespace loader {
         Component(Type type, LangValues cflags, LangValues includes,
                   Defines defines, std::vector<std::string> link_libraries,
                   std::optional<std::string> location,
-                  std::optional<std::string> link_location);
+                  std::optional<std::string> link_location,
+                  std::vector<std::string> require);
 
         Type type;
         LangValues compile_flags;
@@ -80,7 +81,7 @@ namespace loader {
         // TODO: link_requires
         std::optional<std::string> location;
         std::optional<std::string> link_location;
-        // TODO: requires
+        std::vector<std::string> require; // requires is a keyword
     };
 
     class Configuration {
