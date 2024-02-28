@@ -46,6 +46,7 @@ class Result:
     stderr: str
     returncode: int
     expected: str
+    command: list[str]
 
 
 async def test(runner: str, case_: TestCase) -> Result:
@@ -66,7 +67,7 @@ async def test(runner: str, case_: TestCase) -> Result:
     async with _PRINT_LOCK:
         print('ok' if success else 'not ok', '-', case_['name'])
 
-    return Result(case_['name'], success, out, berr.decode().strip(), proc.returncode, expected)
+    return Result(case_['name'], success, out, berr.decode().strip(), proc.returncode, expected, cmd)
 
 
 async def main() -> None:
@@ -91,6 +92,7 @@ async def main() -> None:
             print('  stdout:  ', r.stdout, file=sys.stderr)
             print('  expected:', r.expected, file=sys.stderr)
             print('  stderr:', r.stderr, file=sys.stderr)
+            print('  command:', ' '.join(r.command), file=sys.stderr)
             print('\n')
 
 
