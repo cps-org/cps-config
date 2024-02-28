@@ -66,7 +66,7 @@ foreach t : ['version', 'utils']
     executable(
       f'@t@_test',
       f'tests/@t@.cpp',
-      dependencies : dep_gtest,
+      dependencies : [dep_gtest, dep_fmt],
       link_with : libcps,
       include_directories : include_directories('src'),
     ),
