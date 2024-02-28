@@ -1,6 +1,9 @@
 {
     "Name": "multiple-components",
     "Cps-Version": "0.9.0",
+    "Requires": {
+        "minimal": {}
+    },
     "Components": {
         "sample1": {
             "Type": "archive",
