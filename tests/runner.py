@@ -66,7 +66,7 @@ async def test(runner: str, case_: TestCase) -> Result:
     async with _PRINT_LOCK:
         print('ok' if success else 'not ok', '-', case_['name'])
 
-    return Result(case_['cps'], success, out, berr.decode().strip(), proc.returncode, expected)
+    return Result(case_['name'], success, out, berr.decode().strip(), proc.returncode, expected)
 
 
 async def main() -> None:
