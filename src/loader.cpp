@@ -203,7 +203,7 @@ namespace loader {
         get_components(const Json::Value & parent, std::string_view parent_name,
                        const std::string & name) {
             Json::Value compmap;
-            if (!parent.isMember("Components")) {
+            if (!parent.isMember(name)) {
                 return tl::unexpected(
                     fmt::format("Required field Components of {} is missing!",
                                 parent_name));
@@ -212,10 +212,10 @@ namespace loader {
             std::unordered_map<std::string, Component> components{};
 
             // TODO: error handling for not an object
-            compmap = parent["Components"];
+            compmap = parent[name];
             if (!compmap.isObject()) {
                 return tl::unexpected(fmt::format(
-                    "Components field of {} is not an object", parent_name));
+                    "{} field of {} is not an object", name, parent_name));
             }
             if (compmap.empty()) {
                 return tl::unexpected(
@@ -231,26 +231,26 @@ namespace loader {
 
                 if (!comp.isObject()) {
                     return tl::unexpected(
-                        fmt::format("Component {} is not an object", key));
+                        fmt::format("{} {} is not an object", name, key));
                 }
 
                 components[key] = Component{
-                    TRY(get_required<std::string>(comp, "Component", "Type")
+                    TRY(get_required<std::string>(comp, name, "Type")
                             .map(string_to_type)),
-                    TRY(get_lang_values(comp, "Component", "Compile-Flags")),
-                    TRY(get_lang_values(comp, "Component", "Includes")),
-                    TRY(get_defines(comp, "Component", "Defines")),
+                    TRY(get_lang_values(comp, name, "Compile-Flags")),
+                    TRY(get_lang_values(comp, name, "Includes")),
+                    TRY(get_defines(comp, name, "Defines")),
                     TRY(get_optional<std::vector<std::string>>(
-                            comp, "Component", "Link-Libraries"))
+                            comp, name, "Link-Libraries"))
                         .value_or(std::vector<std::string>{}),
                     // TODO: this is required if the type != interface
-                    TRY(get_optional<std::string>(comp, "Component",
+                    TRY(get_optional<std::string>(comp, name,
                                                   "Location")),
                     // XXX: https://github.com/cps-org/cps/issues/34
-                    TRY(get_optional<std::string>(comp, "Component",
+                    TRY(get_optional<std::string>(comp, name,
                                                   "Link-Location")),
                     TRY(get_optional<std::vector<std::string>>(
-                            comp, "Component", "Requires"))
+                            comp, name, "Requires"))
                         .value_or(std::vector<std::string>{})};
             }
 
