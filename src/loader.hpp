@@ -102,11 +102,11 @@ namespace loader {
     class Requirement {
       public:
         Requirement();
-        Requirement(std::vector<std::string> && components);
+        Requirement(std::vector<std::string> && components, std::optional<std::string> && version);
 
         std::vector<std::string> components;
         // TODO: Hints
-        // TODO: Version
+        std::optional<std::string> version;
     };
 
     using Requires = std::unordered_map<std::string, Requirement>;

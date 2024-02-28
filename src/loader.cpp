@@ -170,6 +170,7 @@ namespace loader {
                 ret.emplace(key, Requirement{
                                      TRY(get_optional<std::vector<std::string>>(require, name, "Components"))
                                          .value_or(std::vector<std::string>{}),
+                                     TRY(get_optional<std::string>(require, name, "Version")),
                                  });
             }
 
@@ -248,7 +249,8 @@ namespace loader {
     Configuration::Configuration(LangValues cflags) : compile_flags{std::move(cflags)} {};
 
     Requirement::Requirement() = default;
-    Requirement::Requirement(std::vector<std::string> && comps) : components{comps} {};
+    Requirement::Requirement(std::vector<std::string> && comps, std::optional<std::string> && ver)
+        : components{std::move(comps)}, version{std::move(ver)} {};
 
     Platform::Platform() = default;
 
