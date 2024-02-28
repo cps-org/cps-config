@@ -40,19 +40,6 @@ namespace loader {
                     }
                     return ret;
                 }
-            } else if constexpr (std::is_same_v<
-                                     T, std::unordered_map<
-                                            std::string,
-                                            std::vector<std::string>>>) {
-                if (value.isArray()) {
-                    std::unordered_map<std::string, std::vector<std::string>>
-                        ret;
-                    for (auto && [k, v] : value) {
-                        // TODO: Error handling?
-                        ret.emplace(k.asString(), v.asString());
-                    }
-                    return ret;
-                }
             }
 
             return tl::unexpected(
