@@ -178,7 +178,7 @@ namespace loader {
                 return ret;
             }
 
-            Json::Value require = parent["name"];
+            Json::Value require = parent[name];
             if (!require.isObject()) {
                 return tl::unexpected(fmt::format(
                     "{} field of {} is not an object", name, parent_name));
