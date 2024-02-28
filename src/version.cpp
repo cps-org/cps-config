@@ -13,8 +13,7 @@ namespace version {
 
     namespace {
 
-        tl::expected<std::vector<uint64_t>, std::string>
-        as_numbers(std::string_view v) {
+        tl::expected<std::vector<uint64_t>, std::string> as_numbers(std::string_view v) {
             std::vector<std::string> split = utils::split(v, ".");
             std::vector<uint64_t> left;
             left.reserve(split.size());
@@ -22,13 +21,11 @@ namespace version {
                 try {
                     left.emplace_back(std::stoull(n));
                 } catch (std::invalid_argument &) {
-                    return tl::unexpected{
-                        fmt::format("'{}' is not a valid number", n)};
+                    return tl::unexpected{fmt::format("'{}' is not a valid number", n)};
                 } catch (std::out_of_range &) {
-                    return tl::unexpected{fmt::format(
-                        "'{}' is too large to be represented by a uint64. What "
-                        "kind of versions are you creating?",
-                        n)};
+                    return tl::unexpected{fmt::format("'{}' is too large to be represented by a uint64. What "
+                                                      "kind of versions are you creating?",
+                                                      n)};
                 }
             }
             return left;
@@ -41,8 +38,7 @@ namespace version {
             }
         }
 
-        inline void equalize_length(std::vector<uint64_t> & left,
-                                    std::vector<uint64_t> & right) {
+        inline void equalize_length(std::vector<uint64_t> & left, std::vector<uint64_t> & right) {
             if (left.size() < right.size()) {
                 lengthen(left, right.size() - left.size());
             } else if (left.size() > right.size()) {
@@ -50,8 +46,7 @@ namespace version {
             }
         }
 
-        tl::expected<bool, std::string>
-        simple_compare(std::string_view l, Operator op, std::string_view r) {
+        tl::expected<bool, std::string> simple_compare(std::string_view l, Operator op, std::string_view r) {
             // TODO: handle the -.* or +.* ending
             // TODO: 32 bit probably needs stoull…
             std::vector<uint64_t> left = TRY(as_numbers(l));
@@ -97,15 +92,12 @@ namespace version {
                 }
             }
 
-            return (op == Operator::EQ || op == Operator::LE ||
-                    op == Operator::GE);
+            return (op == Operator::EQ || op == Operator::LE || op == Operator::GE);
         }
 
     } // namespace
 
-    tl::expected<bool, std::string> compare(std::string_view left, Operator op,
-                                            std::string_view right,
-                                            Schema schema) {
+    tl::expected<bool, std::string> compare(std::string_view left, Operator op, std::string_view right, Schema schema) {
         switch (schema) {
         case Schema::SIMPLE:
             return simple_compare(left, op, right);

@@ -8,8 +8,7 @@
 
 int main(int argc, char * argv[]) {
     if (argc < 2) {
-        fmt::println(stderr, "Error: Got {} arguments, expected at least 2",
-                     argc);
+        fmt::println(stderr, "Error: Got {} arguments, expected at least 2", argc);
         return 1;
     }
 
@@ -58,8 +57,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    auto && p =
-        search::find_package(argv[1], components, components.empty());
+    auto && p = search::find_package(argv[1], components, components.empty());
     if (!p) {
         fmt::println(p.error());
         return 1;

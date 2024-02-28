@@ -25,8 +25,7 @@ namespace search {
         /// load
         class Dependency {
           public:
-            Dependency(loader::Package && obj,
-                       std::vector<std::string> && comps)
+            Dependency(loader::Package && obj, std::vector<std::string> && comps)
                 : package{std::move(obj)}, components{std::move(comps)} {};
 
             /// @brief The loaded CPS file
@@ -39,15 +38,13 @@ namespace search {
         class Node {
           public:
             Node(Dependency obj) : data{std::move(obj)} {};
-            Node(loader::Package obj, std::vector<std::string> comps)
-                : data{std::move(obj), std::move(comps)} {};
+            Node(loader::Package obj, std::vector<std::string> comps) : data{std::move(obj), std::move(comps)} {};
 
             Dependency data;
             std::vector<std::shared_ptr<Node>> depends;
         };
 
-        void dfs(const std::shared_ptr<Node> & node,
-                 std::unordered_set<std::shared_ptr<Node>> & visited,
+        void dfs(const std::shared_ptr<Node> & node, std::unordered_set<std::shared_ptr<Node>> & visited,
                  std::deque<std::shared_ptr<Node>> & sorted) {
             visited.emplace(node);
             for (auto && d : node->depends) {
@@ -61,8 +58,7 @@ namespace search {
         /// @brief Perform a topological sort of the DAG
         /// @param root The root Node
         /// @return A linear topological sorting of the DAG
-        std::vector<std::shared_ptr<Node>>
-        tsort(const std::shared_ptr<Node> & root) {
+        std::vector<std::shared_ptr<Node>> tsort(const std::shared_ptr<Node> & root) {
             std::deque<std::shared_ptr<Node>> sorted;
             std::unordered_set<std::shared_ptr<Node>> visited;
             dfs(root, visited, sorted);
@@ -107,8 +103,7 @@ namespace search {
         /// @brief Find all possible paths for a given CPS name
         /// @param name The name of the CPS file to find
         /// @return A vector of paths which patch the given name, or an error
-        tl::expected<std::vector<fs::path>, std::string>
-        find_paths(std::string_view name) {
+        tl::expected<std::vector<fs::path>, std::string> find_paths(std::string_view name) {
             // If a path is passed, then just return that.
             if (fs::is_regular_file(name)) {
                 return std::vector<fs::path>{name};
@@ -137,8 +132,7 @@ namespace search {
             }
 
             if (found.empty()) {
-                return tl::unexpected(
-                    fmt::format("Could not find a CPS file for {}", name));
+                return tl::unexpected(fmt::format("Could not find a CPS file for {}", name));
             }
             return found;
         }
@@ -148,8 +142,7 @@ namespace search {
             bool defaults;
 
             ProcessedRequires(bool d) : defaults{d} {};
-            ProcessedRequires(std::string s)
-                : components{{std::move(s)}}, defaults{false} {};
+            ProcessedRequires(std::string s) : components{{std::move(s)}}, defaults{false} {};
         };
 
         /// @brief Extract all required dependencies with their components
@@ -184,9 +177,7 @@ namespace search {
         }
 
         tl::expected<std::shared_ptr<Node>, std::string>
-        build_node(std::string_view name,
-                   const std::vector<std::string> & components,
-                   bool default_components) {
+        build_node(std::string_view name, const std::vector<std::string> & components, bool default_components) {
             const std::vector<fs::path> paths = TRY(find_paths(name));
             for (auto && path : paths) {
 
@@ -194,17 +185,13 @@ namespace search {
 
                 std::vector<std::string> comps = components;
                 if (default_components && p.default_components) {
-                    comps.insert(comps.end(),
-                                 p.default_components.value().begin(),
-                                 p.default_components.value().end());
+                    comps.insert(comps.end(), p.default_components.value().begin(), p.default_components.value().end());
                 }
 
                 // If we don't have all of the components requested this isn't a
                 // valid candidate
-                if (!std::all_of(
-                        comps.begin(), comps.end(), [&](const std::string & s) {
-                            return p.components.find(s) != p.components.end();
-                        })) {
+                if (!std::all_of(comps.begin(), comps.end(),
+                                 [&](const std::string & s) { return p.components.find(s) != p.components.end(); })) {
                     continue;
                 }
 
@@ -221,17 +208,14 @@ namespace search {
                     auto && split = process_requires(comp.require);
                     for (auto && req : split) {
                         if (req.first == "") {
-                            node->data.components.insert(
-                                node->data.components.end(),
-                                req.second.components.begin(),
-                                req.second.components.end());
+                            node->data.components.insert(node->data.components.end(), req.second.components.begin(),
+                                                         req.second.components.end());
                             continue;
                         }
                         // XXX: This loop needs to be transactional, if any of
                         // the nodes is an error, then we need to throw away all
                         // of the work and go back and try again.
-                        auto && n = build_node(req.first, req.second.components,
-                                               req.second.defaults);
+                        auto && n = build_node(req.first, req.second.components, req.second.defaults);
                         if (n.has_value()) {
                             node->depends.emplace_back(std::move(n.value()));
                         }
@@ -241,8 +225,7 @@ namespace search {
                 return node;
             }
 
-            return tl::unexpected(
-                fmt::format("Could not find a dependency to satisfy {}", name));
+            return tl::unexpected(fmt::format("Could not find a dependency to satisfy {}", name));
         }
 
         template <typename T, typename U>
@@ -258,20 +241,15 @@ namespace search {
                           std::unordered_map<T, std::vector<U>> & output,
                           const std::function<U(const U &)> transformer) {
             for (auto && [l, vals] : input) {
-                std::transform(vals.begin(), vals.end(),
-                               std::back_inserter(output[l]), transformer);
+                std::transform(vals.begin(), vals.end(), std::back_inserter(output[l]), transformer);
             }
         }
 
-        template <typename T>
-        void merge_result(const std::vector<T> & input,
-                          std::vector<T> & output) {
+        template <typename T> void merge_result(const std::vector<T> & input, std::vector<T> & output) {
             output.insert(output.end(), input.begin(), input.end());
         }
 
-        template <typename T>
-        void merge_result(const std::optional<T> & input,
-                          std::vector<T> & output) {
+        template <typename T> void merge_result(const std::optional<T> & input, std::vector<T> & output) {
             if (input) {
                 output.emplace_back(input.value());
             }
@@ -305,14 +283,10 @@ namespace search {
 
     Result::Result(){};
 
-    tl::expected<Result, std::string> find_package(std::string_view name) {
-        return find_package(name, {}, true);
-    }
+    tl::expected<Result, std::string> find_package(std::string_view name) { return find_package(name, {}, true); }
 
-    tl::expected<Result, std::string>
-    find_package(std::string_view name,
-                 const std::vector<std::string> & components,
-                 bool default_components) {
+    tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
+                                                   bool default_components) {
         // XXX: do we need process_requires here?
         auto && root = TRY(build_node(name, components, default_components));
         auto && flat = tsort(root);
@@ -323,8 +297,7 @@ namespace search {
 
         for (auto && node : flat) {
 
-            const auto && prefix_replacer =
-                [&](const std::string & s) -> std::string {
+            const auto && prefix_replacer = [&](const std::string & s) -> std::string {
                 // TODO: Windows…
                 auto && split = utils::split(s, "/");
                 if (split[0] == "@prefix@") {
@@ -340,10 +313,8 @@ namespace search {
             for (const auto & c_name : node->data.components) {
                 // We should have already errored if this is not the case
                 auto && f = node->data.package.components.find(c_name);
-                assert_fn(
-                    f != node->data.package.components.end(),
-                    fmt::format("Could not find component {} of pacakge {}",
-                                c_name, node->data.package.name));
+                assert_fn(f != node->data.package.components.end(),
+                          fmt::format("Could not find component {} of pacakge {}", c_name, node->data.package.name));
                 auto && comp = f->second;
 
                 // Convert prefix at this point because:
@@ -351,14 +322,13 @@ namespace search {
                 // from
                 // 2. if we do it at the search point we have to plumb overrides
                 // deep into that
-                merge_result<loader::KnownLanguages, std::string>(
-                    comp.includes, result.includes, prefix_replacer);
+                merge_result<loader::KnownLanguages, std::string>(comp.includes, result.includes, prefix_replacer);
                 merge_result(comp.defines, result.defines);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);
                 if (comp.type != loader::Type::INTERFACE) {
-                    result.link_location.emplace_back(prefix_replacer(
-                        comp.link_location.value_or(comp.location.value())));
+                    result.link_location.emplace_back(
+                        prefix_replacer(comp.link_location.value_or(comp.location.value())));
                 }
             }
         }

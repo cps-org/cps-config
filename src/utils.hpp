@@ -18,10 +18,10 @@ inline void assert_fn(bool expr, std::string_view msg) {
 }
 
 #if HAVE_UNREACHABLE
-#define unreachable(msg)                                                       \
-    do {                                                                       \
-        assert_fn(false, msg);                                                 \
-        __builtin_unreachable();                                               \
+#define unreachable(msg)                                                                                               \
+    do {                                                                                                               \
+        assert_fn(false, msg);                                                                                         \
+        __builtin_unreachable();                                                                                       \
     } while (0)
 #else
 #define unreachable(str) assert_fn(false, msg);
@@ -29,7 +29,6 @@ inline void assert_fn(bool expr, std::string_view msg) {
 
 namespace utils {
 
-    std::vector<std::string> split(std::string_view input,
-                                   std::string_view delim = ":");
+    std::vector<std::string> split(std::string_view input, std::string_view delim = ":");
 
 } // namespace utils

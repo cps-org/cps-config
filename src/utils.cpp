@@ -5,8 +5,7 @@
 
 namespace utils {
 
-    std::vector<std::string> split(std::string_view input,
-                                   std::string_view delim) {
+    std::vector<std::string> split(std::string_view input, std::string_view delim) {
         size_t last = 0, next = 0;
         std::vector<std::string> out;
 

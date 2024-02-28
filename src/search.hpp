@@ -3,10 +3,10 @@
 
 #pragma once
 
+#include "loader.hpp"
 #include <string>
 #include <tl/expected.hpp>
 #include <vector>
-#include "loader.hpp"
 
 namespace search {
 
@@ -27,9 +27,7 @@ namespace search {
     // TODO: multiple versions of packages?
     tl::expected<Result, std::string> find_package(std::string_view name);
 
-    tl::expected<Result, std::string>
-    find_package(std::string_view name,
-                 const std::vector<std::string> & components,
-                 bool default_components);
+    tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
+                                                   bool default_components);
 
 } // namespace search
