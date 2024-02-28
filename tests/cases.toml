@@ -81,3 +81,9 @@
   cps = "cps-path-not-set"
   args = ["--cflags-only-I", "--libs-only-l"]
   expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
+
+[[case]]
+  name = "component diamond"
+  cps = "diamond"
+  args = ["--cflags-only-I"]
+  expected = "-I/something -I/opt/include"

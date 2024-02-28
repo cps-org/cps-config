@@ -102,6 +102,7 @@ namespace loader {
     class Requirement {
       public:
         Requirement();
+        Requirement(std::vector<std::string> components);
         Requirement(std::vector<std::string> && components, std::optional<std::string> && version);
 
         std::vector<std::string> components;

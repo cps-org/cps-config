@@ -249,6 +249,7 @@ namespace loader {
     Configuration::Configuration(LangValues cflags) : compile_flags{std::move(cflags)} {};
 
     Requirement::Requirement() = default;
+    Requirement::Requirement(std::vector<std::string> comps) : components{std::move(comps)} {};
     Requirement::Requirement(std::vector<std::string> && comps, std::optional<std::string> && ver)
         : components{std::move(comps)}, version{std::move(ver)} {};
 

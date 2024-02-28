@@ -6,6 +6,7 @@
 #include "fmt/core.h"
 #include "loader.hpp"
 #include "utils.hpp"
+#include "version.hpp"
 #include <cstdlib>
 #include <deque>
 #include <filesystem>
@@ -193,9 +194,8 @@ namespace search {
             std::unordered_map<std::string, std::shared_ptr<Node>> cache;
         };
 
-        tl::expected<std::shared_ptr<Node>, std::string> build_node(std::string_view name,
-                                                                    const std::vector<std::string> & components,
-                                                                    bool default_components, NodeFactory factory) {
+        tl::expected<std::shared_ptr<Node>, std::string>
+        build_node(std::string_view name, const loader::Requirement & requirements, NodeFactory factory) {
             const std::vector<fs::path> paths = TRY(find_paths(name));
             for (auto && path : paths) {
 
@@ -206,55 +206,47 @@ namespace search {
                 auto node = maybe_node.value();
                 const loader::Package & p = node->data.package;
 
-                std::vector<std::string> comps = components;
-                if (default_components && node->data.package.default_components) {
-                    comps.insert(comps.end(), p.default_components.value().begin(), p.default_components.value().end());
-                }
-
-                // If we don't have all of the components requested this isn't a
-                // valid candidate
-                if (!std::all_of(comps.begin(), comps.end(),
-                                 [&](const std::string & s) { return p.components.find(s) != p.components.end(); })) {
-                    continue;
-                }
-
-                node->data.components = comps;
-
-                // TODO: need to ensure that any version requirements are met
-                // TODO: need to check the graph for cycles and error if there
-                // is a
-                //       cycle
-                // TODO: this needs a  lot of testing
-                for (auto && c : comps) {
-                    // TODO: Error handling
-                    auto && comp = p.components.at(c);
-                    auto && split = process_requires(comp.require);
-                    for (auto && req : split) {
-                        if (req.first == "") {
-                            node->data.components.insert(node->data.components.end(), req.second.components.begin(),
-                                                         req.second.components.end());
-                            continue;
-                        }
-                        // XXX: This loop needs to be transactional, if any of
-                        // the nodes is an error, then we need to throw away all
-                        // of the work and go back and try again.
-                        auto && n = build_node(req.first, req.second.components, req.second.defaults, factory);
-                        if (n.has_value()) {
-                            node->depends.emplace_back(std::move(n.value()));
-                        }
+                // If this package doesn't meet the requirements then reject it and continue on.
+                // The conditions it could fail to meet are:
+                //  1. the provided version (or Compat-Version) is < the required version
+                //  2. This package lacks required components
+                if (p.version && requirements.version) {
+                    if (version::compare(p.version.value_or("0"), version::Operator::LT,
+                                         requirements.version.value_or("0"), p.version_schema)) {
+                        continue;
                     }
                 }
 
+                if (!std::all_of(requirements.components.begin(), requirements.components.end(),
+                                 [p](const std::string & c) { return p.components.find(c) != p.components.end(); })) {
+                    continue;
+                }
+
+                std::vector<std::shared_ptr<Node>> found;
+                found.reserve(p.require.size());
+                for (auto && [n, r] : p.require) {
+                    auto && child = build_node(n, r, factory);
+                    if (child) {
+                        found.emplace_back(child.value());
+                    } else {
+                        break;
+                    }
+                }
+                if (found.size() < p.require.size()) {
+                    continue;
+                }
+
+                node->depends.insert(node->depends.end(), found.begin(), found.end());
                 return node;
             }
 
             return tl::unexpected(fmt::format("Could not find a dependency to satisfy {}", name));
         }
 
-        tl::expected<std::shared_ptr<Node>, std::string>
-        build_node(std::string_view name, const std::vector<std::string> & components, bool default_components) {
+        tl::expected<std::shared_ptr<Node>, std::string> build_node(std::string_view name,
+                                                                    const loader::Requirement & requirements) {
             NodeFactory factory{};
-            return build_node(name, components, default_components, factory);
+            return build_node(name, requirements, factory);
         }
 
         template <typename T, typename U>
@@ -308,6 +300,47 @@ namespace search {
             return p;
         }
 
+        /// @brief Calculate the required components in the graph
+        /// @param node The node to process
+        /// @param components the components required from this node
+        void set_components(std::shared_ptr<Node> node, const std::vector<std::string> & components,
+                            bool default_components) {
+            // Set the components that this package's depndees want
+            if (default_components && node->data.package.default_components) {
+                const std::vector<std::string> & defs = node->data.package.default_components.value();
+                node->data.components.insert(node->data.components.end(), defs.begin(), defs.end());
+            }
+            node->data.components.insert(node->data.components.end(), components.begin(), components.end());
+
+            for (const std::string & c_name : node->data.components) {
+                // It's possible that the Package::Requires section listed
+                // dependencies we don't actually need. If we don't need them we
+                // can trim the graph
+                std::vector<std::shared_ptr<Node>> trimmed;
+
+                // This *should* be validated such that we won't have an exception
+                const loader::Component & component = node->data.package.components.at(c_name);
+                auto && required = process_requires(component.require);
+                for (std::shared_ptr<Node> & child : node->depends) {
+                    if (auto && child_comps = required.find(child->data.package.name); child_comps != required.end()) {
+                        trimmed.emplace_back(child);
+                        set_components(child, child_comps->second.components, child_comps->second.defaults);
+                    }
+                }
+                node->depends = trimmed;
+
+                if (auto && self = required.find(""); self != required.end()) {
+                    // Don't insert these twice
+                    if (!default_components && self->second.defaults && node->data.package.default_components) {
+                        const std::vector<std::string> & defs = node->data.package.default_components.value();
+                        node->data.components.insert(node->data.components.end(), defs.begin(), defs.end());
+                    }
+                    node->data.components.insert(node->data.components.end(), self->second.components.begin(),
+                                                 self->second.components.end());
+                }
+            }
+        }
+
     } // namespace
 
     Result::Result(){};
@@ -317,7 +350,12 @@ namespace search {
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
                                                    bool default_components) {
         // XXX: do we need process_requires here?
-        auto && root = TRY(build_node(name, components, default_components));
+        auto && root = TRY(build_node(name, loader::Requirement{components}));
+        // This has to be done as a two step pass, since we want to trim any
+        // unecessary nodes from the graph, but we cannot do that while finding,
+        // since we could hae a diamond dependency, where the two dependees have
+        // different components they want.
+        set_components(root, components, default_components);
         auto && flat = tsort(root);
 
         Result result{};
