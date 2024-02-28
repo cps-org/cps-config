@@ -215,22 +215,6 @@ namespace search {
                 // is a
                 //       cycle
                 // TODO: this needs a  lot of testing
-                // TODO: combine/de duplicate these loops
-                for (auto && r : p.require) {
-                    auto && split = process_requires(r.second.components);
-                    for (auto && req : split) {
-                        // This shouldn't be possible in this pass
-                        assert(req.first != "");
-                        // XXX: This loop needs to be transactional, if any of
-                        // the nodes is an error, then we need to throw away all
-                        // of the work and go back and try again.
-                        auto && n = build_node(req.first, req.second.components,
-                                               req.second.defaults);
-                        if (n.has_value()) {
-                            node->depends.emplace_back(std::move(n.value()));
-                        }
-                    }
-                }
                 for (auto && c : comps) {
                     // TODO: Error handling
                     auto && comp = p.components.at(c);
