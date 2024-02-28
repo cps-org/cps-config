@@ -27,46 +27,38 @@ namespace printer {
         }
 
         if (conf.includes) {
-            if (auto && f = r.includes.find(loader::KnownLanguages::C);
-                f != r.includes.end() && !f->second.empty()) {
-                std::transform(
-                    f->second.begin(), f->second.end(),
-                    std::back_inserter(args),
-                    [](std::string_view s) { return fmt::format("-I{}", s); });
+            if (auto && f = r.includes.find(loader::KnownLanguages::C); f != r.includes.end() && !f->second.empty()) {
+                std::transform(f->second.begin(), f->second.end(), std::back_inserter(args),
+                               [](std::string_view s) { return fmt::format("-I{}", s); });
             }
         }
 
         if (conf.defines) {
-            if (auto && f = r.defines.find(loader::KnownLanguages::C);
-                f != r.defines.end() && !f->second.empty()) {
+            if (auto && f = r.defines.find(loader::KnownLanguages::C); f != r.defines.end() && !f->second.empty()) {
                 auto && transformer = [](auto && d) {
                     if (d.is_define()) {
                         return fmt::format("-D{}", d.get_name());
                     } else if (d.is_undefine()) {
                         return fmt::format("-U{}", d.get_name());
                     } else {
-                        return fmt::format("-D{}={}", d.get_name(),
-                                           d.get_value());
+                        return fmt::format("-D{}={}", d.get_name(), d.get_value());
                     }
                 };
                 args.reserve(args.size() + f->second.size());
-                std::transform(f->second.begin(), f->second.end(),
-                               std::back_inserter(args), transformer);
+                std::transform(f->second.begin(), f->second.end(), std::back_inserter(args), transformer);
             }
         }
 
         if (conf.libs_link) {
             if (auto && f = r.link_location; !f.empty()) {
                 args.reserve(args.size() + f.size());
-                std::transform(
-                    f.begin(), f.end(), std::back_inserter(args),
-                    [](std::string_view s) { return fmt::format("-l{}", s); });
+                std::transform(f.begin(), f.end(), std::back_inserter(args),
+                               [](std::string_view s) { return fmt::format("-l{}", s); });
             }
             if (auto && f = r.link_libraries; !f.empty()) {
                 args.reserve(args.size() + f.size());
-                std::transform(
-                    f.begin(), f.end(), std::back_inserter(args),
-                    [](std::string_view s) { return fmt::format("-l{}", s); });
+                std::transform(f.begin(), f.end(), std::back_inserter(args),
+                               [](std::string_view s) { return fmt::format("-l{}", s); });
             }
         }
 

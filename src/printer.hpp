@@ -19,4 +19,4 @@ namespace printer {
 
     int pkgconf(const search::Result & dag, const Config & conf);
 
-}
+} // namespace printer

@@ -4,13 +4,13 @@
 #pragma once
 
 #include "error.hpp"
+#include "version.hpp"
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <tl/expected.hpp>
 #include <unordered_map>
 #include <vector>
-#include "version.hpp"
 
 namespace loader {
 
@@ -55,19 +55,16 @@ namespace loader {
         bool define;
     };
 
-    using LangValues =
-        std::unordered_map<KnownLanguages, std::vector<std::string>>;
+    using LangValues = std::unordered_map<KnownLanguages, std::vector<std::string>>;
 
     using Defines = std::unordered_map<KnownLanguages, std::vector<Define>>;
 
     class Component {
       public:
         Component();
-        Component(Type type, LangValues cflags, LangValues includes,
-                  Defines defines, std::vector<std::string> link_libraries,
-                  std::optional<std::string> location,
-                  std::optional<std::string> link_location,
-                  std::vector<std::string> require);
+        Component(Type type, LangValues cflags, LangValues includes, Defines defines,
+                  std::vector<std::string> link_libraries, std::optional<std::string> location,
+                  std::optional<std::string> link_location, std::vector<std::string> require);
 
         Type type;
         LangValues compile_flags;
@@ -134,12 +131,9 @@ namespace loader {
     class Package {
       public:
         Package();
-        Package(std::string name, std::string cps_version,
-                std::unordered_map<std::string, Component> && components,
-                std::string cps_path,
-                std::optional<std::vector<std::string>> && default_comps,
-                Requires require, std::optional<std::string> version,
-                version::Schema schema);
+        Package(std::string name, std::string cps_version, std::unordered_map<std::string, Component> && components,
+                std::string cps_path, std::optional<std::vector<std::string>> && default_comps, Requires require,
+                std::optional<std::string> version, version::Schema schema);
 
         std::string name;
         std::string cps_version;

@@ -27,7 +27,5 @@ namespace version {
     };
 
     /// @brief compare two version strings using the given operator and schema
-    tl::expected<bool, std::string> compare(std::string_view left, Operator op,
-                                            std::string_view right,
-                                            Schema schema);
+    tl::expected<bool, std::string> compare(std::string_view left, Operator op, std::string_view right, Schema schema);
 } // namespace version
