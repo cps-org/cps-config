@@ -51,7 +51,7 @@ cps_config = executable(
 )
 
 test(
-  'pkg-config',
+  'pkg-config compatibility',
   find_program('tests/runner.py', required : false, disabler : true),
   args: [cps_config, 'tests/cases.toml'],
   protocol : 'tap',
