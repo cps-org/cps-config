@@ -3,7 +3,7 @@ project(
   'cpp',
   version : '0.0.1',
   license : 'MIT',
-  meson_version : '>= 1.0.0',
+  meson_version : '>= 0.64',
   default_options : ['cpp_std=c++17', 'buildtype=debugoptimized', 'warning_level=2'],
 )
 
