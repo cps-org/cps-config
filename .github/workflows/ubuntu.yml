@@ -40,7 +40,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.0.5
         with:
-          key: ${{ matrix.id }}
+          key: ${{ matrix.cfg.id }}
       - uses: BSFishy/meson-build@v1.0.3
         with:
           meson-version: 1.0.0
