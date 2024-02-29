@@ -16,7 +16,7 @@ cpp = meson.get_compiler('cpp')
 conf = configuration_data()
 conf.set_quoted('VERSION', meson.project_version())
 foreach f : ['unreachable']
-  conf.set10(f'HAVE_@f@'.to_upper(), cpp.has_function(f))
+  conf.set10('HAVE_@0@'.format(f.to_upper()), cpp.has_function(f))
 endforeach
 
 conf_h = configure_file(
