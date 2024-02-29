@@ -25,8 +25,7 @@ namespace search {
         /// load
         class Dependency {
           public:
-            Dependency(loader::Package && obj, std::vector<std::string> && comps)
-                : package{std::move(obj)}, components{std::move(comps)} {};
+            Dependency(loader::Package && obj) : package{std::move(obj)} {};
 
             /// @brief The loaded CPS file
             loader::Package package;
@@ -38,7 +37,7 @@ namespace search {
         class Node {
           public:
             Node(Dependency obj) : data{std::move(obj)} {};
-            Node(loader::Package obj, std::vector<std::string> comps) : data{std::move(obj), std::move(comps)} {};
+            Node(loader::Package obj) : data{std::move(obj)} {};
 
             Dependency data;
             std::vector<std::shared_ptr<Node>> depends;
@@ -176,15 +175,39 @@ namespace search {
             return map;
         }
 
-        tl::expected<std::shared_ptr<Node>, std::string>
-        build_node(std::string_view name, const std::vector<std::string> & components, bool default_components) {
+        class NodeFactory {
+          public:
+            NodeFactory() = default;
+
+            tl::expected<std::shared_ptr<Node>, std::string> get(std::string_view name, const fs::path & path) {
+                if (auto && hit = cache.find(std::string{name}); hit != cache.end()) {
+                    return hit->second;
+                }
+                auto n = std::make_shared<Node>(TRY(loader::load(path)));
+
+                cache.emplace(name, n);
+                return n;
+            }
+
+          private:
+            std::unordered_map<std::string, std::shared_ptr<Node>> cache;
+        };
+
+        tl::expected<std::shared_ptr<Node>, std::string> build_node(std::string_view name,
+                                                                    const std::vector<std::string> & components,
+                                                                    bool default_components, NodeFactory factory) {
             const std::vector<fs::path> paths = TRY(find_paths(name));
             for (auto && path : paths) {
 
-                loader::Package p = TRY(loader::load(path));
+                auto maybe_node = factory.get(name, path);
+                if (!maybe_node) {
+                    continue;
+                }
+                auto node = maybe_node.value();
+                const loader::Package & p = node->data.package;
 
                 std::vector<std::string> comps = components;
-                if (default_components && p.default_components) {
+                if (default_components && node->data.package.default_components) {
                     comps.insert(comps.end(), p.default_components.value().begin(), p.default_components.value().end());
                 }
 
@@ -195,7 +218,7 @@ namespace search {
                     continue;
                 }
 
-                auto node = std::make_shared<Node>(p, comps);
+                node->data.components = comps;
 
                 // TODO: need to ensure that any version requirements are met
                 // TODO: need to check the graph for cycles and error if there
@@ -215,7 +238,7 @@ namespace search {
                         // XXX: This loop needs to be transactional, if any of
                         // the nodes is an error, then we need to throw away all
                         // of the work and go back and try again.
-                        auto && n = build_node(req.first, req.second.components, req.second.defaults);
+                        auto && n = build_node(req.first, req.second.components, req.second.defaults, factory);
                         if (n.has_value()) {
                             node->depends.emplace_back(std::move(n.value()));
                         }
@@ -226,6 +249,12 @@ namespace search {
             }
 
             return tl::unexpected(fmt::format("Could not find a dependency to satisfy {}", name));
+        }
+
+        tl::expected<std::shared_ptr<Node>, std::string>
+        build_node(std::string_view name, const std::vector<std::string> & components, bool default_components) {
+            NodeFactory factory{};
+            return build_node(name, components, default_components, factory);
         }
 
         template <typename T, typename U>
