@@ -53,7 +53,7 @@ class Result:
     status: Status
     stdout: str
     stderr: str
-    returncode: int
+    returncode: int | None
     expected: str
     command: list[str]
 
@@ -78,15 +78,17 @@ async def test(runner: str, case_: TestCase) -> Result:
 
         success = proc.returncode == 0 and out == expected
         result = Status.PASS if success else Status.FAIL
+        returncode = proc.returncode
     except asyncio.TimeoutError:
         out = ''
         err = 'Timed out after 5 seconds'
         result = Status.TIMEOUT
+        returncode = None
 
     async with _PRINT_LOCK:
         print('ok' if result is Status.PASS else 'not ok', '-', case_['name'])
 
-    return Result(case_['name'], result, out, err, proc.returncode, expected, cmd)
+    return Result(case_['name'], result, out, err, returncode, expected, cmd)
 
 
 async def main() -> None:
