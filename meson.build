@@ -58,7 +58,7 @@ test(
   env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cases' },
 )
 
-dep_gtest = dependency('gtest', main : true, required : false, disabler : true)
+dep_gtest = dependency('gtest_main', required : false, disabler : true)
 
 foreach t : ['version', 'utils']
   test(
