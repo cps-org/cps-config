@@ -43,6 +43,7 @@ class Status(enum.Enum):
 
     PASS = enum.auto()
     FAIL = enum.auto()
+    TIMEOUT = enum.auto()
 
 
 @dataclasses.dataclass
@@ -61,22 +62,31 @@ async def test(runner: str, case_: TestCase) -> Result:
     cmd = [runner, case_['cps']] + case_['args']
     if 'mode' in case_:
         cmd.extend([f"--format={case_['mode']}"])
-    proc = await asyncio.create_subprocess_exec(
-        *cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    bout, berr = await proc.communicate()
-    out = bout.decode().strip()
 
     expected = case_['expected'].format(prefix=PREFIX)
 
-    success = proc.returncode == 0 and out == expected
-    async with _PRINT_LOCK:
-        print('ok' if success else 'not ok', '-', case_['name'])
+    try:
+        async with asyncio.timeout(5):
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+        bout, berr = await proc.communicate()
+        out = bout.decode().strip()
+        err = berr.decode().strip()
 
-    return Result(case_['name'], Status.PASS if success else Status.FAIL, out,
-                  berr.decode().strip(), proc.returncode, expected, cmd)
+        success = proc.returncode == 0 and out == expected
+        result = Status.PASS if success else Status.FAIL
+    except asyncio.TimeoutError:
+        out = ''
+        err = 'Timed out after 5 seconds'
+        result = Status.TIMEOUT
+
+    async with _PRINT_LOCK:
+        print('ok' if result is Status.PASS else 'not ok', '-', case_['name'])
+
+    return Result(case_['name'], result, out, err, proc.returncode, expected, cmd)
 
 
 async def main() -> None:
@@ -97,6 +107,7 @@ async def main() -> None:
     for r in results:
         if r.status is not Status.PASS:
             print(f'{r.name}:', file=sys.stderr)
+            print('  result:', 'timeout' if r.status is Status.TIMEOUT else 'fail')
             print('  returncode:', r.returncode, file=sys.stderr)
             print('  stdout:  ', r.stdout, file=sys.stderr)
             print('  expected:', r.expected, file=sys.stderr)
