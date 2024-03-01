@@ -70,26 +70,19 @@ namespace cps::search {
             return out;
         }
 
-        const std::vector<fs::path> nix{"/usr", "/usr/local"};
-        // TODO: const std::vector<std::string> mac{""};
-        // TODO: const std::vector<std::string> win{""};
-
-        std::vector<fs::path> cached_paths{};
-
         const std::vector<fs::path> search_paths(Env env) {
-            if (!cached_paths.empty()) {
-                return cached_paths;
-            }
-
+            std::vector<fs::path> paths;
             if (env.cps_path) {
                 auto && epaths = utils::split(env.cps_path.value());
-                cached_paths.insert(cached_paths.end(), epaths.begin(), epaths.end());
-                cached_paths.insert(cached_paths.end(), nix.begin(), nix.end());
-            } else {
-                cached_paths = nix;
+                paths.insert(paths.end(), epaths.begin(), epaths.end());
             }
+            // TODO: lib need to be not hard coded
+            paths.emplace_back(fs::path{"/usr"} / "lib" / "cps");
+            paths.emplace_back("/usr/share/cps");
+            // TODO: Windows paths
+            // TODO: MacOS paths
 
-            return cached_paths;
+            return paths;
         }
 
         const fs::path libdir() {
