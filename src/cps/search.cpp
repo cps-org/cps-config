@@ -6,6 +6,7 @@
 
 #include "cps/error.hpp"
 #include "cps/loader.hpp"
+#include "cps/platform.hpp"
 #include "cps/utils.hpp"
 #include "cps/version.hpp"
 
@@ -77,20 +78,12 @@ namespace cps::search {
                 paths.insert(paths.end(), epaths.begin(), epaths.end());
             }
             // TODO: lib need to be not hard coded
-            paths.emplace_back(fs::path{"/usr"} / "lib" / "cps");
+            paths.emplace_back(fs::path{"/usr"} / platform::libdir() / "cps");
             paths.emplace_back("/usr/share/cps");
             // TODO: Windows paths
             // TODO: MacOS paths
 
             return paths;
-        }
-
-        const fs::path libdir() {
-            // TODO: libdir needs to be configurable based on the personality,
-            //       and different name schemes.
-            //       This is complicated by the fact that different distros have
-            //       different schemes.
-            return "lib";
         }
 
         /// @brief Find all possible paths for a given CPS name
@@ -114,7 +107,7 @@ namespace cps::search {
                 // TODO: <prefix>/share/cps/<name-like>/
                 // TODO: <prefix>/share/cps/
 
-                const fs::path dir = prefix / libdir() / "cps";
+                const fs::path dir = prefix / platform::libdir() / "cps";
                 if (fs::is_directory(dir)) {
                     // TODO: <name-like>
                     const fs::path file = dir / fmt::format("{}.cps", name);
@@ -290,8 +283,7 @@ namespace cps::search {
             if (split.back() == "share") {
                 split.pop_back();
             }
-            // TODO: this needs to be generic
-            if (split.back() == "lib") {
+            if (split.back() == platform::libdir()) {
                 split.pop_back();
             }
             fs::path p{"/"};
