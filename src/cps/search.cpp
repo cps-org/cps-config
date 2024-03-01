@@ -82,11 +82,9 @@ namespace cps::search {
             }
 
             if (env.cps_path) {
-                cached_paths.reserve(nix.size());
+                auto && epaths = utils::split(env.cps_path.value());
+                cached_paths.insert(cached_paths.end(), epaths.begin(), epaths.end());
                 cached_paths.insert(cached_paths.end(), nix.begin(), nix.end());
-                auto && paths = utils::split(env.cps_path.value());
-                cached_paths.reserve(paths.size());
-                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
             } else {
                 cached_paths = nix;
             }
