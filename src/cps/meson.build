@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright © 2023-2024 Dylan Baker
 
 conf = configuration_data()
 conf.set_quoted('CPS_VERSION', meson.project_version())

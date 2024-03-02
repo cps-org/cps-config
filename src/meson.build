@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright © 2023-2024 Dylan Baker
+
 subdir('cps')
 
 cps_include_dir = include_directories('.')
