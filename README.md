@@ -16,6 +16,17 @@ ninja -C builddir test
 
 Running the functional tests requires Python >= 3.11
 
+Meson currently is configured with support to build all of it's dependencies
+from source if they are not otherwise detected, by fetching at configure time.
+If this is not desirable, calling:
+
+```sh
+meson setup builddir --wrap-mode=nofallback
+```
+
+Will disable this behavior. This will require that all dependencies have been
+installed and are discoverable at configure time.
+
 ## Status
 
 CPS-config is currently in alpha status. Some things work, others do not.
