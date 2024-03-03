@@ -46,7 +46,7 @@ cps_config = executable(
   'src/main.cpp',
   conf_h,
   link_with : libcps,
-  dependencies : [dep_fmt],
+  dependencies : [dep_fmt, dep_expected],
   install : true,
 )
 
@@ -66,7 +66,7 @@ foreach t : ['version', 'utils']
     executable(
       f'@t@_test',
       f'tests/@t@.cpp',
-      dependencies : [dep_gtest, dep_fmt],
+      dependencies : [dep_gtest, dep_fmt, dep_expected],
       link_with : libcps,
       include_directories : include_directories('src'),
     ),
