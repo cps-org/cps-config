@@ -72,17 +72,21 @@ namespace cps::search {
         }
 
         const std::vector<fs::path> search_paths(Env env) {
-            std::vector<fs::path> paths;
-            if (env.cps_path) {
-                auto && epaths = utils::split(env.cps_path.value());
-                paths.insert(paths.end(), epaths.begin(), epaths.end());
-            }
-            // TODO: lib need to be not hard coded
-            paths.emplace_back(fs::path{"/usr"} / platform::libdir() / "cps");
-            paths.emplace_back("/usr/share/cps");
             // TODO: Windows paths
             // TODO: MacOS paths
+            std::vector<fs::path> roots;
+            if (env.cps_path) {
+                auto && epaths = utils::split(env.cps_path.value());
+                roots.insert(roots.end(), epaths.begin(), epaths.end());
+            }
+            roots.emplace_back("/usr");
+            roots.emplace_back("/usr/local");
 
+            std::vector<fs::path> paths;
+            for (auto && root : roots) {
+                paths.emplace_back(root / platform::libdir() / "cps");
+                paths.emplace_back(root / "share/cps");
+            }
             return paths;
         }
 
@@ -102,12 +106,11 @@ namespace cps::search {
             // dependency?
             auto && paths = search_paths(env);
             std::vector<fs::path> found{};
-            for (auto && prefix : paths) {
+            for (auto && dir : paths) {
                 // TODO: <prefix>/<libdir>/cps/<name-like>/
                 // TODO: <prefix>/share/cps/<name-like>/
                 // TODO: <prefix>/share/cps/
 
-                const fs::path dir = prefix / platform::libdir() / "cps";
                 if (fs::is_directory(dir)) {
                     // TODO: <name-like>
                     const fs::path file = dir / fmt::format("{}.cps", name);
