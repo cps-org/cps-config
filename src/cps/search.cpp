@@ -280,10 +280,9 @@ namespace cps::search {
             if (split.back() == "cps") {
                 split.pop_back();
             }
-            if (split.back() == "share") {
-                split.pop_back();
-            }
-            if (split.back() == platform::libdir()) {
+            // Match only share or libdir, but not potentially an odd situation
+            // like /opt/share/libdir/
+            if (split.back() == "share" || split.back() == platform::libdir()) {
                 split.pop_back();
             }
             fs::path p{"/"};
