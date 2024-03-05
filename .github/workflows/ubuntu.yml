@@ -34,7 +34,7 @@ jobs:
       - name: apt
         run: |
           sudo apt update
-          sudo apt install ccache clang libjsoncpp-dev libexpected-dev cmake googletest libfmt-dev ninja-build
+          sudo apt install ccache clang libjsoncpp-dev libexpected-dev cmake libgtest-dev libfmt-dev ninja-build
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
       - name: Setup ccache
