@@ -10,6 +10,7 @@ project(
 dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
 dep_expected = dependency('tl-expected', version : '>= 1.0', modules : ['tl::expected'])
 dep_fmt = dependency('fmt', version : '>= 10.1')
+dep_cxxopts = dependency('cxxopts', version : '>=3.1')
 
 cpp = meson.get_compiler('cpp')
 
@@ -46,7 +47,7 @@ cps_config = executable(
   'src/main.cpp',
   conf_h,
   link_with : libcps,
-  dependencies : [dep_fmt, dep_expected],
+  dependencies : [dep_fmt, dep_expected, dep_cxxopts],
   install : true,
 )
 
