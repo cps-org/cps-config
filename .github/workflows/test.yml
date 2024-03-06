@@ -45,7 +45,7 @@ jobs:
           build-args: |
             cc=${{ matrix.cfg.cc }}
             cxx=${{ matrix.cfg.cpp }}
-            setup_options=${{ matrix.cfg.setup_options }}
+            setup_options=${{ matrix.cfg.setup_options }} -Dlibdir=lib
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Run tests
