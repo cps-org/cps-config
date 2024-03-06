@@ -27,6 +27,7 @@ if typing.TYPE_CHECKING:
         args: list[str]
         expected: str
         mode: typing.NotRequired[typing.Literal['pkgconf']]
+        returncode: typing.NotRequired[int]
 
     class TestDescription(typing.TypedDict):
 
@@ -76,7 +77,7 @@ async def test(runner: str, case_: TestCase) -> Result:
         out = bout.decode().strip()
         err = berr.decode().strip()
 
-        success = proc.returncode == 0 and out == expected
+        success = proc.returncode == case_.get('returncode', 0) and out == expected
         result = Status.PASS if success else Status.FAIL
         returncode = proc.returncode
     except asyncio.TimeoutError:
