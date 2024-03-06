@@ -213,9 +213,17 @@ namespace cps::search {
                 // The conditions it could fail to meet are:
                 //  1. the provided version (or Compat-Version) is < the required version
                 //  2. This package lacks required components
-                if (p.version && requirements.version) {
-                    if (version::compare(p.version.value_or("0"), version::Operator::lt,
-                                         requirements.version.value_or("0"), p.version_schema)) {
+                if (requirements.version) {
+                    // From the CPS spec, version 0.10.0, for package::version,
+                    // which as the same semantics as requirement::version:
+                    //
+                    // > If not provided, the CPS will not satisfy any request for
+                    // > a specific version of the package.
+                    if (!p.version) {
+                        continue;
+                    }
+                    if (version::compare(p.version.value(), version::Operator::lt, requirements.version.value(),
+                                         p.version_schema)) {
                         continue;
                     }
                 }

@@ -87,3 +87,10 @@
   cps = "diamond"
   args = ["--cflags-only-I"]
   expected = "-I/something -I/opt/include"
+
+[[case]]
+  name = "Requires version, but version not set"
+  cps = "needs-version.cps"
+  args = ["--modversion", "--print-errors", "--errors-to-stdout"]
+  expected = "Could not find a CPS file for needs-version.cps"
+  returncode = 1
