@@ -1,2 +1,2 @@
-subprojects/
+subprojects/*
 !subprojects/*.wrap
