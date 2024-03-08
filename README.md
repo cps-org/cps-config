@@ -14,6 +14,8 @@ meson setup builddir
 ninja -C builddir test
 ```
 
+Running the functional tests requires Python >= 3.11
+
 ## Status
 
 CPS-config is currently in alpha status. Some things work, others do not.
