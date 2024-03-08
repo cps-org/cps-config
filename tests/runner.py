@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
         case: list[TestCase]
 
 
-SOURCE_DIR = os.path.dirname(os.path.dirname(__file__))
+SOURCE_DIR = os.path.normpath(os.path.dirname(os.path.dirname(__file__)))
 PREFIX = os.path.join(SOURCE_DIR, 'tests/cases')
 _PRINT_LOCK = asyncio.Lock()
 
