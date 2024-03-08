@@ -102,8 +102,9 @@ namespace cps::loader {
             CPS_UNREACHABLE(fmt::format("Unknown version schema: {}", str).c_str());
         }
 
-        tl::expected<LangValues, std::string> get_lang_values(const Json::Value & parent, std::string_view parent_name,
-                                                              const std::string & name) {
+        template <>
+        tl::expected<LangValues, std::string>
+        get_required<LangValues>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
             LangValues ret{};
             if (!parent.isMember(name)) {
                 return ret;
@@ -132,9 +133,10 @@ namespace cps::loader {
             return ret;
         }
 
-        tl::expected<Defines, std::string> get_defines(const Json::Value & parent, std::string_view parent_name,
-                                                       const std::string & name) {
-            LangValues && lang = CPS_TRY(get_lang_values(parent, parent_name, name));
+        template <>
+        tl::expected<Defines, std::string>
+        get_required<Defines>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
+            LangValues && lang = CPS_TRY(get_required<LangValues>(parent, parent_name, name));
             Defines ret;
             for (auto && [k, values] : lang) {
                 ret[k] = {};
@@ -153,8 +155,9 @@ namespace cps::loader {
             return ret;
         };
 
-        tl::expected<Requires, std::string> get_requires(const Json::Value & parent, std::string_view parent_name,
-                                                         const std::string & name) {
+        template <>
+        tl::expected<Requires, std::string>
+        get_required<Requires>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
             Requires ret{};
             if (!parent.isMember(name)) {
                 return ret;
@@ -180,8 +183,11 @@ namespace cps::loader {
             return ret;
         };
 
-        tl::expected<std::unordered_map<std::string, Component>, std::string>
-        get_components(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
+        using Components = std::unordered_map<std::string, Component>;
+
+        template <>
+        tl::expected<Components, std::string>
+        get_required<Components>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
             Json::Value compmap;
             if (!parent.isMember(name)) {
                 return tl::unexpected(fmt::format("Required field Components of {} is missing!", parent_name));
@@ -209,20 +215,21 @@ namespace cps::loader {
                     return tl::unexpected(fmt::format("{} {} is not an object", name, key));
                 }
 
-                components[key] = Component{
-                    CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type)),
-                    CPS_TRY(get_lang_values(comp, name, "compile_flags")),
-                    CPS_TRY(get_lang_values(comp, name, "includes")), CPS_TRY(get_defines(comp, name, "defines")),
-                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
-                        .value_or(std::vector<std::string>{}),
-                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_libraries"))
-                        .value_or(std::vector<std::string>{}),
-                    // TODO: this is required if the type != interface
-                    CPS_TRY(get_optional<std::string>(comp, name, "location")),
-                    // XXX: https://github.com/cps-org/cps/issues/34
-                    CPS_TRY(get_optional<std::string>(comp, name, "link_location")),
-                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
-                        .value_or(std::vector<std::string>{})};
+                components[key] =
+                    Component{CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type)),
+                              CPS_TRY(get_required<LangValues>(comp, name, "compile_flags")),
+                              CPS_TRY(get_required<LangValues>(comp, name, "includes")),
+                              CPS_TRY(get_required<Defines>(comp, name, "defines")),
+                              CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
+                                  .value_or(std::vector<std::string>{}),
+                              CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_libraries"))
+                                  .value_or(std::vector<std::string>{}),
+                              // TODO: this is required if the type != interface
+                              CPS_TRY(get_optional<std::string>(comp, name, "location")),
+                              // XXX: https://github.com/cps-org/cps/issues/34
+                              CPS_TRY(get_optional<std::string>(comp, name, "link_location")),
+                              CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
+                                  .value_or(std::vector<std::string>{})};
             }
 
             return components;
@@ -280,10 +287,10 @@ namespace cps::loader {
         return Package{
             CPS_TRY(get_required<std::string>(root, "package", "name")),
             CPS_TRY(get_required<std::string>(root, "package", "cps_version")),
-            CPS_TRY(get_components(root, "package", "components")),
+            CPS_TRY(get_required<Components>(root, "package", "components")),
             CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(path.parent_path()),
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components")),
-            CPS_TRY(get_requires(root, "package", "requires")),
+            CPS_TRY(get_required<Requires>(root, "package", "requires")),
             CPS_TRY(get_optional<std::string>(root, "package", "version")),
             CPS_TRY(get_optional<std::string>(root, "package", "version_schema").map([](auto && v) {
                 return string_to_schema(v.value_or("simple"));
