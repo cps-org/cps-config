@@ -1,24 +1,26 @@
 // SPDX-License-Identifier: MIT
-// Copyright © 2023 Dylan Baker
+// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2024 Bret Brown
 
-#include "search.hpp"
-#include "error.hpp"
-#include "fmt/core.h"
-#include "loader.hpp"
-#include "utils.hpp"
-#include "version.hpp"
+#include "cps/search.hpp"
+
+#include "cps/error.hpp"
+#include "cps/loader.hpp"
+#include "cps/utils.hpp"
+#include "cps/version.hpp"
+
+#include <fmt/core.h>
+
 #include <cstdlib>
 #include <deque>
 #include <filesystem>
-#include <fmt/core.h>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 
 namespace fs = std::filesystem;
 
-namespace search {
+namespace cps::search {
 
     namespace {
 
@@ -184,7 +186,7 @@ namespace search {
                 if (auto && hit = cache.find(std::string{name}); hit != cache.end()) {
                     return hit->second;
                 }
-                auto n = std::make_shared<Node>(TRY(loader::load(path)));
+                auto n = std::make_shared<Node>(CPS_TRY(loader::load(path)));
 
                 cache.emplace(name, n);
                 return n;
@@ -196,7 +198,7 @@ namespace search {
 
         tl::expected<std::shared_ptr<Node>, std::string>
         build_node(std::string_view name, const loader::Requirement & requirements, NodeFactory factory) {
-            const std::vector<fs::path> paths = TRY(find_paths(name));
+            const std::vector<fs::path> paths = CPS_TRY(find_paths(name));
             for (auto && path : paths) {
 
                 auto maybe_node = factory.get(name, path);
@@ -211,7 +213,7 @@ namespace search {
                 //  1. the provided version (or Compat-Version) is < the required version
                 //  2. This package lacks required components
                 if (p.version && requirements.version) {
-                    if (version::compare(p.version.value_or("0"), version::Operator::LT,
+                    if (version::compare(p.version.value_or("0"), version::Operator::lt,
                                          requirements.version.value_or("0"), p.version_schema)) {
                         continue;
                     }
@@ -350,7 +352,7 @@ namespace search {
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
                                                    bool default_components) {
         // XXX: do we need process_requires here?
-        auto && root = TRY(build_node(name, loader::Requirement{components}));
+        auto && root = CPS_TRY(build_node(name, loader::Requirement{components}));
         // This has to be done as a two step pass, since we want to trim any
         // unecessary nodes from the graph, but we cannot do that while finding,
         // since we could hae a diamond dependency, where the two dependees have
@@ -380,8 +382,9 @@ namespace search {
             for (const auto & c_name : node->data.components) {
                 // We should have already errored if this is not the case
                 auto && f = node->data.package.components.find(c_name);
-                assert_fn(f != node->data.package.components.end(),
-                          fmt::format("Could not find component {} of pacakge {}", c_name, node->data.package.name));
+                utils::assert_fn(
+                    f != node->data.package.components.end(),
+                    fmt::format("Could not find component {} of pacakge {}", c_name, node->data.package.name));
                 auto && comp = f->second;
 
                 // Convert prefix at this point because:
@@ -393,7 +396,7 @@ namespace search {
                 merge_result(comp.defines, result.defines);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);
-                if (comp.type != loader::Type::INTERFACE) {
+                if (comp.type != loader::Type::interface) {
                     result.link_location.emplace_back(
                         prefix_replacer(comp.link_location.value_or(comp.location.value())));
                 }
@@ -403,4 +406,4 @@ namespace search {
         return result;
     }
 
-} // namespace search
+} // namespace cps::search

@@ -1,41 +1,44 @@
-// Copyright © 2023 Dylan Baker
+// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2024 Bret Brown
 // SPDX-License-Identifier: MIT
 
 #pragma once
 
-#include "error.hpp"
-#include "version.hpp"
+#include "cps/error.hpp"
+#include "cps/version.hpp"
+
+#include <tl/expected.hpp>
+
 #include <filesystem>
 #include <optional>
 #include <string>
-#include <tl/expected.hpp>
 #include <unordered_map>
 #include <vector>
 
-namespace loader {
+namespace cps::loader {
 
     /// @brief  Known Programming languages
     enum class KnownLanguages {
-        C,
-        CPP,
-        FORTRAN,
+        c,
+        cxx,
+        fortran,
     };
 
     /// @brief  Linker required
     enum class LinkLanguage {
-        C,
-        CPP,
+        c,
+        cxx,
     };
 
     /// @brief Component type
     enum class Type {
-        EXECUTABLE,
-        ARCHIVE,
-        DYLIB,
-        MODULE,
-        JAR,
-        INTERFACE,
-        SYMBOLIC,
+        executable,
+        archive,
+        dylib,
+        module,
+        jar,
+        interface,
+        symbolic,
     };
 
     class Define {
@@ -152,4 +155,4 @@ namespace loader {
 
     tl::expected<Package, std::string> load(const std::filesystem::path & path);
 
-} // namespace loader
+} // namespace cps::loader
