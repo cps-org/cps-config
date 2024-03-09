@@ -13,3 +13,6 @@ insert_final_newline = false
 
 [meson.build]
 indent_size = 2
+
+[*.toml]
+indent_size = 2
