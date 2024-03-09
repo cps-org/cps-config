@@ -1,11 +1,12 @@
-// Copyright © 2023 Dylan Baker
+// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2024 Bret Brown
 // SPDX-License-Identifier: MIT
 
 #pragma once
 
-#include "search.hpp"
+#include "cps/search.hpp"
 
-namespace printer {
+namespace cps::printer {
 
     struct Config {
         bool defines = false;
@@ -19,4 +20,4 @@ namespace printer {
 
     int pkgconf(const search::Result & dag, const Config & conf);
 
-} // namespace printer
+} // namespace cps::printer

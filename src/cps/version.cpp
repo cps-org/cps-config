@@ -1,15 +1,19 @@
-// Copyright © 2023 Dylan Baker
+// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2024 Bret Brown
 // SPDX-License-Identifier: MIT
 
-#include "version.hpp"
-#include "error.hpp"
-#include "utils.hpp"
+#include "cps/version.hpp"
+
+#include "cps/error.hpp"
+#include "cps/utils.hpp"
+
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <cstdint>
-#include <fmt/core.h>
 #include <functional>
 
-namespace version {
+namespace cps::version {
 
     namespace {
 
@@ -49,8 +53,8 @@ namespace version {
         tl::expected<bool, std::string> simple_compare(std::string_view l, Operator op, std::string_view r) {
             // TODO: handle the -.* or +.* ending
             // TODO: 32 bit probably needs stoull…
-            std::vector<uint64_t> left = TRY(as_numbers(l));
-            std::vector<uint64_t> right = TRY(as_numbers(r));
+            std::vector<uint64_t> left = CPS_TRY(as_numbers(l));
+            std::vector<uint64_t> right = CPS_TRY(as_numbers(r));
             equalize_length(left, right);
 
             // TODO: this is so ugly
@@ -59,32 +63,32 @@ namespace version {
                 const uint64_t rv = right[i];
 
                 switch (op) {
-                case Operator::EQ:
+                case Operator::eq:
                     if (lv != rv) {
                         return false;
                     }
                     break;
-                case Operator::LE:
+                case Operator::le:
                     if (lv > rv) {
                         return false;
                     }
                     break;
-                case Operator::GE:
+                case Operator::ge:
                     if (lv < rv) {
                         return false;
                     }
                     break;
-                case Operator::LT:
+                case Operator::lt:
                     if (lv < rv) {
                         return true;
                     }
                     break;
-                case Operator::GT:
+                case Operator::gt:
                     if (lv > rv) {
                         return true;
                     }
                     break;
-                case Operator::NE:
+                case Operator::ne:
                     if (lv != rv) {
                         return true;
                     }
@@ -92,18 +96,19 @@ namespace version {
                 }
             }
 
-            return (op == Operator::EQ || op == Operator::LE || op == Operator::GE);
+            return (op == Operator::eq || op == Operator::le || op == Operator::ge);
         }
 
     } // namespace
 
     tl::expected<bool, std::string> compare(std::string_view left, Operator op, std::string_view right, Schema schema) {
         switch (schema) {
-        case Schema::SIMPLE:
+        case Schema::simple:
             return simple_compare(left, op, right);
         default:
-            unreachable("Only the simple schema is implemented");
+            CPS_UNREACHABLE("Only the simple schema is implemented");
+            return "Only the simple schema is implemented.";
         }
     }
 
-} // namespace version
+} // namespace cps::version

@@ -3,12 +3,14 @@
 
 #pragma once
 
-#include "loader.hpp"
-#include <string>
+#include "cps/loader.hpp"
+
 #include <tl/expected.hpp>
+
+#include <string>
 #include <vector>
 
-namespace search {
+namespace cps::search {
 
     class Result {
       public:
@@ -30,4 +32,4 @@ namespace search {
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
                                                    bool default_components);
 
-} // namespace search
+} // namespace cps::search

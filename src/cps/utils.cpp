@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2024 Dylan Baker
+// Copyright © 2024 Bret Brown
 
-#include "utils.hpp"
+#include "cps/utils.hpp"
 
-namespace utils {
+namespace cps::utils {
 
     std::vector<std::string> split(std::string_view input, std::string_view delim) {
         size_t last = 0, next = 0;
@@ -18,4 +19,4 @@ namespace utils {
         return out;
     }
 
-} // namespace utils
+} // namespace cps::utils
