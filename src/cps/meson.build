@@ -1,8 +1,8 @@
 
 conf = configuration_data()
 conf.set_quoted('CPS_VERSION', meson.project_version())
-foreach f : ['USE_BUILTIN_UNREACHABLE']
-  conf.set10('CPS_@0@'.format(f.to_upper()), cpp.has_function(f))
+foreach f : ['unreachable']
+  conf.set10('CPS_USE_BUILTIN_@0@'.format(f.to_upper()), cpp.has_function(f))
 endforeach
 
 conf_h = configure_file(
