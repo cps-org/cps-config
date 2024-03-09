@@ -30,10 +30,16 @@ namespace cps_config {
             ("modversion", "print the specified module's version to stdout")
             ("component", "look for the specified component", cxxopts::value<std::vector<std::string>>())
             ("version", "print cps-config version")
-            ("format", "output format", cxxopts::value<std::string>());
+            ("format", "output format", cxxopts::value<std::string>())
+            ("h,help", "print usage");
         // clang-format on
         options.parse_positional({"package"});
         auto parsed_options = options.parse(argc, argv);
+
+        if (parsed_options.count("help")) {
+            fmt::println(options.help());
+            return 0;
+        }
 
         if (parsed_options.count("package")) {
             package_name = parsed_options["package"].as<std::string>();
