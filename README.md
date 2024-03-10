@@ -40,6 +40,10 @@ option, which can have a state of `disabled`, `enabled`, or `auto`, as described
 in the linked documentation. The default is `auto`, which is usually desirable
 for end users.
 
+## Devloper guide
+
+[See here](docs/dev.md)
+
 ## Status
 
 CPS-config is currently in alpha status. Some things work, others do not.
