@@ -1,0 +1,52 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Test
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cfg:
+          - { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: ""}
+          - { id: ubuntu-gcc-sanitize, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined"}
+          - { id: ubuntu-clang, platform: ubuntu, cc: clang, cpp: clang++, setup_options: ""}
+          - { id: rockylinux-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: ""}
+          - { id: rockylinux-gcc-sanitize, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined"}
+          - { id: rockylinux-clang, platform: ubuntu, cc: clang, cpp: clang++, setup_options: ""}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ${{ matrix.cfg.id }}
+          file: tests/docker/${{ matrix.cfg.platform }}.Dockerfile
+          build-args: |
+            cc=${{ matrix.cfg.cc }}
+            cxx=${{ matrix.cfg.cpp }}
+            setup_options=${{ matrix.cfg.setup_options }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Run tests
+        run: |
+          docker run ${{ matrix.cfg.id }} ninja -C builddir test

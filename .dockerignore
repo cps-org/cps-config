@@ -1,0 +1,16 @@
+# Build directory
+
+builddir/
+
+# Irrelevant files
+
+.github/
+.clang-format
+.gitignore
+LICENSE
+README.md
+
+# Dockerfiles
+
+*/*/*Dockerfile
+*/*/*Dockerfile.in
