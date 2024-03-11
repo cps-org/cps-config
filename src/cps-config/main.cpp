@@ -5,19 +5,40 @@
 #include "cps/config.hpp"
 #include "cps/printer.hpp"
 #include "cps/search.hpp"
+
 #include <cxxopts.hpp>
 #include <fmt/format.h>
+
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace cps_config {
     int run(int argc, char * argv[]) {
+        using namespace std::string_literals;
+
         cps::printer::Config conf{};
         std::vector<std::string> components;
         std::string format{"pkgconf"};
         std::string package_name;
 
-        cxxopts::Options options("cps-config");
+        static auto const description = R"(cps-config is a utility for querying and using installed libraries.
+
+Examples:
+
+   Getting include directory flags for a set of dependencies.
+      $ cps-config --cflags-only-I fmt
+      -I/usr/include\n
+
+   Getting link directory flags for a set of dependencies.
+      $ cps-config --libs-only-L fmt
+      -L/usr/lib\n"s;
+
+Support:
+
+    Please report bugs to <https://github.com/cps-org/cps-config/issues>.
+)"s;
+        cxxopts::Options options("cps-config", description);
         // clang-format off
         options.add_options()
             ("package", "search for the specified package", cxxopts::value<std::string>())
@@ -30,11 +51,17 @@ namespace cps_config {
             ("modversion", "print the specified module's version to stdout")
             ("component", "look for the specified component", cxxopts::value<std::vector<std::string>>())
             ("version", "print cps-config version")
-            ("format", "output format", cxxopts::value<std::string>());
+            ("format", "output format", cxxopts::value<std::string>())
+            ("h,help", "print usage");
         // clang-format on
         options.parse_positional({"package"});
+        options.positional_help("<packages>");
         auto parsed_options = options.parse(argc, argv);
 
+        if (parsed_options.count("help")) {
+            fmt::println(options.help());
+            return 0;
+        }
         if (parsed_options.count("package")) {
             package_name = parsed_options["package"].as<std::string>();
         } else {
