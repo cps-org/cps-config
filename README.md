@@ -1,7 +1,7 @@
 # CPS-Config
 
 CPS-Config has been designed to be used a drop-in replacement for pkg-config,
-with at least some features from pkgconf, as well as it's own features.
+with at least some features from pkgconf, as well as its own features.
 
 ## Building
 
