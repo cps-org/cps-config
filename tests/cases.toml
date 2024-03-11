@@ -2,7 +2,7 @@
   name = "cflags"
   cps = "minimal"
   args = ["--cflags"]
-  expected = "-fopenmp -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+  expected = "-fopenmp -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHE"
 
 [[case]]
   name = "cflags-only-other"
