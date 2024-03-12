@@ -1,18 +1,20 @@
 {
-    "Name": "diamond",
-    "Cps-Version": "0.9.0",
-    "Requires": {
+    "name": "diamond",
+    "cps_version": "0.10.0",
+    "requires": {
         "needs-components1": {},
         "needs-components2": {}
     },
-    "Components": {
+    "components": {
         "default": {
-            "Type": "interface",
-            "Requires": ["needs-components1", "needs-components2"]
+            "type": "interface",
+            "requires": [
+                "needs-components1",
+                "needs-components2"
+            ]
         }
     },
-    "Default-Components": ["default"]
+    "default_components": [
+        "default"
+    ]
 }
-
-
-

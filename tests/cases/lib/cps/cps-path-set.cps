@@ -1,15 +1,20 @@
 {
-    "Name": "cps-path-set",
-    "Cps-Version": "0.9.0",
-    "Cps-Path": "/sentinel/lib/cps/",
-    "Version": "1.0.0",
-    "Components": {
+    "name": "cps-path-set",
+    "cps_version": "0.10.0",
+    "cps_path": "/sentinel/lib/cps/",
+    "version": "1.0.0",
+    "components": {
         "default": {
-            "Type": "archive",
-            "Includes": {"C": ["@prefix@/err"]},
-            "Location": "@prefix@/lib/libfoo.a"
+            "type": "archive",
+            "includes": {
+                "c": [
+                    "@prefix@/err"
+                ]
+            },
+            "location": "@prefix@/lib/libfoo.a"
         }
     },
-    "Default-Components": ["default"]
+    "default_components": [
+        "default"
+    ]
 }
-

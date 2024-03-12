@@ -1,18 +1,22 @@
 {
-    "Name": "needs-components2",
-    "Cps-Version": "0.9.0",
-    "Requires": {
+    "name": "needs-components2",
+    "cps_version": "0.10.0",
+    "requires": {
         "multiple-components": {
-            "components": ["sample2"]
+            "components": [
+                "sample2"
+            ]
         }
     },
-    "Components": {
+    "components": {
         "default": {
-            "Type": "interface",
-            "Requires": ["multiple-components:sample2"]
+            "type": "interface",
+            "requires": [
+                "multiple-components:sample2"
+            ]
         }
     },
-    "Default-Components": ["default"]
+    "default_components": [
+        "default"
+    ]
 }
-
-
