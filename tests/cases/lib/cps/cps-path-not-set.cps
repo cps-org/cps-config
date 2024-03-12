@@ -1,14 +1,19 @@
 {
-    "Name": "cps-path-not-set",
-    "Cps-Version": "0.9.0",
-    "Version": "1.0.0",
-    "Components": {
+    "name": "cps-path-not-set",
+    "cps_version": "0.10.0",
+    "version": "1.0.0",
+    "components": {
         "default": {
-            "Type": "archive",
-            "Includes": {"C": ["@prefix@/err"]},
-            "Location": "@prefix@/lib/libfoo.a"
+            "type": "archive",
+            "includes": {
+                "c": [
+                    "@prefix@/err"
+                ]
+            },
+            "location": "@prefix@/lib/libfoo.a"
         }
     },
-    "Default-Components": ["default"]
+    "default_components": [
+        "default"
+    ]
 }
-

@@ -1,40 +1,70 @@
 {
-    "Name": "multiple-components",
-    "Cps-Version": "0.9.0",
-    "Requires": {
+    "name": "multiple-components",
+    "cps_version": "0.10.0",
+    "requires": {
         "minimal": {}
     },
-    "Components": {
+    "components": {
         "sample1": {
-            "Type": "archive",
-            "Compile-Flags": ["-fopenmp"],
-            "Includes": {"C": ["/usr/local/include"]},
-            "Defines": [],
-            "Location": "fake"
+            "type": "archive",
+            "compile_flags": [
+                "-fopenmp"
+            ],
+            "includes": {
+                "c": [
+                    "/usr/local/include"
+                ]
+            },
+            "defines": [],
+            "location": "fake"
         },
         "sample2": {
-            "Type": "archive",
-            "Compile-Flags": ["-fopenmp"],
-            "Includes": ["/opt/include"],
-            "Defines": {"C": ["FOO=1"], "C++": ["!FOO"]},
-            "Location": "/something/lib/libfoo.so.1.2.0"
+            "type": "archive",
+            "compile_flags": [
+                "-fopenmp"
+            ],
+            "includes": [
+                "/opt/include"
+            ],
+            "defines": {
+                "c": [
+                    "FOO=1"
+                ],
+                "c++": [
+                    "!FOO"
+                ]
+            },
+            "location": "/something/lib/libfoo.so.1.2.0"
         },
         "sample3": {
-            "Type": "archive",
-            "Includes": {"C": ["/something"]},
-            "Link-Libraries": ["dl", "rt"],
-            "Location": "/something/lib/libfoo.so.1.2.0",
-            "Link-Location": "/something/lib/libfoo.so"
+            "type": "archive",
+            "includes": {
+                "c": [
+                    "/something"
+                ]
+            },
+            "link_libraries": [
+                "dl",
+                "rt"
+            ],
+            "location": "/something/lib/libfoo.so.1.2.0",
+            "link_location": "/something/lib/libfoo.so"
         },
         "sample4": {
-            "Type": "interface",
-            "Requires": [":sample3"]
+            "type": "interface",
+            "requires": [
+                ":sample3"
+            ]
         },
         "requires-external": {
-            "Type": "interface",
-            "Requires": ["minimal:sample0"]
+            "type": "interface",
+            "requires": [
+                "minimal:sample0"
+            ]
         }
     },
-    "Default-Components": ["sample1", "sample2"]
+    "default_components": [
+        "sample1",
+        "sample2"
+    ]
 }
-

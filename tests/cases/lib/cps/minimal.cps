@@ -1,22 +1,51 @@
 {
-    "Name": "minimal",
-    "Cps-Version": "0.9.0",
-    "Version": "1.0.0",
-    "Components": {
+    "name": "minimal",
+    "cps_version": "0.10.0",
+    "version": "1.0.0",
+    "components": {
         "sample0": {
-            "Type": "archive",
-            "Compile-Flags": ["-fsentinal"],
-            "Includes": {"C": ["/err"]},
-            "Defines": {"C": ["-DFAIL"]},
-            "Location": "fake"
+            "type": "archive",
+            "compile_flags": [
+                "-fsentinal"
+            ],
+            "includes": {
+                "c": [
+                    "/err"
+                ]
+            },
+            "defines": {
+                "c": [
+                    "-DFAIL"
+                ]
+            },
+            "location": "fake"
         },
         "sample1": {
-            "Type": "archive",
-            "Compile-Flags": ["-fopenmp"],
-            "Includes": {"C": ["/usr/local/include", "/opt/include"]},
-            "Defines": {"C": ["FOO=1", "BAR=2", "!BAR", "OTHER"], "C++": ["!FOO"]},
-            "Location": "fake"
+            "type": "archive",
+            "compile_flags": [
+                "-fopenmp"
+            ],
+            "includes": {
+                "c": [
+                    "/usr/local/include",
+                    "/opt/include"
+                ]
+            },
+            "defines": {
+                "c": [
+                    "FOO=1",
+                    "BAR=2",
+                    "!BAR",
+                    "OTHER"
+                ],
+                "c++": [
+                    "!FOO"
+                ]
+            },
+            "location": "fake"
         }
     },
-    "Default-Components": ["sample1"]
+    "default_components": [
+        "sample1"
+    ]
 }
