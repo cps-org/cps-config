@@ -10,6 +10,7 @@ RUN dnf install epel-release -y
 RUN dnf install -y \
         python3.11 \
         python3-pip \
+        pkgconf-pkg-config \
         ccache \
         clang \
         g++ \
