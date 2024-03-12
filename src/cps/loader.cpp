@@ -114,10 +114,10 @@ namespace cps::loader {
             if (value.isObject()) {
                 // TODO: simplify this further, maybe with a loop?
                 auto && cb = [](auto && r) { return r.value_or(std::vector<std::string>{}); };
-                ret[KnownLanguages::c] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "C").map(cb));
-                ret[KnownLanguages::cxx] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "C++").map(cb));
+                ret[KnownLanguages::c] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c").map(cb));
+                ret[KnownLanguages::cxx] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c++").map(cb));
                 ret[KnownLanguages::fortran] =
-                    CPS_TRY(get_optional<std::vector<std::string>>(value, name, "Fortran").map(cb));
+                    CPS_TRY(get_optional<std::vector<std::string>>(value, name, "fortran").map(cb));
             } else if (value.isArray()) {
                 std::vector<std::string> fin;
                 for (auto && v : value) {
@@ -172,9 +172,9 @@ namespace cps::loader {
                 const Json::Value obj = *itr;
 
                 ret.emplace(key, Requirement{
-                                     CPS_TRY(get_optional<std::vector<std::string>>(require, name, "Components"))
+                                     CPS_TRY(get_optional<std::vector<std::string>>(require, name, "components"))
                                          .value_or(std::vector<std::string>{}),
-                                     CPS_TRY(get_optional<std::string>(require, name, "Version")),
+                                     CPS_TRY(get_optional<std::string>(require, name, "version")),
                                  });
             }
 
@@ -211,16 +211,16 @@ namespace cps::loader {
                 }
 
                 components[key] = Component{
-                    CPS_TRY(get_required<std::string>(comp, name, "Type").map(string_to_type)),
-                    CPS_TRY(get_lang_values(comp, name, "Compile-Flags")),
-                    CPS_TRY(get_lang_values(comp, name, "Includes")), CPS_TRY(get_defines(comp, name, "Defines")),
-                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "Link-Libraries"))
+                    CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type)),
+                    CPS_TRY(get_lang_values(comp, name, "compile_flags")),
+                    CPS_TRY(get_lang_values(comp, name, "includes")), CPS_TRY(get_defines(comp, name, "defines")),
+                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_libraries"))
                         .value_or(std::vector<std::string>{}),
                     // TODO: this is required if the type != interface
-                    CPS_TRY(get_optional<std::string>(comp, name, "Location")),
+                    CPS_TRY(get_optional<std::string>(comp, name, "location")),
                     // XXX: https://github.com/cps-org/cps/issues/34
-                    CPS_TRY(get_optional<std::string>(comp, name, "Link-Location")),
-                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "Requires"))
+                    CPS_TRY(get_optional<std::string>(comp, name, "link_location")),
+                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
                         .value_or(std::vector<std::string>{})};
             }
 
@@ -276,14 +276,14 @@ namespace cps::loader {
         file >> root;
 
         return Package{
-            CPS_TRY(get_required<std::string>(root, "package", "Name")),
-            CPS_TRY(get_required<std::string>(root, "package", "Cps-Version")),
-            CPS_TRY(get_components(root, "package", "Components")),
-            CPS_TRY(get_optional<std::string>(root, "package", "Cps-Path")).value_or(path.parent_path()),
-            CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "Default-Components")),
-            CPS_TRY(get_requires(root, "package", "Requires")),
-            CPS_TRY(get_optional<std::string>(root, "package", "Version")),
-            CPS_TRY(get_optional<std::string>(root, "package", "Version-Schema").map([](auto && v) {
+            CPS_TRY(get_required<std::string>(root, "package", "name")),
+            CPS_TRY(get_required<std::string>(root, "package", "cps_version")),
+            CPS_TRY(get_components(root, "package", "components")),
+            CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(path.parent_path()),
+            CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components")),
+            CPS_TRY(get_requires(root, "package", "requires")),
+            CPS_TRY(get_optional<std::string>(root, "package", "version")),
+            CPS_TRY(get_optional<std::string>(root, "package", "version_schema").map([](auto && v) {
                 return string_to_schema(v.value_or("simple"));
             })),
         };
