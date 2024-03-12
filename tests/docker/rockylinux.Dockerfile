@@ -24,7 +24,7 @@ RUN dnf install -y \
 RUN dnf clean all
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip
-RUN python3 -m pip install -U meson
+RUN python3 -m pip install -U meson==0.64.1
 
 # Copy code
 WORKDIR /workarea
