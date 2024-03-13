@@ -59,13 +59,13 @@ Support:
         auto parsed_options = options.parse(argc, argv);
 
         if (parsed_options.count("help")) {
-            fmt::println(options.help());
+            fmt::print("{}\n", options.help());
             return 0;
         }
         if (parsed_options.count("package")) {
             package_name = parsed_options["package"].as<std::string>();
         } else {
-            fmt::println(stderr, "Expected a package name to be specified");
+            fmt::print(stderr, "Expected a package name to be specified\n");
             return 1;
         }
 
@@ -102,7 +102,7 @@ Support:
             components = parsed_options["component"].as<std::vector<std::string>>();
         }
         if (parsed_options.count("version")) {
-            fmt::println(CPS_VERSION);
+            fmt::print("{}\n", CPS_VERSION);
             return 0;
         }
         if (parsed_options.count("format")) {
@@ -111,7 +111,7 @@ Support:
 
         auto && p = cps::search::find_package(package_name, components, components.empty());
         if (!p) {
-            fmt::println(p.error());
+            fmt::print("{}\n", p.error());
             return 1;
         }
         auto && result = p.value();
@@ -121,7 +121,7 @@ Support:
             return 0;
         }
 
-        fmt::println(stderr, "Unknown mode {}", format);
+        fmt::print(stderr, "Unknown mode {}\n", format);
         return 1;
     }
 } // namespace cps_config
