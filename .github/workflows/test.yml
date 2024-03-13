@@ -16,12 +16,10 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: ""}
-          - { id: ubuntu-gcc-sanitize, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined"}
+          - { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined"}
           - { id: ubuntu-clang, platform: ubuntu, cc: clang, cpp: clang++, setup_options: ""}
           - { id: rockylinux-gcc, platform: rockylinux, cc: gcc, cpp: g++, setup_options: ""}
-          - { id: rockylinux-gcc-sanitize, platform: rockylinux, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined"}
-          - { id: rockylinux-clang, platform: rockylinux, cc: clang, cpp: clang++, setup_options: ""}
+          - { id: rockylinux-clang, platform: rockylinux, cc: clang, cpp: clang++, setup_options: "-Db_sanitize=address,undefined -Db_lundef=false"}
 
     steps:
       - uses: actions/checkout@v2
