@@ -15,7 +15,7 @@ namespace cps::printer {
         std::vector<std::string> args{};
 
         if (conf.mod_version) {
-            fmt::println(r.version);
+            fmt::print("{}\n", r.version);
             return 0;
         }
 
