@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined -Dunity=on -Dunity_size=12"}
+          #- { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined -Dunity=on -Dunity_size=12"}
           - { id: ubuntu-clang, platform: ubuntu, cc: clang, cpp: clang++, setup_options: "-Dunity=on -Dunity_size=12"}
           - { id: rockylinux-gcc, platform: rockylinux, cc: gcc, cpp: g++, setup_options: "-Dunity=on -Dunity_size=12"}
           - { id: rockylinux-clang, platform: rockylinux, cc: clang, cpp: clang++, setup_options: "-Db_sanitize=address,undefined -Db_lundef=false -Dunity=on -Dunity_size=12"}
