@@ -1,11 +1,20 @@
 name: Test
 
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "meson.build"
+      - "meson_options.txt"
   pull_request:
     branches: [ main ]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "meson.build"
+      - "meson_options.txt"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
