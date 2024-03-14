@@ -14,13 +14,22 @@
 #include <vector>
 
 namespace cps_config {
-    int run(int argc, char * argv[]) {
+    struct ProgramOutput {
+        int retval = 0;
+        std::string debug_output = "";
+        bool errors_to_stdout = false;
+
+        static auto Success() { return ProgramOutput{}; }
+    };
+
+    ProgramOutput run(int argc, char * argv[]) {
         using namespace std::string_literals;
 
         cps::printer::Config conf{};
         std::vector<std::string> components;
         std::string format{"pkgconf"};
         std::string package_name;
+        bool errors_to_stdout = false;
 
         static auto const description = R"(cps-config is a utility for querying and using installed libraries.
 
@@ -52,6 +61,7 @@ Support:
             ("component", "look for the specified component", cxxopts::value<std::vector<std::string>>())
             ("format", "output format", cxxopts::value<std::string>())
             ("print-errors", "enables debug messages when errors are encountered")
+            ("errors-to-stdout", "print errors to stdout instead of stderr")
             ("v,version", "print cps-config version")
             ("h,help", "print usage");
         // clang-format on
@@ -61,23 +71,25 @@ Support:
 
         if (parsed_options.count("help")) {
             fmt::print("{}\n", options.help());
-            return 0;
+            return ProgramOutput::Success();
         }
         if (parsed_options.count("version")) {
             fmt::print("{}\n", CPS_VERSION);
-            return 0;
+            return ProgramOutput::Success();
         }
         if (parsed_options.count("print-errors")) {
             conf.print_errors = true;
+        }
+        if (parsed_options.count("errors-to-stdout")) {
+            errors_to_stdout = true;
         }
 
         if (parsed_options.count("package")) {
             package_name = parsed_options["package"].as<std::string>();
         } else {
-            if (conf.print_errors) {
-                fmt::print(stderr, "Expected a package name to be specified\n");
-            }
-            return 1;
+            return ProgramOutput{.retval = 1,
+                                 .debug_output = conf.print_errors ? "Expected a package name to be specified\n" : "",
+                                 .errors_to_stdout = errors_to_stdout};
         }
 
         if (parsed_options.count("cflags")) {
@@ -118,23 +130,31 @@ Support:
 
         auto && p = cps::search::find_package(package_name, components, components.empty());
         if (!p) {
-            if (conf.print_errors) {
-                fmt::print("{}\n", p.error());
-            }
-            return 1;
+            return ProgramOutput{.retval = 1,
+                                 .debug_output = conf.print_errors ? fmt::format("{}\n", p.error()) : "",
+                                 .errors_to_stdout = errors_to_stdout};
         }
         auto && result = p.value();
 
         if (format == "pkgconf") {
-            return cps::printer::pkgconf(result, conf);
-            return 0;
+            auto retval = cps::printer::pkgconf(result, conf);
+            return ProgramOutput{.retval = retval};
         }
 
-        if (conf.print_errors) {
-            fmt::print(stderr, "Unknown mode {}\n", format);
-        }
-        return 1;
+        return ProgramOutput{.retval = 1,
+                             .debug_output = conf.print_errors ? fmt::format("Unknown mode {}\n", format) : "",
+                             .errors_to_stdout = errors_to_stdout};
     }
 } // namespace cps_config
 
-int main(int argc, char * argv[]) { return cps_config::run(argc, argv); }
+int main(int argc, char * argv[]) {
+    auto result = cps_config::run(argc, argv);
+    if (!result.debug_output.empty()) {
+        if (result.errors_to_stdout) {
+            fmt::print(stdout, "{}", result.debug_output);
+        } else {
+            fmt::print(stderr, "{}", result.debug_output);
+        }
+    }
+    return result.retval;
+}
