@@ -7,6 +7,7 @@ cps_include_dir = include_directories('.')
 
 libcps = static_library(
   'cps',
+  'cps/env.cpp',
   'cps/loader.cpp',
   'cps/printer.cpp',
   'cps/search.cpp',

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cps/env.hpp"
 #include "cps/loader.hpp"
 
 #include <tl/expected.hpp>
@@ -27,9 +28,9 @@ namespace cps::search {
     // TODO: restrictions like versions
     // TODO: caching loading packages?
     // TODO: multiple versions of packages?
-    tl::expected<Result, std::string> find_package(std::string_view name);
+    tl::expected<Result, std::string> find_package(std::string_view name, Env env);
 
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
-                                                   bool default_components);
+                                                   bool default_components, Env env);
 
 } // namespace cps::search
