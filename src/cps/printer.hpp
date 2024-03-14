@@ -16,6 +16,7 @@ namespace cps::printer {
         bool libs_search = false;
         bool libs_other = false;
         bool mod_version = false;
+        bool print_errors = false;
     };
 
     int pkgconf(const search::Result & dag, const Config & conf);

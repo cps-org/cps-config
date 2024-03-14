@@ -51,6 +51,7 @@ Support:
             ("modversion", "print the specified module's version to stdout")
             ("component", "look for the specified component", cxxopts::value<std::vector<std::string>>())
             ("format", "output format", cxxopts::value<std::string>())
+            ("print-errors", "enables debug messages when errors are encountered")
             ("v,version", "print cps-config version")
             ("h,help", "print usage");
         // clang-format on
@@ -66,11 +67,16 @@ Support:
             fmt::print("{}\n", CPS_VERSION);
             return 0;
         }
+        if (parsed_options.count("print-errors")) {
+            conf.print_errors = true;
+        }
 
         if (parsed_options.count("package")) {
             package_name = parsed_options["package"].as<std::string>();
         } else {
-            fmt::print(stderr, "Expected a package name to be specified\n");
+            if (conf.print_errors) {
+                fmt::print(stderr, "Expected a package name to be specified\n");
+            }
             return 1;
         }
 
@@ -112,7 +118,9 @@ Support:
 
         auto && p = cps::search::find_package(package_name, components, components.empty());
         if (!p) {
-            fmt::print("{}\n", p.error());
+            if (conf.print_errors) {
+                fmt::print("{}\n", p.error());
+            }
             return 1;
         }
         auto && result = p.value();
@@ -122,7 +130,9 @@ Support:
             return 0;
         }
 
-        fmt::print(stderr, "Unknown mode {}\n", format);
+        if (conf.print_errors) {
+            fmt::print(stderr, "Unknown mode {}\n", format);
+        }
         return 1;
     }
 } // namespace cps_config
