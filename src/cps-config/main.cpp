@@ -50,8 +50,8 @@ Support:
             ("libs-only-other", "print required other linker flags to stdout")
             ("modversion", "print the specified module's version to stdout")
             ("component", "look for the specified component", cxxopts::value<std::vector<std::string>>())
-            ("version", "print cps-config version")
             ("format", "output format", cxxopts::value<std::string>())
+            ("v,version", "print cps-config version")
             ("h,help", "print usage");
         // clang-format on
         options.parse_positional({"package"});
@@ -62,6 +62,11 @@ Support:
             fmt::print("{}\n", options.help());
             return 0;
         }
+        if (parsed_options.count("version")) {
+            fmt::print("{}\n", CPS_VERSION);
+            return 0;
+        }
+
         if (parsed_options.count("package")) {
             package_name = parsed_options["package"].as<std::string>();
         } else {
@@ -100,10 +105,6 @@ Support:
         }
         if (parsed_options.count("component")) {
             components = parsed_options["component"].as<std::vector<std::string>>();
-        }
-        if (parsed_options.count("version")) {
-            fmt::print("{}\n", CPS_VERSION);
-            return 0;
         }
         if (parsed_options.count("format")) {
             format = parsed_options["format"].as<std::string>();
