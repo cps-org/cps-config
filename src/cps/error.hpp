@@ -5,7 +5,7 @@
 
 #include <tl/expected.hpp>
 
-#define CPS_TRY(expr)                                                                                                      \
+#define CPS_TRY(expr)                                                                                                  \
     ({                                                                                                                 \
         auto && t_expect = (expr);                                                                                     \
         if (not t_expect)                                                                                              \

@@ -69,4 +69,4 @@ namespace cps::printer {
         return 0;
     }
 
-} // namespace printer
+} // namespace cps::printer
