@@ -1,0 +1,35 @@
+name: Pixi
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "meson.build"
+      - "meson_options.txt"
+      - "pixi.lock"
+      - "pixi.toml"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "meson.build"
+      - "meson_options.txt"
+      - "pixi.lock"
+      - "pixi.toml"
+
+jobs:
+  pixi:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: prefix-dev/setup-pixi@v0.5.1
+      with:
+        pixi-version: v0.16.1
+        cache: true
+        cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    - run: pixi run setup
+    - run: pixi run build
+    - run: pixi run test
