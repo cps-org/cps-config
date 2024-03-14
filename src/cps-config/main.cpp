@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "cps/config.hpp"
+#include "cps/env.hpp"
 #include "cps/printer.hpp"
 #include "cps/search.hpp"
 
@@ -30,6 +31,9 @@ namespace cps_config {
         std::string format{"pkgconf"};
         std::string package_name;
         bool errors_to_stdout = false;
+
+        // read enviroment variables
+        auto env = cps::get_env();
 
         static auto const description = R"(cps-config is a utility for querying and using installed libraries.
 
@@ -77,7 +81,7 @@ Support:
             fmt::print("{}\n", CPS_VERSION);
             return ProgramOutput::Success();
         }
-        if (parsed_options.count("print-errors")) {
+        if (parsed_options.count("print-errors") || env.debug_spew) {
             conf.print_errors = true;
         }
         if (parsed_options.count("errors-to-stdout")) {
@@ -128,7 +132,7 @@ Support:
             format = parsed_options["format"].as<std::string>();
         }
 
-        auto && p = cps::search::find_package(package_name, components, components.empty());
+        auto && p = cps::search::find_package(package_name, components, components.empty(), env);
         if (!p) {
             return ProgramOutput{.retval = 1,
                                  .debug_output = conf.print_errors ? fmt::format("{}\n", p.error()) : "",

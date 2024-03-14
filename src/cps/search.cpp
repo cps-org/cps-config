@@ -76,17 +76,17 @@ namespace cps::search {
 
         std::vector<fs::path> cached_paths{};
 
-        const std::vector<fs::path> search_paths() {
+        const std::vector<fs::path> search_paths(Env env) {
             if (!cached_paths.empty()) {
                 return cached_paths;
             }
 
-            if (const char * env_c = std::getenv("CPS_PATH")) {
+            if (env.cps_path) {
                 cached_paths.reserve(nix.size());
                 cached_paths.insert(cached_paths.end(), nix.begin(), nix.end());
-                auto && env = utils::split(env_c);
-                cached_paths.reserve(env.size());
-                cached_paths.insert(cached_paths.end(), env.begin(), env.end());
+                auto && paths = utils::split(env.cps_path.value());
+                cached_paths.reserve(paths.size());
+                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
             } else {
                 cached_paths = nix;
             }
@@ -105,7 +105,7 @@ namespace cps::search {
         /// @brief Find all possible paths for a given CPS name
         /// @param name The name of the CPS file to find
         /// @return A vector of paths which patch the given name, or an error
-        tl::expected<std::vector<fs::path>, std::string> find_paths(std::string_view name) {
+        tl::expected<std::vector<fs::path>, std::string> find_paths(std::string_view name, Env env) {
             // If a path is passed, then just return that.
             if (fs::is_regular_file(name)) {
                 return std::vector<fs::path>{name};
@@ -116,7 +116,7 @@ namespace cps::search {
             // a file
             // TODO: what to do about finding multiple versions of the same
             // dependency?
-            auto && paths = search_paths();
+            auto && paths = search_paths(env);
             std::vector<fs::path> found{};
             for (auto && prefix : paths) {
                 // TODO: <prefix>/<libdir>/cps/<name-like>/
@@ -197,8 +197,8 @@ namespace cps::search {
         };
 
         tl::expected<std::shared_ptr<Node>, std::string>
-        build_node(std::string_view name, const loader::Requirement & requirements, NodeFactory factory) {
-            const std::vector<fs::path> paths = CPS_TRY(find_paths(name));
+        build_node(std::string_view name, const loader::Requirement & requirements, NodeFactory factory, Env env) {
+            const std::vector<fs::path> paths = CPS_TRY(find_paths(name, env));
             for (auto && path : paths) {
 
                 auto maybe_node = factory.get(name, path);
@@ -227,7 +227,7 @@ namespace cps::search {
                 std::vector<std::shared_ptr<Node>> found;
                 found.reserve(p.require.size());
                 for (auto && [n, r] : p.require) {
-                    auto && child = build_node(n, r, factory);
+                    auto && child = build_node(n, r, factory, env);
                     if (child) {
                         found.emplace_back(child.value());
                     } else {
@@ -246,9 +246,9 @@ namespace cps::search {
         }
 
         tl::expected<std::shared_ptr<Node>, std::string> build_node(std::string_view name,
-                                                                    const loader::Requirement & requirements) {
+                                                                    const loader::Requirement & requirements, Env env) {
             NodeFactory factory{};
-            return build_node(name, requirements, factory);
+            return build_node(name, requirements, factory, env);
         }
 
         template <typename T, typename U>
@@ -347,12 +347,14 @@ namespace cps::search {
 
     Result::Result(){};
 
-    tl::expected<Result, std::string> find_package(std::string_view name) { return find_package(name, {}, true); }
+    tl::expected<Result, std::string> find_package(std::string_view name, Env env) {
+        return find_package(name, {}, true, env);
+    }
 
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
-                                                   bool default_components) {
+                                                   bool default_components, Env env) {
         // XXX: do we need process_requires here?
-        auto && root = CPS_TRY(build_node(name, loader::Requirement{components}));
+        auto && root = CPS_TRY(build_node(name, loader::Requirement{components}, env));
         // This has to be done as a two step pass, since we want to trim any
         // unecessary nodes from the graph, but we cannot do that while finding,
         // since we could hae a diamond dependency, where the two dependees have
