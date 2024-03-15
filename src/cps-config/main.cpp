@@ -10,6 +10,7 @@
 #include <cxxopts.hpp>
 #include <fmt/format.h>
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -31,6 +32,7 @@ namespace cps_config {
         std::string format{"pkgconf"};
         std::string package_name;
         bool errors_to_stdout = false;
+        std::optional<std::string> prefix_variable = std::nullopt;
 
         // read enviroment variables
         auto env = cps::get_env();
@@ -66,6 +68,7 @@ Support:
             ("format", "output format", cxxopts::value<std::string>())
             ("print-errors", "enables debug messages when errors are encountered")
             ("errors-to-stdout", "print errors to stdout instead of stderr")
+            ("prefix-variable", "set value of @prefix@ instead of infering it from where the cps file was found", cxxopts::value<std::string>())
             ("v,version", "print cps-config version")
             ("h,help", "print usage");
         // clang-format on
@@ -131,8 +134,11 @@ Support:
         if (parsed_options.count("format")) {
             format = parsed_options["format"].as<std::string>();
         }
+        if (parsed_options.count("prefix-variable")) {
+            prefix_variable = parsed_options["prefix-variable"].as<std::string>();
+        }
 
-        auto && p = cps::search::find_package(package_name, components, components.empty(), env);
+        auto && p = cps::search::find_package(package_name, components, components.empty(), env, prefix_variable);
         if (!p) {
             return ProgramOutput{.retval = 1,
                                  .debug_output = conf.print_errors ? fmt::format("{}\n", p.error()) : "",

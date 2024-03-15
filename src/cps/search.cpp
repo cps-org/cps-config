@@ -349,11 +349,12 @@ namespace cps::search {
     Result::Result(){};
 
     tl::expected<Result, std::string> find_package(std::string_view name, Env env) {
-        return find_package(name, {}, true, env);
+        return find_package(name, {}, true, env, std::nullopt);
     }
 
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
-                                                   bool default_components, Env env) {
+                                                   bool default_components, Env env,
+                                                   std::optional<std::string> prefix_variable) {
         // XXX: do we need process_requires here?
         auto && root = CPS_TRY(build_node(name, loader::Requirement{components}, env));
         // This has to be done as a two step pass, since we want to trim any
@@ -367,13 +368,21 @@ namespace cps::search {
 
         result.version = root->data.package.version.value_or("unknown");
 
+        const auto prefix_path = [&]() -> std::optional<fs::path> {
+            if (prefix_variable) {
+                return fs::path{prefix_variable.value()};
+            }
+            return std::nullopt;
+        }();
+
         for (auto && node : flat) {
 
             const auto && prefix_replacer = [&](const std::string & s) -> std::string {
                 // TODO: Windows…
                 auto && split = utils::split(s, "/");
                 if (split[0] == "@prefix@") {
-                    fs::path p = calculate_prefix(node->data.package.cps_path);
+                    auto p =
+                        prefix_path.has_value() ? prefix_path.value() : calculate_prefix(node->data.package.cps_path);
                     for (auto it = split.begin() + 1; it != split.end(); ++it) {
                         p /= *it;
                     }
