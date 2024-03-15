@@ -30,7 +30,9 @@ namespace cps::search {
     // TODO: multiple versions of packages?
     tl::expected<Result, std::string> find_package(std::string_view name, Env env);
 
+    /// prefix_variable optional override for prefix variable
     tl::expected<Result, std::string> find_package(std::string_view name, const std::vector<std::string> & components,
-                                                   bool default_components, Env env);
+                                                   bool default_components, Env env,
+                                                   std::optional<std::string> prefix_variable);
 
 } // namespace cps::search
