@@ -381,8 +381,7 @@ namespace cps::search {
                 // TODO: Windows…
                 auto && split = utils::split(s, "/");
                 if (split[0] == "@prefix@") {
-                    auto p =
-                        prefix_path.has_value() ? prefix_path.value() : calculate_prefix(node->data.package.cps_path);
+                    auto p = prefix_path.value_or(calculate_prefix(node->data.package.cps_path));
                     for (auto it = split.begin() + 1; it != split.end(); ++it) {
                         p /= *it;
                     }
