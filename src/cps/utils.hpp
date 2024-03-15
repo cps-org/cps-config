@@ -13,7 +13,7 @@
 
 namespace cps::utils {
 
-    inline void assert_fn(bool expr, std::string_view msg) {
+    inline void assert_fn([[maybe_unused]] bool expr, [[maybe_unused]] std::string_view msg) {
 #ifndef NDEBUG
         if (!expr) {
             fmt::print(stderr, "{}\n", msg);
