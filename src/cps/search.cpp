@@ -415,6 +415,7 @@ namespace cps::search {
                 merge_result(comp.defines, result.defines);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);
+                merge_result(comp.link_flags, result.link_flags);
                 if (comp.type != loader::Type::interface) {
                     if (!comp.location) {
                         return tl::make_unexpected(fmt::format("Component `{}` requires 'location' attribute", c_name));

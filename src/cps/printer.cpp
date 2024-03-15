@@ -52,6 +52,22 @@ namespace cps::printer {
             }
         }
 
+        if (conf.libs_search) {
+            for (auto && f : r.link_flags) {
+                if (f.substr(0, 2) == "-L") {
+                    args.emplace_back(f);
+                }
+            }
+        }
+
+        if (conf.libs_other) {
+            for (auto && f : r.link_flags) {
+                if (auto && x = f.substr(0, 2); x != "-l" && x != "-L") {
+                    args.emplace_back(f);
+                }
+            }
+        }
+
         if (conf.libs_link) {
             if (auto && f = r.link_location; !f.empty()) {
                 args.reserve(args.size() + f.size());
@@ -62,6 +78,11 @@ namespace cps::printer {
                 args.reserve(args.size() + f.size());
                 std::transform(f.begin(), f.end(), std::back_inserter(args),
                                [](std::string_view s) { return fmt::format("-l{}", s); });
+            }
+            for (auto && f : r.link_flags) {
+                if (f.substr(0, 2) == "-l") {
+                    args.emplace_back(f);
+                }
             }
         }
 

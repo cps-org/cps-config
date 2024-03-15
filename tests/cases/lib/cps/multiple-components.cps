@@ -56,6 +56,11 @@
                 ":sample3"
             ]
         },
+        "link-flags": {
+            "type": "dylib",
+            "link_flags": ["-L/usr/lib/", "-lbar", "-flto"],
+            "location": "/something/lib/libfoo.so"
+        },
         "requires-external": {
             "type": "interface",
             "requires": [
