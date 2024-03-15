@@ -94,3 +94,27 @@
   args = ["--modversion", "--print-errors", "--errors-to-stdout"]
   expected = "Could not find a CPS file for needs-version.cps"
   returncode = 1
+
+[[case]]
+  name = "component link-flags"
+  cps = "multiple-components"
+  args = ["--component", "link-flags", "--libs"]
+  expected = "-L/usr/lib/ -flto -l/something/lib/libfoo.so -lbar"
+
+[[case]]
+  name = "component link-flags only -l"
+  cps = "multiple-components"
+  args = ["--component", "link-flags", "--libs-only-l"]
+  expected = "-l/something/lib/libfoo.so -lbar"
+
+[[case]]
+  name = "component link-flags only -L"
+  cps = "multiple-components"
+  args = ["--component", "link-flags", "--libs-only-L"]
+  expected = "-L/usr/lib/"
+
+[[case]]
+  name = "component link-flags only other"
+  cps = "multiple-components"
+  args = ["--component", "link-flags", "--libs-only-other"]
+  expected = "-flto"

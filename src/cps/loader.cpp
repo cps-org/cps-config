@@ -214,6 +214,8 @@ namespace cps::loader {
                     CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type)),
                     CPS_TRY(get_lang_values(comp, name, "compile_flags")),
                     CPS_TRY(get_lang_values(comp, name, "includes")), CPS_TRY(get_defines(comp, name, "defines")),
+                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
+                        .value_or(std::vector<std::string>{}),
                     CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_libraries"))
                         .value_or(std::vector<std::string>{}),
                     // TODO: this is required if the type != interface
@@ -243,11 +245,12 @@ namespace cps::loader {
 
     Component::Component() = default;
     Component::Component(Type _type, LangValues _cflags, LangValues _includes, Defines _defines,
-                         std::vector<std::string> _link_libs, std::optional<std::string> _loc,
-                         std::optional<std::string> _link_loc, std::vector<std::string> req)
+                         std::vector<std::string> _link_flags, std::vector<std::string> _link_libs,
+                         std::optional<std::string> _loc, std::optional<std::string> _link_loc,
+                         std::vector<std::string> req)
         : type{_type}, compile_flags{std::move(_cflags)}, includes{std::move(_includes)}, defines{std::move(_defines)},
-          link_libraries{std::move(_link_libs)}, location{std::move(_loc)}, link_location{std::move(_link_loc)},
-          require{std::move(req)} {};
+          link_flags{std::move(_link_flags)}, link_libraries{std::move(_link_libs)}, location{std::move(_loc)},
+          link_location{std::move(_link_loc)}, require{std::move(req)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags) : compile_flags{std::move(cflags)} {};

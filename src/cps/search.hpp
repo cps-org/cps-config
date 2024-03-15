@@ -21,6 +21,7 @@ namespace cps::search {
         loader::LangValues includes;
         loader::LangValues compile_flags;
         loader::Defines defines;
+        std::vector<std::string> link_flags;
         std::vector<std::string> link_libraries;
         std::vector<std::string> link_location;
     };

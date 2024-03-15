@@ -66,8 +66,9 @@ namespace cps::loader {
       public:
         Component();
         Component(Type type, LangValues cflags, LangValues includes, Defines defines,
-                  std::vector<std::string> link_libraries, std::optional<std::string> location,
-                  std::optional<std::string> link_location, std::vector<std::string> require);
+                  std::vector<std::string> link_flags, std::vector<std::string> link_libraries,
+                  std::optional<std::string> location, std::optional<std::string> link_location,
+                  std::vector<std::string> require);
 
         Type type;
         LangValues compile_flags;
@@ -76,6 +77,7 @@ namespace cps::loader {
         // TODO: configurations
         // TODO: std::vector<std::string> link_features;
         // TODO: std::vector<std::string> link_flags;
+        std::vector<std::string> link_flags;
         // TODO: std::vector<LinkLanguage> link_languages;
         std::vector<std::string> link_libraries;
         // TODO: link_requires
