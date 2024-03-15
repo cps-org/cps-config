@@ -71,28 +71,18 @@ namespace cps::search {
             return out;
         }
 
-        /// @brief Build a combination of all prefixes, subdirs, and name-like paths
-        /// @param roots the prefix roots
+        /// @brief Find all name-like matches for a named package in a subdirectory
+        /// @param subdir the path to search in
         /// @param name the name of the package to find
         /// @return all of the search paths combined into concrete instances
-        std::vector<fs::path> expand_search_paths(const std::vector<fs::path> & roots, std::string_view name) {
-            // TODO: Windows paths
-            // TODO: MacOS paths
-            const std::vector<fs::path> segments{platform::libdir(), "share"};
-            std::vector<fs::path> paths;
+        std::vector<fs::path> expand_namelike_paths(const fs::path & subdir, std::string_view name) {
+            std::vector<fs::path> paths{subdir};
 
-            for (auto && root : roots) {
-                for (auto && segment : segments) {
-                    if (const fs::path subdir = root / segment / "cps"; fs::is_directory(subdir)) {
-                        paths.emplace_back(subdir);
-                        if (const fs::path namedir = subdir / name; fs::is_directory(namedir)) {
-                            paths.emplace_back(namedir);
-                            for (const fs::path & name_subdir : fs::directory_iterator(namedir)) {
-                                if (fs::is_directory(name_subdir)) {
-                                    paths.emplace_back(name_subdir);
-                                }
-                            }
-                        }
+            if (const fs::path namedir = subdir / name; fs::is_directory(namedir)) {
+                paths.emplace_back(namedir);
+                for (const fs::path & name_subdir : fs::directory_iterator(namedir)) {
+                    if (fs::is_directory(name_subdir)) {
+                        paths.emplace_back(name_subdir);
                     }
                 }
             }
@@ -107,14 +97,34 @@ namespace cps::search {
 
             // Build all of the roots to search
             std::vector<fs::path> roots;
-            if (env.cps_path) {
-                auto && epaths = utils::split(env.cps_path.value());
+            if (env.cps_prefix_path) {
+                auto && epaths = utils::split(env.cps_prefix_path.value());
                 roots.insert(roots.end(), epaths.begin(), epaths.end());
             }
             roots.emplace_back("/usr");
             roots.emplace_back("/usr/local");
 
-            return expand_search_paths(roots, name);
+            const std::vector<fs::path> segments{platform::libdir(), "share"};
+            std::vector<fs::path> paths;
+
+            if (env.cps_path) {
+                auto && cpaths = utils::split(env.cps_path.value());
+                for (auto && subdir : cpaths) {
+                    auto && names = expand_namelike_paths(subdir, name);
+                    paths.insert(paths.end(), names.begin(), names.end());
+                }
+            }
+
+            for (auto && root : roots) {
+                for (auto && segment : segments) {
+                    if (const fs::path subdir = root / segment / "cps"; fs::is_directory(subdir)) {
+                        auto && names = expand_namelike_paths(subdir, name);
+                        paths.insert(paths.end(), names.begin(), names.end());
+                    }
+                }
+            }
+
+            return paths;
         }
 
         /// @brief Find all possible paths for a given CPS name
