@@ -25,13 +25,30 @@ jobs:
     strategy:
       matrix:
         cfg:
-          #- { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined -Dunity=on -Dunity_size=12"}
+          - { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined -Dunity=on -Dunity_size=12"}
           - { id: ubuntu-clang, platform: ubuntu, cc: clang, cpp: clang++, setup_options: "-Dunity=on -Dunity_size=12"}
           - { id: rockylinux-gcc, platform: rockylinux, cc: gcc, cpp: g++, setup_options: "-Dunity=on -Dunity_size=12"}
           - { id: rockylinux-clang, platform: rockylinux, cc: clang, cpp: clang++, setup_options: "-Db_sanitize=address,undefined -Db_lundef=false -Dunity=on -Dunity_size=12"}
 
     steps:
       - uses: actions/checkout@v2
+      # GitHub runners have updated the Ubuntu Linux Kernel to use strong ASLR,
+      # but LLVM is not configured for this change, and thus the address
+      # sanitizer breaks.
+      #
+      # The next image is supposed to fix this, so if the Ubuntu image has been
+      # updated, this work around is no longer required.
+      - name: get runner image version
+        id: runner-image-version
+        run: |
+          echo "image-version=$(echo $ImageVersion)" >> "$GITHUB_OUTPUT"
+        working-directory: .
+      - name: modify number of bits to use for ASLR entropy
+        if: ${{ steps.runner-image-version.outputs.ImageVersion }} == '20240310.1.0'
+        run: |
+          sudo sysctl -a | grep vm.mmap.rnd
+          sudo sysctl -w vm.mmap_rnd_bits=28
+        working-directory: .
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push
