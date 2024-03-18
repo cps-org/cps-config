@@ -40,6 +40,18 @@ namespace cps::utils::test {
             ASSERT_TRUE(package.has_value()) << "should have parsed, found error: " << package.error();
         }
 
+        TEST(Loader, components_must_not_be_empty) {
+            std::stringstream ss(R"({
+    "name": "components_must_not_be_empty",
+    "cps_version": "0.10.0",
+    "components": {}
+}
+)"s);
+            auto const package = cps::loader::load(ss, "components_must_not_be_empty");
+            ASSERT_FALSE(package.has_value())
+                << "should not have parsed, components is required to have atleast one entry";
+        }
+
         TEST(Loader, archive_missing_location) {
             std::stringstream ss(R"({
     "name": "archive_missing_location",
@@ -246,6 +258,23 @@ namespace cps::utils::test {
                 << "should have parsed, found error: " << package.error() << '\n'
                 << "If the type is not recognized by the parser, the component shall be ignored. (Parsers are "
                    "permitted to support additional types as a conforming extension.)";
+        }
+
+        TEST(Loader, not_recognized_type_is_valid_but_ignored_can_make_empty_component) {
+            std::stringstream ss(R"({
+    "name": "not_recognized_type_is_valid_but_ignored_can_make_empty_component",
+    "cps_version": "0.10.0",
+    "components": {
+        "a": {
+            "type": "not_recognized_type_is_valid_but_ignored",
+        },
+    }
+}
+)"s);
+            auto const package =
+                cps::loader::load(ss, "not_recognized_type_is_valid_but_ignored_can_make_empty_component");
+            ASSERT_FALSE(package.has_value())
+                << "should not have parsed, components only has non-standard type entry making it empty";
         }
 
     } // unnamed namespace
