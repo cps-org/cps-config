@@ -206,11 +206,6 @@ namespace cps::loader {
             if (!compmap.isObject()) {
                 return tl::unexpected(fmt::format("`{}` field of `{}` is not an object", name, parent_name));
             }
-            if (compmap.empty()) {
-                return tl::unexpected(fmt::format("Components field of `{}` is empty, but must "
-                                                  "have at least one component",
-                                                  parent_name));
-            }
 
             for (auto && itr = compmap.begin(); itr != compmap.end(); ++itr) {
                 // TODO: Error handling for not a string?
@@ -255,6 +250,12 @@ namespace cps::loader {
                     .link_location = std::move(link_location),
                     .require = std::move(require),
                 };
+            }
+
+            if (components.empty()) {
+                return tl::unexpected(fmt::format("Components field of `{}` is empty, but must "
+                                                  "have at least one component",
+                                                  parent_name));
             }
 
             return components;
