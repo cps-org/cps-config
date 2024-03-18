@@ -36,7 +36,8 @@ namespace cps::utils::test {
 }
 )"s);
             auto const package = cps::loader::load(ss, "archive_missing_location");
-            ASSERT_FALSE(package.has_value()) << "should not have parsed, archive component requires `location` attribute";
+            ASSERT_FALSE(package.has_value())
+                << "should not have parsed, archive component requires `location` attribute";
         }
 
     } // unnamed namespace
