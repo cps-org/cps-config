@@ -4,8 +4,6 @@
 
 #include "cps/printer.hpp"
 
-#include "cps/error.hpp"
-
 #include <fmt/format.h>
 #include <tl/expected.hpp>
 

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "cps/error.hpp"
 #include "cps/version.hpp"
 
 #include <tl/expected.hpp>
