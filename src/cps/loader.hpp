@@ -126,13 +126,7 @@ namespace cps::loader {
         // TODO: kernel_version
     };
 
-    class Package {
-      public:
-        Package();
-        Package(std::string name, std::string cps_version, std::unordered_map<std::string, Component> && components,
-                std::string cps_path, std::optional<std::vector<std::string>> && default_comps, Requires require,
-                std::optional<std::string> version, version::Schema schema);
-
+    struct Package {
         std::string name;
         std::string cps_version;
         std::unordered_map<std::string, Component> components;
@@ -147,6 +141,6 @@ namespace cps::loader {
         version::Schema version_schema;
     };
 
-    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & name);
+    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & filename);
 
 } // namespace cps::loader

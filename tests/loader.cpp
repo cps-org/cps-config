@@ -164,7 +164,7 @@ namespace cps::utils::test {
     "cps_version": [],
     "components": {
         "default": {
-            "type": "a",
+            "type": "archive",
             "location": [],
         }
     }
@@ -181,7 +181,7 @@ namespace cps::utils::test {
     "cps_version": "0.9.0",
     "components": {
         "default": {
-            "type": "a",
+            "type": "archive",
             "location": "/",
         }
     }
@@ -190,6 +190,40 @@ namespace cps::utils::test {
             auto const package = cps::loader::load(ss, "cps_version_is_0_10_0");
             ASSERT_FALSE(package.has_value())
                 << "should not have parsed, root requires `cps_version` value to exactly `0.10.0`";
+        }
+
+        TEST(Loader, valid_component_types) {
+            std::stringstream ss(R"({
+    "name": "valid_component_types",
+    "cps_version": "0.10.0",
+    "components": {
+        "a": {
+            "type": "archive",
+            "location": "/",
+        },
+        "b": {
+            "type": "dylib",
+        },
+        "c": {
+            "type": "module",
+        },
+        "d": {
+            "type": "jar",
+        },
+        "e": {
+            "type": "interface",
+        },
+        "f": {
+            "type": "symbolic",
+        },
+        "g": {
+            "type": "executable",
+        }
+    }
+}
+)"s);
+            auto const package = cps::loader::load(ss, "valid_component_types");
+            ASSERT_TRUE(package.has_value()) << "should have parsed, found error: " << package.error();
         }
 
     } // unnamed namespace

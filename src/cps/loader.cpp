@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <fmt/core.h>
 #include <json/json.h>
+#include <optional>
 #include <tl/expected.hpp>
 
 #include <filesystem>
@@ -78,6 +79,9 @@ namespace cps::loader {
             }
             if (str == "module") {
                 return Type::module;
+            }
+            if (str == "jar") {
+                return Type::jar;
             }
             if (str == "interface") {
                 return Type::interface;
@@ -277,41 +281,44 @@ namespace cps::loader {
 
     Platform::Platform() = default;
 
-    Package::Package() = default;
-    Package::Package(std::string _name, std::string _cps_version,
-                     std::unordered_map<std::string, Component> && _components, std::string cps_path_,
-                     std::optional<std::vector<std::string>> && _default_comps, Requires req,
-                     std::optional<std::string> ver, version::Schema schema)
-        : name{std::move(_name)}, cps_version{std::move(_cps_version)}, components{std::move(_components)},
-          cps_path{std::move(cps_path_)}, default_components{std::move(_default_comps)}, require{std::move(req)},
-          version{std::move(ver)}, version_schema{schema} {};
-
-    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & name) {
+    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & filename) {
         Json::Value root;
         try {
             input_buffer >> root;
         } catch (std::exception const & ex) {
             return tl::make_unexpected(
-                fmt::format("Exception caught while parsing json for `{}`\n{}", name, ex.what()));
+                fmt::format("Exception caught while parsing json for `{}.cps`\n{}", filename, ex.what()));
         }
 
+        auto const name = CPS_TRY(get_required<std::string>(root, "package", "name"));
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
+        auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
+        auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(filename);
+        auto const default_components =
+            CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
+        auto const platform = std::nullopt; // TODO: parse platform
+        auto const require = CPS_TRY(get_requires(root, "package", "requires"));
+        auto const version = CPS_TRY(get_optional<std::string>(root, "package", "version"));
+        auto const version_schema =
+            CPS_TRY(get_optional<std::string>(root, "package", "version_schema").map([](auto && v) {
+                return string_to_schema(v.value_or("simple"));
+            }));
+
         if (cps_version != CPS_VERSION) {
             return tl::make_unexpected(fmt::format("cps-config only supports CPS_VERSION `{}` found `{}` in `{}`",
                                                    CPS_VERSION, cps_version, name));
         }
 
         return Package{
-            CPS_TRY(get_required<std::string>(root, "package", "name")),
-            cps_version,
-            CPS_TRY(get_required<Components>(root, "package", "components")),
-            CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(name),
-            CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components")),
-            CPS_TRY(get_required<Requires>(root, "package", "requires")),
-            CPS_TRY(get_optional<std::string>(root, "package", "version")),
-            CPS_TRY(get_optional<std::string>(root, "package", "version_schema").map([](auto && v) {
-                return string_to_schema(v.value_or("simple"));
-            })),
+            .name = std::move(name),
+            .cps_version = std::move(cps_version),
+            .components = std::move(components),
+            .cps_path = std::move(cps_path),
+            .default_components = std::move(default_components),
+            .platform = std::move(platform),
+            .require = std::move(require), // requires is a keyword
+            .version = std::move(version),
+            .version_schema = std::move(version_schema),
         };
     }
 } // namespace cps::loader
