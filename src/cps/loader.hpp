@@ -154,6 +154,6 @@ namespace cps::loader {
         version::Schema version_schema;
     };
 
-    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const& name);
+    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & name);
 
 } // namespace cps::loader
