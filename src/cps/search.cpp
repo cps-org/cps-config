@@ -12,7 +12,6 @@
 #include <fmt/core.h>
 #include <tl/expected.hpp>
 
-#include <cstdlib>
 #include <deque>
 #include <filesystem>
 #include <memory>

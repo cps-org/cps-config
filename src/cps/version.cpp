@@ -9,9 +9,7 @@
 
 #include <fmt/core.h>
 
-#include <algorithm>
 #include <cstdint>
-#include <functional>
 
 namespace cps::version {
 
