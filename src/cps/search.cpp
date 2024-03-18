@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <unordered_set>
+#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -186,7 +187,10 @@ namespace cps::search {
                 if (auto && hit = cache.find(std::string{name}); hit != cache.end()) {
                     return hit->second;
                 }
-                auto n = std::make_shared<Node>(CPS_TRY(loader::load(path)));
+
+                std::ifstream file;
+                file.open(path);
+                auto n = std::make_shared<Node>(CPS_TRY(loader::load(file, path.parent_path())));
 
                 cache.emplace(name, n);
                 return n;
