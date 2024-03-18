@@ -88,7 +88,7 @@ Support:
         app.add_flag("--errors-to-stdout", errors_to_stdout, "print errors to stdout instead of stderr");
         app.add_flag("--prefix-variable", prefix_variable,
                      "set value of @prefix@ instead of infering it from where the cps file was found");
-        app.set_version_flag("--version", CPS_VERSION, "print cps-config version");
+        app.set_version_flag("--version", CPS_CONFIG_VERSION, "print cps-config version");
         app.add_option("packages", package_names, "search for the specified packages")->required();
         try {
             app.parse(argc, argv);
