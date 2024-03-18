@@ -7,7 +7,7 @@
 #include "cps/error.hpp"
 #include "cps/utils.hpp"
 
-#include "json/value.h"
+#include <algorithm>
 #include <fmt/core.h>
 #include <json/json.h>
 #include <tl/expected.hpp>
@@ -215,21 +215,37 @@ namespace cps::loader {
                     return tl::unexpected(fmt::format("`{}` `{}` is not an object", name, key));
                 }
 
-                components[key] =
-                    Component{CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type)),
-                              CPS_TRY(get_required<LangValues>(comp, name, "compile_flags")),
-                              CPS_TRY(get_required<LangValues>(comp, name, "includes")),
-                              CPS_TRY(get_required<Defines>(comp, name, "defines")),
-                              CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
-                                  .value_or(std::vector<std::string>{}),
-                              CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_libraries"))
-                                  .value_or(std::vector<std::string>{}),
-                              // TODO: this is required if the type != interface
-                              CPS_TRY(get_optional<std::string>(comp, name, "location")),
-                              // XXX: https://github.com/cps-org/cps/issues/34
-                              CPS_TRY(get_optional<std::string>(comp, name, "link_location")),
-                              CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
-                                  .value_or(std::vector<std::string>{})};
+                auto const type = CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type));
+                auto const compile_flags = CPS_TRY(get_required<LangValues>(comp, name, "compile_flags"));
+                auto const includes = CPS_TRY(get_required<LangValues>(comp, name, "includes"));
+                auto const defines = CPS_TRY(get_required<Defines>(comp, name, "defines"));
+                auto const link_flags = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
+                                            .value_or(std::vector<std::string>{});
+                auto const link_libraries =
+                    CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_libraries"))
+                        .value_or(std::vector<std::string>{});
+                auto const location = CPS_TRY(get_optional<std::string>(comp, name, "location"));
+                auto const link_location = CPS_TRY(get_optional<std::string>(comp, name, "link_location"));
+                auto const require = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
+                                         .value_or(std::vector<std::string>{});
+
+                if (type == Type::archive && !location.has_value()) {
+                    return tl::make_unexpected(
+                        fmt::format("component `{}` of type `archive` missing required key `location`", key));
+                }
+                // TODO: Validate link_location, see https://github.com/cps-org/cps/issues/34
+
+                components[key] = Component{
+                    .type = std::move(type),
+                    .compile_flags = std::move(compile_flags),
+                    .includes = std::move(includes),
+                    .defines = std::move(defines),
+                    .link_flags = std::move(link_flags),
+                    .link_libraries = std::move(link_libraries),
+                    .location = std::move(location),
+                    .link_location = std::move(link_location),
+                    .require = std::move(require),
+                };
             }
 
             return components;
@@ -248,15 +264,6 @@ namespace cps::loader {
 
     std::string Define::get_name() const { return name; }
     std::string Define::get_value() const { return value; }
-
-    Component::Component() = default;
-    Component::Component(Type _type, LangValues _cflags, LangValues _includes, Defines _defines,
-                         std::vector<std::string> _link_flags, std::vector<std::string> _link_libs,
-                         std::optional<std::string> _loc, std::optional<std::string> _link_loc,
-                         std::vector<std::string> req)
-        : type{_type}, compile_flags{std::move(_cflags)}, includes{std::move(_includes)}, defines{std::move(_defines)},
-          link_flags{std::move(_link_flags)}, link_libraries{std::move(_link_libs)}, location{std::move(_loc)},
-          link_location{std::move(_link_loc)}, require{std::move(req)} {};
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags) : compile_flags{std::move(cflags)} {};
