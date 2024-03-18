@@ -13,8 +13,7 @@
 
 #include <filesystem>
 #include <fstream>
-
-namespace fs = std::filesystem;
+#include <iostream>
 
 namespace cps::loader {
 
@@ -277,18 +276,15 @@ namespace cps::loader {
           cps_path{std::move(cps_path_)}, default_components{std::move(_default_comps)}, require{std::move(req)},
           version{std::move(ver)}, version_schema{schema} {};
 
-    tl::expected<Package, std::string> load(const fs::path & path) {
-        std::ifstream file;
-        file.open(path);
-
+    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & name) {
         Json::Value root;
-        file >> root;
+        input_buffer >> root;
 
         return Package{
             CPS_TRY(get_required<std::string>(root, "package", "name")),
             CPS_TRY(get_required<std::string>(root, "package", "cps_version")),
             CPS_TRY(get_required<Components>(root, "package", "components")),
-            CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(path.parent_path()),
+            CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(name),
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components")),
             CPS_TRY(get_required<Requires>(root, "package", "requires")),
             CPS_TRY(get_optional<std::string>(root, "package", "version")),
