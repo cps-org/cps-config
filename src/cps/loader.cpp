@@ -89,7 +89,7 @@ namespace cps::loader {
             if (str == "symbolic") {
                 return Type::symbolic;
             }
-            CPS_UNREACHABLE(fmt::format("Unknown component.type: `{}`", str).c_str());
+            return Type::unknown;
         }
 
         version::Schema string_to_schema(std::string_view str) {
@@ -235,6 +235,9 @@ namespace cps::loader {
                 auto const require = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
                                          .value_or(std::vector<std::string>{});
 
+                if (type == Type::unknown) {
+                    continue;
+                }
                 if (type == Type::archive && !location.has_value()) {
                     return tl::make_unexpected(
                         fmt::format("component `{}` of type `archive` missing required key `location`", key));

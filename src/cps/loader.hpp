@@ -39,6 +39,7 @@ namespace cps::loader {
         jar,
         interface,
         symbolic,
+        unknown,
     };
 
     class Define {

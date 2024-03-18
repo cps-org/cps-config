@@ -226,5 +226,27 @@ namespace cps::utils::test {
             ASSERT_TRUE(package.has_value()) << "should have parsed, found error: " << package.error();
         }
 
+        TEST(Loader, valid_component_type_extension) {
+            std::stringstream ss(R"({
+    "name": "valid_component_type_extension",
+    "cps_version": "0.10.0",
+    "components": {
+        "a": {
+            "type": "archive",
+            "location": "/",
+        },
+        "b": {
+            "type": "not_recognized_type_is_valid_but_ignored",
+        },
+    }
+}
+)"s);
+            auto const package = cps::loader::load(ss, "valid_component_type_extension");
+            ASSERT_TRUE(package.has_value())
+                << "should have parsed, found error: " << package.error() << '\n'
+                << "If the type is not recognized by the parser, the component shall be ignored. (Parsers are "
+                   "permitted to support additional types as a conforming extension.)";
+        }
+
     } // unnamed namespace
 } // namespace cps::utils::test
