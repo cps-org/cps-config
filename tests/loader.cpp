@@ -236,6 +236,7 @@ namespace cps::utils::test {
 )"s);
             auto const package = cps::loader::load(ss, "valid_component_types");
             ASSERT_TRUE(package.has_value()) << "should have parsed, found error: " << package.error();
+            ASSERT_EQ(package->components.size(), 7) << "should have found 7 different components";
         }
 
         TEST(Loader, valid_component_type_extension) {
