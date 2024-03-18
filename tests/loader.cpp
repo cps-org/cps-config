@@ -24,6 +24,22 @@ namespace cps::utils::test {
             ASSERT_FALSE(package.has_value()) << package.error();
         }
 
+        TEST(Loader, minimal_complete_package) {
+            std::stringstream ss(R"({
+    "name": "minimal_complete_package",
+    "cps_version": "0.10.0",
+    "components": {
+        "default": {
+            "type": "archive",
+            "location": "/",
+        }
+    }
+}
+)"s);
+            auto const package = cps::loader::load(ss, "minimal_complete_package");
+            ASSERT_TRUE(package.has_value()) << "should have parsed, found error: " << package.error();
+        }
+
         TEST(Loader, archive_missing_location) {
             std::stringstream ss(R"({
     "name": "archive_missing_location",
@@ -157,6 +173,23 @@ namespace cps::utils::test {
             auto const package = cps::loader::load(ss, "component_location_is_string");
             ASSERT_FALSE(package.has_value())
                 << "should not have parsed, root requires `components.<name>.location` value to be string";
+        }
+
+        TEST(Loader, cps_version_is_0_10_0) {
+            std::stringstream ss(R"({
+    "name": "cps_version_is_0_10_0",
+    "cps_version": "0.9.0",
+    "components": {
+        "default": {
+            "type": "a",
+            "location": "/",
+        }
+    }
+}
+)"s);
+            auto const package = cps::loader::load(ss, "cps_version_is_0_10_0");
+            ASSERT_FALSE(package.has_value())
+                << "should not have parsed, root requires `cps_version` value to exactly `0.10.0`";
         }
 
     } // unnamed namespace

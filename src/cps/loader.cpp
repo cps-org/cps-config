@@ -20,6 +20,8 @@ namespace cps::loader {
 
     namespace {
 
+        constexpr static std::string_view CPS_VERSION = "0.10.0";
+
         template <typename T>
         tl::expected<std::optional<T>, std::string>
         get_optional(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
@@ -293,9 +295,15 @@ namespace cps::loader {
                 fmt::format("Exception caught while parsing json for `{}`\n{}", name, ex.what()));
         }
 
+        auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
+        if (cps_version != CPS_VERSION) {
+            return tl::make_unexpected(fmt::format("cps-config only supports CPS_VERSION `{}` found `{}` in `{}`",
+                                                   CPS_VERSION, cps_version, name));
+        }
+
         return Package{
             CPS_TRY(get_required<std::string>(root, "package", "name")),
-            CPS_TRY(get_required<std::string>(root, "package", "cps_version")),
+            cps_version,
             CPS_TRY(get_required<Components>(root, "package", "components")),
             CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(name),
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components")),
