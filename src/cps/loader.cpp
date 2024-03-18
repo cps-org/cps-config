@@ -7,6 +7,7 @@
 #include "cps/error.hpp"
 #include "cps/utils.hpp"
 
+#include "json/value.h"
 #include <fmt/core.h>
 #include <json/json.h>
 #include <tl/expected.hpp>
@@ -44,7 +45,7 @@ namespace cps::loader {
             }
 
             return tl::unexpected(
-                fmt::format("Optional field {} in {} is not of type {}!", name, parent_name, typeid(T).name()));
+                fmt::format("Optional field `{}` in `{}` is not of type `{}`!", name, parent_name, typeid(T).name()));
         };
 
         template <typename T>
@@ -52,7 +53,7 @@ namespace cps::loader {
                                                   const std::string & name) {
             if (!parent.isMember(name)) {
                 // TODO: it would be nice to have the parent name…
-                return tl::unexpected(fmt::format("Required field {} in {} is missing!", name, parent_name));
+                return tl::unexpected(fmt::format("Required field `{}` in `{}` is missing!", name, parent_name));
             }
 
             return get_optional<T>(parent, parent_name, name).and_then([](auto && v) -> tl::expected<T, std::string> {
@@ -82,7 +83,7 @@ namespace cps::loader {
             if (str == "symbolic") {
                 return Type::symbolic;
             }
-            CPS_UNREACHABLE(fmt::format("Unknown type: {}", str).c_str());
+            CPS_UNREACHABLE(fmt::format("Unknown component.type: `{}`", str).c_str());
         }
 
         version::Schema string_to_schema(std::string_view str) {
@@ -98,7 +99,7 @@ namespace cps::loader {
             if (str == "custom") {
                 return version::Schema::custom;
             }
-            CPS_UNREACHABLE(fmt::format("Unknown version schema: {}", str).c_str());
+            CPS_UNREACHABLE(fmt::format("Unknown version schema: `{}`", str).c_str());
         }
 
         template <>
@@ -127,7 +128,7 @@ namespace cps::loader {
                 }
             } else {
                 return tl::unexpected(
-                    fmt::format("Section {} of {} is neither an object nor an array!", parent_name, name));
+                    fmt::format("Section `{}` of `{}` is neither an object nor an array!", parent_name, name));
             }
             return ret;
         }
@@ -164,7 +165,7 @@ namespace cps::loader {
 
             Json::Value require = parent[name];
             if (!require.isObject()) {
-                return tl::unexpected(fmt::format("{} field of {} is not an object", name, parent_name));
+                return tl::unexpected(fmt::format("`{}` field of `{}` is not an object", name, parent_name));
             }
 
             for (auto && itr = require.begin(); itr != require.end(); ++itr) {
@@ -189,7 +190,7 @@ namespace cps::loader {
         get_required<Components>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
             Json::Value compmap;
             if (!parent.isMember(name)) {
-                return tl::unexpected(fmt::format("Required field Components of {} is missing!", parent_name));
+                return tl::unexpected(fmt::format("Required field `components` of `{}` is missing!", parent_name));
             }
 
             std::unordered_map<std::string, Component> components{};
@@ -197,10 +198,10 @@ namespace cps::loader {
             // TODO: error handling for not an object
             compmap = parent[name];
             if (!compmap.isObject()) {
-                return tl::unexpected(fmt::format("{} field of {} is not an object", name, parent_name));
+                return tl::unexpected(fmt::format("`{}` field of `{}` is not an object", name, parent_name));
             }
             if (compmap.empty()) {
-                return tl::unexpected(fmt::format("Components field of {} is empty, but must "
+                return tl::unexpected(fmt::format("Components field of `{}` is empty, but must "
                                                   "have at least one component",
                                                   parent_name));
             }
@@ -211,7 +212,7 @@ namespace cps::loader {
                 const Json::Value comp = *itr;
 
                 if (!comp.isObject()) {
-                    return tl::unexpected(fmt::format("{} {} is not an object", name, key));
+                    return tl::unexpected(fmt::format("`{}` `{}` is not an object", name, key));
                 }
 
                 components[key] =
@@ -278,7 +279,12 @@ namespace cps::loader {
 
     tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & name) {
         Json::Value root;
-        input_buffer >> root;
+        try {
+            input_buffer >> root;
+        } catch (std::exception const & ex) {
+            return tl::make_unexpected(
+                fmt::format("Exception caught while parsing json for `{}`\n{}", name, ex.what()));
+        }
 
         return Package{
             CPS_TRY(get_required<std::string>(root, "package", "name")),

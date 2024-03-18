@@ -44,7 +44,7 @@ test(
 
 dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
 
-foreach t : ['version', 'utils']
+foreach t : ['loader', 'version', 'utils']
   test(
     t,
     executable(
