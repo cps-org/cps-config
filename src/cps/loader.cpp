@@ -253,8 +253,7 @@ namespace cps::loader {
             }
 
             if (components.empty()) {
-                return tl::unexpected(fmt::format("Components field of `{}` is empty, but must "
-                                                  "have at least one component",
+                return tl::unexpected(fmt::format("`{}` must have at least one component",
                                                   parent_name));
             }
 
