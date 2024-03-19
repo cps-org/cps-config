@@ -10,6 +10,8 @@
 namespace cps {
 
     Env get_env() {
+        // NOTE: When adding new environment variables, be sure to update the --help
+        //       message with documentation about the new feature.
         auto env = Env{};
         if (const char * env_c = std::getenv("CPS_PATH")) {
             env.cps_path = std::string(env_c);

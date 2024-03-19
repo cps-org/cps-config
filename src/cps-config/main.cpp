@@ -8,6 +8,7 @@
 #include "cps/search.hpp"
 
 #include <cxxopts.hpp>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include <optional>
@@ -37,6 +38,12 @@ namespace cps_config {
         auto env = cps::get_env();
 
         static auto const description = R"(cps-config is a utility for querying and using installed libraries.
+
+Envionment Variables:
+   CPS_PATH               search path for directories with CPS files;
+                          see the CPS specification for more details
+   CPS_CONFIG_DEBUG_SPEW  same as --print-errors
+   PKG_CONFIG_DEBUG_SPEW  same as --print-errors
 
 Examples:
 
@@ -73,7 +80,13 @@ Support:
         // clang-format on
         options.parse_positional({"package"});
         options.positional_help("<packages>");
-        auto parsed_options = options.parse(argc, argv);
+        cxxopts::ParseResult parsed_options;
+        try {
+            parsed_options = options.parse(argc, argv);
+        } catch (cxxopts::option_not_exists_exception & exception) {
+            auto const debug_output = fmt::format("Error -- {}.\n\n{}\n", exception.what(), options.help());
+            return ProgramOutput{.retval = 1, .debug_output = debug_output};
+        }
 
         if (parsed_options.count("help")) {
             fmt::print("{}\n", options.help());
