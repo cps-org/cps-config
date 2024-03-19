@@ -7,15 +7,12 @@
 #include "cps/error.hpp"
 #include "cps/utils.hpp"
 
-#include <algorithm>
 #include <fmt/core.h>
 #include <json/json.h>
-#include <optional>
 #include <tl/expected.hpp>
 
-#include <filesystem>
-#include <fstream>
 #include <iostream>
+#include <optional>
 
 namespace cps::loader {
 
@@ -253,8 +250,7 @@ namespace cps::loader {
             }
 
             if (components.empty()) {
-                return tl::unexpected(fmt::format("`{}` must have at least one component",
-                                                  parent_name));
+                return tl::unexpected(fmt::format("`{}` must have at least one component", parent_name));
             }
 
             return components;
@@ -300,7 +296,7 @@ namespace cps::loader {
         auto const default_components =
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
         auto const platform = std::nullopt; // TODO: parse platform
-        auto const require = CPS_TRY(get_requires(root, "package", "requires"));
+        auto const require = CPS_TRY(get_required<Requires>(root, "package", "requires"));
         auto const version = CPS_TRY(get_optional<std::string>(root, "package", "version"));
         auto const version_schema =
             CPS_TRY(get_optional<std::string>(root, "package", "version_schema").map([](auto && v) {
