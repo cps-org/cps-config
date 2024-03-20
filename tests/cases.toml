@@ -77,7 +77,19 @@
   expected = "-I/sentinel/err -l/sentinel/lib/libfoo.a"
 
 [[case]]
-  name = "prefix calculated"
+  name = "prefix calculated (found in root)"
+  cps = "cps-path-not-set-root"
+  args = ["--cflags-only-I", "--libs-only-l"]
+  expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
+
+[[case]]
+  name = "prefix calculated (found in root/name)"
+  cps = "cps-path-not-set-subdir"
+  args = ["--cflags-only-I", "--libs-only-l"]
+  expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
+
+[[case]]
+  name = "prefix calculated (root/name/*/)"
   cps = "cps-path-not-set"
   args = ["--cflags-only-I", "--libs-only-l"]
   expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
