@@ -7,10 +7,12 @@
 #include "cps/printer.hpp"
 #include "cps/search.hpp"
 
-#include <cxxopts.hpp>
+#include <CLI/CLI.hpp>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -29,16 +31,14 @@ namespace cps_config {
         cps::printer::Config conf{};
         std::vector<std::string> components;
         std::string format{"pkgconf"};
-        std::string package_name;
+        std::vector<std::string> package_names;
         bool errors_to_stdout = false;
         std::optional<std::string> prefix_variable = std::nullopt;
 
         // read enviroment variables
         auto env = cps::get_env();
 
-        static auto const description = R"(cps-config is a utility for querying and using installed libraries.
-
-Examples:
+        static auto const footer = R"(Examples:
 
    Getting include directory flags for a set of dependencies.
       $ cps-config --cflags-only-I fmt
@@ -50,94 +50,57 @@ Examples:
 
 Support:
 
-    Please report bugs to <https://github.com/cps-org/cps-config/issues>.
-)"s;
-        cxxopts::Options options("cps-config", description);
-        // clang-format off
-        options.add_options()
-            ("package", "search for the specified package", cxxopts::value<std::string>())
-            ("cflags", "output all pre-processor and compiler flags")
-            ("cflags-only-I", "output -I flags")
-            ("cflags-only-other", "output cflags not covered by the cflags-only-I option")
-            ("libs", "output all linker flags")("libs-only-L", "print required LDPATH linker flags to stdout")
-            ("libs-only-l", "print required LIBNAME linker flags to stdout")
-            ("libs-only-other", "print required other linker flags to stdout")
-            ("modversion", "print the specified module's version to stdout")
-            ("component", "look for the specified component", cxxopts::value<std::vector<std::string>>())
-            ("format", "output format", cxxopts::value<std::string>())
-            ("print-errors", "enables debug messages when errors are encountered")
-            ("errors-to-stdout", "print errors to stdout instead of stderr")
-            ("prefix-variable", "set value of @prefix@ instead of infering it from where the cps file was found", cxxopts::value<std::string>())
-            ("v,version", "print cps-config version")
-            ("h,help", "print usage");
-        // clang-format on
-        options.parse_positional({"package"});
-        options.positional_help("<packages>");
-        auto parsed_options = options.parse(argc, argv);
+    Please report bugs to <https://github.com/cps-org/cps-config/issues>.)"s;
+        CLI::App app{"cps-config is a utility for querying and using installed libraries."};
+        app.footer(footer);
 
-        if (parsed_options.count("help")) {
-            fmt::print("{}\n", options.help());
-            return ProgramOutput::Success();
-        }
-        if (parsed_options.count("version")) {
-            fmt::print("{}\n", CPS_VERSION);
-            return ProgramOutput::Success();
-        }
-        if (parsed_options.count("print-errors") || env.debug_spew) {
-            conf.print_errors = true;
-        }
-        if (parsed_options.count("errors-to-stdout")) {
-            errors_to_stdout = true;
-        }
-
-        if (parsed_options.count("package")) {
-            package_name = parsed_options["package"].as<std::string>();
-        } else {
-            return ProgramOutput{.retval = 1,
-                                 .debug_output = conf.print_errors ? "Expected a package name to be specified\n" : "",
-                                 .errors_to_stdout = errors_to_stdout};
-        }
-
-        if (parsed_options.count("cflags")) {
-            conf.cflags = true;
-            conf.defines = true;
-            conf.includes = true;
-        }
-        if (parsed_options.count("cflags-only-other")) {
-            conf.cflags = true;
-            conf.defines = true;
-        }
-        if (parsed_options.count("cflags-only-I")) {
-            conf.includes = true;
-        }
-        if (parsed_options.count("libs")) {
-            conf.libs_link = true;
-            conf.libs_search = true;
-            conf.libs_other = true;
-        }
-        if (parsed_options.count("libs-only-l")) {
-            conf.libs_link = true;
-        }
-        if (parsed_options.count("libs-only-L")) {
-            conf.libs_search = true;
-        }
-        if (parsed_options.count("libs-only-other")) {
-            conf.libs_other = true;
-        }
-        if (parsed_options.count("modversion")) {
-            conf.mod_version = true;
-        }
-        if (parsed_options.count("component")) {
-            components = parsed_options["component"].as<std::vector<std::string>>();
-        }
-        if (parsed_options.count("format")) {
-            format = parsed_options["format"].as<std::string>();
-        }
-        if (parsed_options.count("prefix-variable")) {
-            prefix_variable = parsed_options["prefix-variable"].as<std::string>();
+        app.add_flag_callback(
+            "--cflags",
+            [&conf]() {
+                conf.cflags = true;
+                conf.defines = true;
+                conf.includes = true;
+            },
+            "output all pre-processor and compiler flags");
+        app.add_flag("--cflags-only-I", conf.includes, "output -I flags");
+        app.add_flag_callback(
+            "--cflags-only-other",
+            [&conf]() {
+                conf.cflags = true;
+                conf.defines = true;
+            },
+            "output cflags not covered by the cflags-only-I option");
+        app.add_flag_callback(
+            "--libs",
+            [&conf]() {
+                conf.libs_link = true;
+                conf.libs_search = true;
+                conf.libs_other = true;
+            },
+            "output all linker flags");
+        app.add_flag("--libs-only-L", conf.libs_search, "print required LDPATH linker flags to stdout");
+        app.add_flag("--libs-only-l", conf.libs_link, "print required LIBNAME linker flags to stdout");
+        app.add_flag("--libs-only-other", conf.libs_other, "print required other linker flags to stdout");
+        app.add_flag("--modversion", conf.mod_version, "print the specified module's version to stdout");
+        app.add_option<std::vector<std::string>>("--component"s, components, "look for the specified component(s)"s);
+        app.add_flag("--format", format, "output format");
+        app.add_flag("--print-errors", conf.print_errors, "enables debug messages when errors are encountered");
+        app.add_flag("--errors-to-stdout", errors_to_stdout, "print errors to stdout instead of stderr");
+        app.add_flag("--prefix-variable", prefix_variable,
+                     "set value of @prefix@ instead of infering it from where the cps file was found");
+        app.set_version_flag("--version", CPS_VERSION, "print cps-config version");
+        app.add_option("packages", package_names, "search for the specified packages")->required();
+        try {
+            app.parse(argc, argv);
+        } catch (const CLI ::ParseError & parse_error) {
+            std::ostringstream error_out;
+            int const retval = app.exit(parse_error);
+            return ProgramOutput{
+                .retval = retval, .debug_output = error_out.str(), .errors_to_stdout = errors_to_stdout};
         }
 
-        auto && p = cps::search::find_package(package_name, components, components.empty(), env, prefix_variable);
+        auto && p =
+            cps::search::find_package(package_names.front(), components, components.empty(), env, prefix_variable);
         if (!p) {
             return ProgramOutput{.retval = 1,
                                  .debug_output = conf.print_errors ? fmt::format("{}\n", p.error()) : "",

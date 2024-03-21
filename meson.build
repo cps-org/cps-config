@@ -10,10 +10,10 @@ project(
   default_options : ['cpp_std=c++17', 'buildtype=debugoptimized', 'warning_level=2'],
 )
 
-dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
+dep_cli11 = dependency('cli11', version: '>=2.1')
 dep_expected = dependency('tl-expected', version : '>= 1.0', modules : ['tl::expected'])
+dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
 dep_fmt = dependency('fmt', version : '>= 8')
-dep_cxxopts = dependency('cxxopts', version : '>=3.0')
 
 cpp = meson.get_compiler('cpp')
 
@@ -28,7 +28,7 @@ cps_config = executable(
   'cps-config',
   'src/cps-config/main.cpp',
   conf_h,
-  dependencies : [dep_cps, dep_fmt, dep_expected, dep_cxxopts],
+  dependencies : [dep_cps, dep_fmt, dep_expected, dep_cli11],
   install : true,
 )
 
