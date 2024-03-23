@@ -1,7 +1,6 @@
 FROM rockylinux:9
 
 # Enable EPEL
-RUN dnf update -y
 RUN dnf install -y 'dnf-command(config-manager)'
 RUN dnf config-manager --set-enabled crb -y
 RUN dnf install epel-release -y
@@ -9,7 +8,7 @@ RUN dnf install epel-release -y
 # Install dependencies
 RUN dnf install -y \
         python3.11 \
-        python3-pip \
+        python3.11-pip \
         pkgconf-pkg-config \
         ccache \
         clang \
@@ -23,8 +22,9 @@ RUN dnf install -y \
         cxxopts-devel
 RUN dnf clean all
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
+
 # Install meson from pip
-RUN python3 -m pip install -U meson==0.64.1
+RUN python -m pip install -U meson==0.64.1
 
 # Copy code
 WORKDIR /workarea
@@ -38,4 +38,5 @@ ARG setup_options=
 ENV CC="ccache $cc" CXX="ccache $cxx"
 ENV CCACHE_DIR=/ccache
 RUN meson setup builddir $setup_options
-RUN --mount=type=cache,target=/ccache/ ninja -C builddir
+RUN --mount=type=cache,target=/ccache,sharing=locked \
+    ninja -C builddir
