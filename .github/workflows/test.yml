@@ -4,19 +4,21 @@ on:
   push:
     branches: [ main ]
     paths:
-      - "src/**"
-      - "tests/**"
+      - ".github/workflows/test.yml"
+      - "VERSION"
       - "meson.build"
       - "meson_options.txt"
-      - "VERSION"
+      - "src/**"
+      - "tests/**"
   pull_request:
     branches: [ main ]
     paths:
-      - "src/**"
-      - "tests/**"
+      - ".github/workflows/test.yml"
+      - "VERSION"
       - "meson.build"
       - "meson_options.txt"
-      - "VERSION"
+      - "src/**"
+      - "tests/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
