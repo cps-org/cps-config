@@ -62,19 +62,9 @@ def unordered_compare(out, expected):
     if out == expected:
         return True
 
-    sorted_out = out.split()
-    sorted_expected = expected.split()
-    sorted_out.sort()
-    sorted_expected.sort()
-
-    if len(sorted_out) != len(sorted_expected):
-        return False
-
-    for i in range(len(sorted_out)):
-        if sorted_out[i] != sorted_expected[i]:
-            return False
-
-    return True
+    out_parts = out.split()
+    expected_parts = expected.split()
+    return sorted(out_parts) == sorted(expected_parts)
 
 async def test(runner: str, case_: TestCase) -> Result:
     cmd = [runner, case_['cps']] + case_['args']
@@ -94,7 +84,6 @@ async def test(runner: str, case_: TestCase) -> Result:
         out = bout.decode().strip()
         err = berr.decode().strip()
 
-        # success = proc.returncode == case_.get('returncode', 0) and out == expected
         success = proc.returncode == case_.get('returncode', 0) and unordered_compare(out, expected)
         result = Status.PASS if success else Status.FAIL
         returncode = proc.returncode
