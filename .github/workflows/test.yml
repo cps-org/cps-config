@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - ".github/workflows/test.yml"
       - "VERSION"
@@ -11,7 +11,7 @@ on:
       - "src/**"
       - "tests/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - ".github/workflows/test.yml"
       - "VERSION"
@@ -29,10 +29,34 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { id: ubuntu-gcc, platform: ubuntu, cc: gcc, cpp: g++, setup_options: "-Db_sanitize=address,undefined -Dunity=on -Dunity_size=12"}
-          - { id: ubuntu-clang, platform: ubuntu, cc: clang, cpp: clang++, setup_options: "-Dunity=on -Dunity_size=12"}
-          - { id: rockylinux-gcc, platform: rockylinux, cc: gcc, cpp: g++, setup_options: "-Dunity=on -Dunity_size=12"}
-          - { id: rockylinux-clang, platform: rockylinux, cc: clang, cpp: clang++, setup_options: "-Db_sanitize=address,undefined -Db_lundef=false -Dunity=on -Dunity_size=12"}
+          - {
+              id: ubuntu-gcc,
+              platform: ubuntu,
+              cc: gcc,
+              cpp: g++,
+              setup_options: "-Db_sanitize=address,undefined -Dunity=on -Dunity_size=12",
+            }
+          - {
+              id: ubuntu-clang,
+              platform: ubuntu,
+              cc: clang,
+              cpp: clang++,
+              setup_options: "-Dunity=on -Dunity_size=12",
+            }
+          - {
+              id: rockylinux-gcc,
+              platform: rockylinux,
+              cc: gcc,
+              cpp: g++,
+              setup_options: "-Dunity=on -Dunity_size=12",
+            }
+          - {
+              id: rockylinux-clang,
+              platform: rockylinux,
+              cc: clang,
+              cpp: clang++,
+              setup_options: "-Db_sanitize=address,undefined -Db_lundef=false -Dunity=on -Dunity_size=12",
+            }
 
     steps:
       - uses: actions/checkout@v2
@@ -63,12 +87,41 @@ jobs:
           load: true
           tags: ${{ matrix.cfg.id }}
           file: tests/docker/${{ matrix.cfg.platform }}.Dockerfile
-          build-args: |
-            cc=${{ matrix.cfg.cc }}
-            cxx=${{ matrix.cfg.cpp }}
-            setup_options=${{ matrix.cfg.setup_options }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Run tests
+      - name: Restore Compiler Cache
+        id: ccache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}/ccache
+          # This ensures that every run saves cache even on cache hit
+          key: ${{ matrix.cfg.id }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.cfg.id }}-ccache
+      - name: Start Docker container
         run: |
-          docker run ${{ matrix.cfg.id }} ninja -C builddir test
+          mkdir -p ${{ github.workspace }}/ccache
+          docker run -d --name ${{ matrix.cfg.id }} \
+          --mount=type=bind,source=${{ github.workspace }}/ccache,target=/ccache \
+          --mount=type=bind,source=${{ github.workspace }},target=/workdir \
+          ${{ matrix.cfg.id }} sleep infinity
+      - name: Build cps-config
+        run: |
+          docker exec \
+          -e CC="ccache ${{ matrix.cfg.cc }}" -e CXX="ccache ${{ matrix.cfg.cpp }}" \
+          -e CCACHE_DIR="/ccache" \
+          ${{ matrix.cfg.id }} \
+          bash -c "cd /workdir/ && meson builddir ${{ matrix.cfg.setup_options }} \
+          && ninja -C /workdir/builddir"
+      - name: Run Tests
+        run: |
+          docker exec ${{ matrix.cfg.id }} ninja -C /workdir/builddir
+      - name: Stop Docker Container
+        run: |
+          docker stop ${{ matrix.cfg.id }}
+      - name: Save Cache
+        id: ccache-save
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/ccache
+          key: ${{ matrix.cfg.id }}-ccache-${{ github.run_id }}
