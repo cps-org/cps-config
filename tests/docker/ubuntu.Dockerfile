@@ -15,7 +15,7 @@ RUN apt-get install -y \
         libexpected-dev \
         libgtest-dev \
         libfmt-dev \
-        libcxxopts-dev
+        libcli11-dev
 RUN apt-get clean
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip
