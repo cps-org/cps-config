@@ -20,7 +20,7 @@ RUN dnf install -y \
         expected-devel \
         gtest-devel \
         fmt-devel \
-        cxxopts-devel
+        cli11-devel
 RUN dnf clean all
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip
