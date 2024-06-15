@@ -8,6 +8,7 @@ on:
       - "tests/**"
       - "meson.build"
       - "meson_options.txt"
+      - "VERSION"
   pull_request:
     branches: [ main ]
     paths:
@@ -15,6 +16,7 @@ on:
       - "tests/**"
       - "meson.build"
       - "meson_options.txt"
+      - "VERSION"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
