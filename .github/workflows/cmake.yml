@@ -1,0 +1,84 @@
+name: CMake Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "CMakeLists.txt"
+      - "CMakePresets.json"
+      - ".github/workflows/cmake.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "CMakeLists.txt"
+      - "CMakePresets.json"
+      - ".github/workflows/cmake.yml"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cfg:
+          - {
+              id: ubuntu-gcc,
+              platform: ubuntu,
+              preset: default,
+            }
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build docker container
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ${{ matrix.cfg.id }}
+          file: tests/docker/${{ matrix.cfg.platform }}.Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Restore Compiler Cache
+        id: ccache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}/ccache
+          # This ensures that every run saves cache even on cache hit
+          key: ${{ matrix.cfg.id }}-ccache-cmake-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.cfg.id }}-ccache
+      - name: Start Docker Container
+        run: |
+          mkdir -p ${{ github.workspace }}/ccache
+          docker run -d --name ${{ matrix.cfg.id }} \
+          --mount=type=bind,source=${{ github.workspace }}/ccache,target=/ccache \
+          --mount=type=bind,source=${{ github.workspace }},target=/workdir \
+          ${{ matrix.cfg.id }} sleep infinity
+      - name: Build cps-config
+        run: |
+          docker exec \
+          -e CCACHE_DIR="/ccache" \
+          ${{ matrix.cfg.id }} \
+          bash -c "cmake -S /workdir -B /build/ --preset ${{ matrix.cfg.preset }} && \
+          cmake --build build --config RelWithDebInfo"
+      - name: Run Tests
+        run: |
+          docker exec ${{ matrix.cfg.id }} ctest --test-dir /build --output-on-failure -C RelWithDebInfo
+      - name: Stop Docker Container
+        run: |
+          docker stop ${{ matrix.cfg.id }}
+      - name: Save Cache
+        id: ccache-save
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/ccache
+          key: ${{ matrix.cfg.id }}-ccache-${{ github.run_id }}
