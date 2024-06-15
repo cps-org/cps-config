@@ -4,7 +4,7 @@
 project(
   'cps-config',
   'cpp',
-  version : '0.0.1',
+  version : files('VERSION'),
   license : 'MIT',
   meson_version : '>= 0.64',
   default_options : ['cpp_std=c++17', 'buildtype=debugoptimized', 'warning_level=2'],
