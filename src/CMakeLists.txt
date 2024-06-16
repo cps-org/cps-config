@@ -20,14 +20,14 @@ add_executable(cps-config cps-config/main.cpp)
 target_link_libraries(cps-config PRIVATE cps)
 
 # Dependencies
-find_package(tl-expected REQUIRED)
+find_package(tl-expected 1.0 REQUIRED)
 target_link_libraries(cps PRIVATE tl::expected)
 
-find_package(fmt REQUIRED)
+find_package(fmt 8 REQUIRED)
 target_link_libraries(cps PRIVATE fmt::fmt)
 
-find_package(jsoncpp REQUIRED)
+find_package(jsoncpp 1.9 REQUIRED)
 target_link_libraries(cps PRIVATE JsonCpp::JsonCpp)
 
-find_package(CLI11 REQUIRED)
+find_package(CLI11 2.1 REQUIRED)
 target_link_libraries(cps-config PRIVATE CLI11::CLI11)
