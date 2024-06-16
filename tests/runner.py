@@ -114,6 +114,8 @@ async def main() -> None:
         'list[Result]',
         await asyncio.gather(*[test(args.runner, c) for c in tests['case']]))
 
+    encountered_failure: bool = False
+
     for r in results:
         if r.status is not Status.PASS:
             print(f'{r.name}:', file=sys.stderr)
@@ -125,6 +127,10 @@ async def main() -> None:
             print('  command:', ' '.join(r.command), file=sys.stderr)
             print('\n')
 
+            encountered_failure = True
+
+    if encountered_failure:
+        exit(1)
 
 if __name__ == "__main__":
     asyncio.run(main())
