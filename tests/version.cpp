@@ -28,8 +28,7 @@ namespace cps::version::test {
             case Operator::lt:
                 return "<";
             default:
-                CPS_UNREACHABLE("How did you get here?");
-                return ""; // Suppress missing return statement warning
+                std::abort();
             }
         }
 

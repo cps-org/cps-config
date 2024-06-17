@@ -102,7 +102,8 @@ namespace cps::loader {
             if (str == "custom") {
                 return version::Schema::custom;
             }
-            CPS_UNREACHABLE(fmt::format("Unknown version schema: `{}`", str).c_str());
+            fmt::print(stderr, "Unknown version schema: `{}`", str);
+            std::abort();
         }
 
         template <>
