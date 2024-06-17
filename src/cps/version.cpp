@@ -104,7 +104,7 @@ namespace cps::version {
         case Schema::simple:
             return simple_compare(left, op, right);
         default:
-            CPS_UNREACHABLE("Only the simple schema is implemented");
+            fmt::print(stderr, "Only the simple schema is implemented");
             return "Only the simple schema is implemented.";
         }
     }

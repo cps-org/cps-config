@@ -23,16 +23,6 @@ namespace cps::utils {
 
 } // namespace cps::utils
 
-#if CPS_USE_BUILTIN_UNREACHABLE
-#define CPS_UNREACHABLE(msg)                                                                                           \
-    do {                                                                                                               \
-        cps::utils::assert_fn(false, msg);                                                                             \
-        __builtin_unreachable();                                                                                       \
-    } while (0)
-#else
-#define CPS_UNREACHABLE(msg) cps::utils::assert_fn(false, msg);
-#endif
-
 namespace cps::utils {
 
     std::vector<std::string> split(std::string_view input, std::string_view delim = ":");
