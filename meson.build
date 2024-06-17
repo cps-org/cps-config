@@ -10,7 +10,7 @@ project(
   default_options : ['cpp_std=c++17', 'buildtype=debugoptimized', 'warning_level=2'],
 )
 
-dep_cli11 = dependency('cli11', version: '>=2.1')
+dep_cli11 = dependency('CLI11', version: '>=2.1')
 dep_expected = dependency('tl-expected', version : '>= 1.0', modules : ['tl::expected'])
 dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
 dep_fmt = dependency('fmt', version : '>= 8')
