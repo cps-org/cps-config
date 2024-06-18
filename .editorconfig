@@ -14,5 +14,5 @@ insert_final_newline = true
 [meson.build]
 indent_size = 2
 
-[*.toml]
+[*.{toml,yml,json}]
 indent_size = 2
