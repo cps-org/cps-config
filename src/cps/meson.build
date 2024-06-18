@@ -6,6 +6,7 @@ conf.set_quoted('CPS_CONFIG_VERSION', meson.project_version())
 foreach f : ['unreachable']
   conf.set10('CPS_USE_BUILTIN_@0@'.format(f.to_upper()), cpp.has_function(f))
 endforeach
+conf.set_quoted('CPS_LIBDIR', get_option('libdir'))
 
 conf_h = configure_file(
   configuration : conf,

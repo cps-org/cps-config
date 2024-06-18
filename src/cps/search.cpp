@@ -6,6 +6,7 @@
 
 #include "cps/error.hpp"
 #include "cps/loader.hpp"
+#include "cps/platform.hpp"
 #include "cps/utils.hpp"
 #include "cps/version.hpp"
 
@@ -71,36 +72,60 @@ namespace cps::search {
             return out;
         }
 
-        const std::vector<fs::path> nix{"/usr", "/usr/local"};
-        // TODO: const std::vector<std::string> mac{""};
-        // TODO: const std::vector<std::string> win{""};
+        /// @brief Find all name-like matches for a named package in a subdirectory
+        /// @param subdir the path to search in
+        /// @param name the name of the package to find
+        /// @return all of the search paths combined into concrete instances
+        std::vector<fs::path> expand_namelike_paths(const fs::path & subdir, std::string_view name) {
+            std::vector<fs::path> paths{subdir};
 
-        std::vector<fs::path> cached_paths{};
-
-        const std::vector<fs::path> search_paths(Env env) {
-            if (!cached_paths.empty()) {
-                return cached_paths;
+            if (const fs::path namedir = subdir / name; fs::is_directory(namedir)) {
+                paths.emplace_back(namedir);
+                for (const fs::path & name_subdir : fs::directory_iterator(namedir)) {
+                    if (fs::is_directory(name_subdir)) {
+                        paths.emplace_back(name_subdir);
+                    }
+                }
             }
 
-            if (env.cps_path) {
-                cached_paths.reserve(nix.size());
-                cached_paths.insert(cached_paths.end(), nix.begin(), nix.end());
-                auto && paths = utils::split(env.cps_path.value());
-                cached_paths.reserve(paths.size());
-                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
-            } else {
-                cached_paths = nix;
-            }
-
-            return cached_paths;
+            return paths;
         }
 
-        const fs::path libdir() {
-            // TODO: libdir needs to be configurable based on the personality,
-            //       and different name schemes.
-            //       This is complicated by the fact that different distros have
-            //       different schemes.
-            return "lib";
+        /// @brief create concrete search paths for a specific package
+        /// @param name the name of the package
+        /// @return a vector of those paths
+        std::vector<fs::path> search_paths(std::string_view name, Env env) {
+
+            // Build all of the roots to search
+            std::vector<fs::path> roots;
+            if (env.cps_prefix_path) {
+                auto && epaths = utils::split(env.cps_prefix_path.value());
+                roots.insert(roots.end(), epaths.begin(), epaths.end());
+            }
+            roots.emplace_back("/usr");
+            roots.emplace_back("/usr/local");
+
+            const std::vector<fs::path> segments{platform::libdir(), "share"};
+            std::vector<fs::path> paths;
+
+            if (env.cps_path) {
+                auto && cpaths = utils::split(env.cps_path.value());
+                for (auto && subdir : cpaths) {
+                    auto && names = expand_namelike_paths(subdir, name);
+                    paths.insert(paths.end(), names.begin(), names.end());
+                }
+            }
+
+            for (auto && root : roots) {
+                for (auto && segment : segments) {
+                    if (const fs::path subdir = root / segment / "cps"; fs::is_directory(subdir)) {
+                        auto && names = expand_namelike_paths(subdir, name);
+                        paths.insert(paths.end(), names.begin(), names.end());
+                    }
+                }
+            }
+
+            return paths;
         }
 
         /// @brief Find all possible paths for a given CPS name
@@ -113,20 +138,10 @@ namespace cps::search {
             }
 
             // TODO: Need something like pkgconf's --personality option
-            // TODO: we likely either need to return all possible files, or load
-            // a file
-            // TODO: what to do about finding multiple versions of the same
-            // dependency?
-            auto && paths = search_paths(env);
+            auto && paths = search_paths(name, env);
             std::vector<fs::path> found{};
-            for (auto && prefix : paths) {
-                // TODO: <prefix>/<libdir>/cps/<name-like>/
-                // TODO: <prefix>/share/cps/<name-like>/
-                // TODO: <prefix>/share/cps/
-
-                const fs::path dir = prefix / libdir() / "cps";
+            for (auto && dir : paths) {
                 if (fs::is_directory(dir)) {
-                    // TODO: <name-like>
                     const fs::path file = dir / fmt::format("{}.cps", name);
                     if (fs::is_regular_file(file)) {
                         found.push_back(file);
@@ -290,21 +305,32 @@ namespace cps::search {
             }
         }
 
-        fs::path calculate_prefix(const fs::path & path) {
+        fs::path calculate_prefix(const fs::path & path, std::string_view name) {
             // TODO: Windows
-            // TODO: /cps/<name-like>
+            // TODO: Mac
+
             std::vector<std::string> split = utils::split(std::string{path}, "/");
+            // If the path ends in "/" then an empty string will be placed at
+            // the end of the split paths
             if (split.back() == "") {
+                split.pop_back();
+            }
+            // If split ends in name, ex: /usr/lib/cps/name/
+            if (split.back() == name) {
+                split.pop_back();
+            }
+            // If split ends in name/*, ex: /usr/lib/cps/name/*
+            // Then drop both the */ and the name/
+            if (*(split.end() - 2) == name) {
+                split.pop_back();
                 split.pop_back();
             }
             if (split.back() == "cps") {
                 split.pop_back();
             }
-            if (split.back() == "share") {
-                split.pop_back();
-            }
-            // TODO: this needs to be generic
-            if (split.back() == "lib") {
+            // Match only share or libdir, but not a potential odd situation
+            // like `/opt/share/libdir/`
+            if (split.back() == "share" || split.back() == platform::libdir()) {
                 split.pop_back();
             }
             fs::path p{"/"};
@@ -392,7 +418,8 @@ namespace cps::search {
                 // TODO: Windows…
                 auto && split = utils::split(s, "/");
                 if (split[0] == "@prefix@") {
-                    auto p = prefix_path.value_or(calculate_prefix(node->data.package.cps_path));
+                    auto p =
+                        prefix_path.value_or(calculate_prefix(node->data.package.cps_path, node->data.package.name));
                     for (auto it = split.begin() + 1; it != split.end(); ++it) {
                         p /= *it;
                     }
@@ -406,7 +433,7 @@ namespace cps::search {
                 auto && f = node->data.package.components.find(c_name);
                 utils::assert_fn(
                     f != node->data.package.components.end(),
-                    fmt::format("Could not find component {} of pacakge {}", c_name, node->data.package.name));
+                    fmt::format("Could not find component {} of package {}", c_name, node->data.package.name));
                 auto && comp = f->second;
 
                 // Convert prefix at this point because:

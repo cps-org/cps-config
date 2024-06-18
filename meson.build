@@ -39,7 +39,7 @@ test(
   find_program('python', version : '>=3.11', required : build_tests, disabler : true),
   args: [files('tests/runner.py'), cps_config, 'tests/cases.toml'],
   protocol : 'tap',
-  env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cases' },
+  env : {'CPS_PATH' : meson.current_source_dir() / 'tests/cases/lib/cps'},
 )
 
 dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
