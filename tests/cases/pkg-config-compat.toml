@@ -1,0 +1,54 @@
+[[case]]
+name = "mod version"
+cps = "minimal"
+args = ["pkg-config", "--modversion"]
+expected = "1.0.0"
+
+[[case]]
+name = "link-flags"
+cps = "full"
+args = ["pkg-config", "--libs"]
+expected = "-L/usr/lib/ -flto -l/something/lib/libfoo.so -lbar"
+
+[[case]]
+name = "link-flags only -l"
+cps = "full"
+args = ["pkg-config", "--libs-only-l"]
+expected = "-l/something/lib/libfoo.so -lbar"
+
+[[case]]
+name = "link-flags only -L"
+cps = "full"
+args = ["pkg-config", "--libs-only-L"]
+expected = "-L/usr/lib/"
+
+[[case]]
+name = "link-flags only other"
+cps = "full"
+args = ["pkg-config", "--libs-only-other"]
+expected = "-flto"
+
+[[case]]
+name = "cflags"
+cps = "full"
+args = ["pkg-config", "--cflags"]
+expected = "-fvectorize -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+
+[[case]]
+name = "cflags-only-other"
+cps = "full"
+args = ["pkg-config", "--cflags-only-other"]
+expected = "-fvectorize -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+
+[[case]]
+name = "cflags-only-I"
+cps = "full"
+args = ["pkg-config", "--cflags-only-I"]
+expected = "-I/usr/local/include -I/opt/include"
+
+[[case]]
+name = "Requires version, but version not set"
+cps = "needs-version.cps"
+args = ["pkg-config", "--modversion", "--print-errors", "--errors-to-stdout"]
+expected = "Could not find a CPS file for needs-version.cps"
+returncode = 1

@@ -35,7 +35,7 @@ if typing.TYPE_CHECKING:
 
 
 SOURCE_DIR = os.path.normpath(os.path.dirname(os.path.dirname(__file__)))
-PREFIX = os.path.join(SOURCE_DIR, 'tests/cases')
+PREFIX = os.path.join(SOURCE_DIR, 'tests/cps-files')
 _PRINT_LOCK = asyncio.Lock()
 
 
@@ -67,7 +67,7 @@ def unordered_compare(out, expected):
     return sorted(out_parts) == sorted(expected_parts)
 
 async def test(runner: str, case_: TestCase) -> Result:
-    cmd = [runner, case_['cps']] + case_['args']
+    cmd = [runner] + case_['args'] + [case_['cps']]
     if 'mode' in case_:
         cmd.extend([f"--format={case_['mode']}"])
 
