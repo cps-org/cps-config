@@ -1,0 +1,122 @@
+# cps-config --version
+[[case]]
+name = "version"
+cps = "minimal"
+args = ["--version"]
+expected = "0.0.1"
+
+# cps-config flags
+[[case]]
+name = "cflags"
+cps = "minimal"
+args = ["flags", "--cflags"]
+expected = "-fopenmp -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+
+[[case]]
+name = "cflags-only-other"
+cps = "minimal"
+args = ["flags", "--cflags-only-other"]
+expected = "-fopenmp -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+
+[[case]]
+name = "cflags-only-I"
+cps = "minimal"
+args = ["flags", "--cflags-only-I"]
+expected = "-I/usr/local/include -I/opt/include"
+
+[[case]]
+name = "multiple components"
+cps = "multiple-components"
+args = ["flags", "--cflags-only-I"]
+expected = "-I/usr/local/include -I/opt/include"
+
+[[case]]
+name = "select component"
+cps = "multiple-components"
+args = ["flags", "--cflags-only-I", "--component", "sample1"]
+expected = "-I/usr/local/include"
+
+[[case]]
+name = "no language specified"
+cps = "multiple-components"
+args = ["flags", "--cflags-only-I", "--component", "sample2"]
+expected = "-I/opt/include"
+
+[[case]]
+name = "link libs only with link-location"
+cps = "multiple-components"
+args = ["flags", "--libs-only-l", "--component", "sample3"]
+expected = "-l/something/lib/libfoo.so -ldl -lrt"
+
+[[case]]
+name = "link libs only without link-location"
+cps = "multiple-components"
+args = ["flags", "--libs-only-l", "--component", "sample2"]
+expected = "-l/something/lib/libfoo.so.1.2.0"
+
+[[case]]
+name = "mod version"
+cps = "minimal"
+args = ["flags", "--modversion"]
+expected = "1.0.0"
+
+[[case]]
+name = "component requires own component"
+cps = "multiple-components"
+args = ["flags", "--cflags-only-I", "--component", "sample4"]
+expected = "-I/something"
+
+[[case]]
+name = "component requires external component"
+cps = "multiple-components"
+args = ["flags", "--cflags-only-I", "--component", "requires-external"]
+expected = "-I/err"
+
+[[case]]
+name = "prefix set"
+cps = "cps-path-set"
+args = ["flags", "--cflags-only-I", "--libs-only-l"]
+expected = "-I/sentinel/err -l/sentinel/lib/libfoo.a"
+
+[[case]]
+name = "prefix calculated"
+cps = "cps-path-not-set"
+args = ["flags", "--cflags-only-I", "--libs-only-l"]
+expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
+
+[[case]]
+name = "component diamond"
+cps = "diamond"
+args = ["flags", "--cflags-only-I"]
+expected = "-I/something -I/opt/include"
+
+[[case]]
+name = "Requires version, but version not set"
+cps = "needs-version.cps"
+args = ["flags", "--modversion", "--print-errors", "--errors-to-stdout"]
+expected = "Could not find a CPS file for needs-version.cps"
+returncode = 1
+
+[[case]]
+name = "component link-flags"
+cps = "multiple-components"
+args = ["flags", "--component", "link-flags", "--libs"]
+expected = "-L/usr/lib/ -flto -l/something/lib/libfoo.so -lbar"
+
+[[case]]
+name = "component link-flags only -l"
+cps = "multiple-components"
+args = ["flags", "--component", "link-flags", "--libs-only-l"]
+expected = "-l/something/lib/libfoo.so -lbar"
+
+[[case]]
+name = "component link-flags only -L"
+cps = "multiple-components"
+args = ["flags", "--component", "link-flags", "--libs-only-L"]
+expected = "-L/usr/lib/"
+
+[[case]]
+name = "component link-flags only other"
+cps = "multiple-components"
+args = ["flags", "--component", "link-flags", "--libs-only-other"]
+expected = "-flto"
