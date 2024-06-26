@@ -53,43 +53,61 @@ Support:
     Please report bugs to <https://github.com/cps-org/cps-config/issues>.)"s;
         CLI::App app{"cps-config is a utility for querying and using installed libraries."};
         app.footer(footer);
-
-        app.add_flag_callback(
-            "--cflags",
-            [&conf]() {
-                conf.cflags = true;
-                conf.defines = true;
-                conf.includes = true;
-            },
-            "output all pre-processor and compiler flags");
-        app.add_flag("--cflags-only-I", conf.includes, "output -I flags");
-        app.add_flag_callback(
-            "--cflags-only-other",
-            [&conf]() {
-                conf.cflags = true;
-                conf.defines = true;
-            },
-            "output cflags not covered by the cflags-only-I option");
-        app.add_flag_callback(
-            "--libs",
-            [&conf]() {
-                conf.libs_link = true;
-                conf.libs_search = true;
-                conf.libs_other = true;
-            },
-            "output all linker flags");
-        app.add_flag("--libs-only-L", conf.libs_search, "print required LDPATH linker flags to stdout");
-        app.add_flag("--libs-only-l", conf.libs_link, "print required LIBNAME linker flags to stdout");
-        app.add_flag("--libs-only-other", conf.libs_other, "print required other linker flags to stdout");
-        app.add_flag("--modversion", conf.mod_version, "print the specified module's version to stdout");
-        app.add_option<std::vector<std::string>>("--component"s, components, "look for the specified component(s)"s);
-        app.add_flag("--format", format, "output format");
-        app.add_flag("--print-errors", conf.print_errors, "enables debug messages when errors are encountered");
-        app.add_flag("--errors-to-stdout", errors_to_stdout, "print errors to stdout instead of stderr");
-        app.add_flag("--prefix-variable", prefix_variable,
-                     "set value of @prefix@ instead of infering it from where the cps file was found");
         app.set_version_flag("--version", CPS_CONFIG_VERSION, "print cps-config version");
-        app.add_option("packages", package_names, "search for the specified packages")->required();
+
+        app.require_subcommand(1);
+
+        // Helper function to add common subcommand options between `pkg-config`, `pkgconf`, and `flags`.
+        // Examples are options to generate compiler flags, such as --libs and --cflags, and options that control error
+        // output behavior.
+        auto add_common_options = [&](CLI::App * subcommand) {
+            subcommand->add_flag_callback(
+                "--cflags",
+                [&conf]() {
+                    conf.cflags = true;
+                    conf.defines = true;
+                    conf.includes = true;
+                },
+                "output all pre-processor and compiler flags");
+            subcommand->add_flag("--cflags-only-I", conf.includes, "output -I flags");
+            subcommand->add_flag_callback(
+                "--cflags-only-other",
+                [&conf]() {
+                    conf.cflags = true;
+                    conf.defines = true;
+                },
+                "output cflags not covered by the cflags-only-I option");
+            subcommand->add_flag_callback(
+                "--libs",
+                [&conf]() {
+                    conf.libs_link = true;
+                    conf.libs_search = true;
+                    conf.libs_other = true;
+                },
+                "output all linker flags");
+            subcommand->add_flag("--libs-only-L", conf.libs_search, "print required LDPATH linker flags to stdout");
+            subcommand->add_flag("--libs-only-l", conf.libs_link, "print required LIBNAME linker flags to stdout");
+            subcommand->add_flag("--libs-only-other", conf.libs_other, "print required other linker flags to stdout");
+            subcommand->add_flag("--prefix-variable", prefix_variable,
+                                 "set value of @prefix@ instead of infering it from where the cps file was found");
+            subcommand->add_flag("--modversion", conf.mod_version, "print the specified module's version to stdout");
+            subcommand->add_flag("--print-errors", conf.print_errors,
+                                 "enables debug messages when errors are encountered");
+            subcommand->add_flag("--errors-to-stdout", errors_to_stdout, "print errors to stdout instead of stderr");
+            subcommand->add_option("packages", package_names, "search for the specified packages")->required();
+        };
+
+        // cps-config flags
+        auto flags_command = app.add_subcommand("flags", "get flags used to compile and link a package");
+        add_common_options(flags_command);
+        flags_command->add_option<std::vector<std::string>>("--component"s, components,
+                                                            "look for the specified component(s)"s);
+        flags_command->add_flag("--format", format, "output format");
+
+        // pkg-config compatibility mode
+        auto pkg_config_command = app.add_subcommand("pkg-config", "pkg-config compatibility mode");
+        add_common_options(pkg_config_command);
+
         try {
             app.parse(argc, argv);
         } catch (const CLI ::ParseError & parse_error) {

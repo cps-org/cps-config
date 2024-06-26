@@ -34,13 +34,16 @@ cps_config = executable(
 
 build_tests = get_option('tests')
 
-test(
-  'pkg-config compatibility',
-  find_program('python', version : '>=3.11', required : build_tests, disabler : true),
-  args: [files('tests/runner.py'), cps_config, 'tests/cases.toml'],
-  protocol : 'tap',
-  env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cases' },
-)
+python_interpreter = find_program('python', version : '>=3.11', required : build_tests, disabler : true)
+foreach t : [['cps integration tests', 'cps-config.toml'], ['pkg-config compatibility', 'pkg-config-compat.toml']]
+  test(
+    t[0],
+    python_interpreter,
+    args: [files('tests/runner.py'), cps_config, 'tests/cases/' + t[1]],
+    protocol : 'tap',
+    env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cps-files' },
+  )
+endforeach
 
 dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
 
