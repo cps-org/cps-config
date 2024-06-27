@@ -14,7 +14,7 @@ insert_final_newline = true
 [meson.build]
 indent_size = 2
 
-[CMakeLists.txt]
+[{CMakeLists.txt,*.cmake}]
 indent_size = 2
 
 [*.{toml,yml,json}]

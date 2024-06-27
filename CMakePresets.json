@@ -12,6 +12,13 @@
         "CC": "gcc",
         "CXX": "g++"
       }
+    },
+    {
+      "name": "fetch-deps",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "subprojects/provider.cmake"
+      }
     }
   ]
 }

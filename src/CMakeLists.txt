@@ -27,7 +27,7 @@ find_package(fmt 8 REQUIRED)
 target_link_libraries(cps PRIVATE fmt::fmt)
 
 find_package(jsoncpp 1.9 REQUIRED)
-target_link_libraries(cps PRIVATE JsonCpp::JsonCpp)
+target_link_libraries(cps PRIVATE jsoncpp_lib)
 
 find_package(CLI11 2.1 REQUIRED)
 target_link_libraries(cps-config PRIVATE CLI11::CLI11)
