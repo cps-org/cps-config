@@ -1,0 +1,3 @@
+#pragma once
+
+#define CPS_CONFIG_VERSION "${CMAKE_PROJECT_VERSION}"

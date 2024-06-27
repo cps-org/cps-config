@@ -1,0 +1,24 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true
+      },
+      "environment": {
+        "CC": "gcc",
+        "CXX": "g++"
+      }
+    },
+    {
+      "name": "fetch-deps",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "subprojects/provider.cmake"
+      }
+    }
+  ]
+}

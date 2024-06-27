@@ -1,4 +1,5 @@
 subprojects/*
 !subprojects/*.wrap
+!subprojects/*.cmake
 .pixi/
 .cache/
