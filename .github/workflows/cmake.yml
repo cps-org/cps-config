@@ -29,11 +29,8 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - {
-              id: ubuntu-gcc,
-              platform: ubuntu,
-              preset: default,
-            }
+          - { id: ubuntu-gcc, platform: ubuntu, preset: default }
+          - { id: ubuntu-gcc-fetch, platform: ubuntu, preset: fetch-deps }
 
     steps:
       - uses: actions/checkout@v2
