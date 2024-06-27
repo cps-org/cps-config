@@ -4,7 +4,6 @@
     {
       "name": "default",
       "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": true,
         "BUILD_TESTING": true
@@ -12,6 +11,21 @@
       "environment": {
         "CC": "gcc",
         "CXX": "g++"
+      }
+    },
+    {
+      "name": "fetch-deps",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "subprojects/provider.cmake"
+      }
+    },
+    {
+      "name": "shared",
+      "inherits": "fetch-deps",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": true,
+        "CMAKE_POSITION_INDEPENDENT_CODE": true
       }
     }
   ]
