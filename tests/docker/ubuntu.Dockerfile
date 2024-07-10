@@ -1,8 +1,8 @@
 FROM ubuntu:22.04
 
 # Install dependencies
-RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y \
         python3.11 \
         python3-pip \
         pkg-config \
@@ -15,8 +15,8 @@ RUN apt-get install -y \
         libexpected-dev \
         libgtest-dev \
         libfmt-dev \
-        libcli11-dev
-RUN apt-get clean
+        libcli11-dev && \
+    apt-get clean
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip
 RUN python3 -m pip install -U meson==0.64.1
