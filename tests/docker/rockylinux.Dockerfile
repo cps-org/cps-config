@@ -1,13 +1,12 @@
 FROM rockylinux:9
 
 # Enable EPEL
-RUN dnf update -y
-RUN dnf install -y 'dnf-command(config-manager)'
-RUN dnf config-manager --set-enabled crb -y
-RUN dnf install epel-release -y
-
 # Install dependencies
-RUN dnf install -y \
+RUN dnf update -y && \
+    dnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --set-enabled crb -y && \
+    dnf install epel-release -y && \
+    dnf install -y \
         python3.11 \
         python3-pip \
         pkgconf-pkg-config \
@@ -20,8 +19,8 @@ RUN dnf install -y \
         expected-devel \
         gtest-devel \
         fmt-devel \
-        cli11-devel
-RUN dnf clean all
+        cli11-devel && \
+    dnf clean all
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip
 RUN python3 -m pip install -U meson==0.64.1
