@@ -30,6 +30,7 @@ cps_config = executable(
   conf_h,
   dependencies : [dep_cps, dep_fmt, dep_expected, dep_cli11],
   install : true,
+  implicit_include_directories : false,
 )
 
 build_tests = get_option('tests')
@@ -54,6 +55,7 @@ foreach t : ['loader', 'version', 'utils']
       f'@t@_test',
       f'tests/@t@.cpp',
       dependencies : [dep_cps, dep_gtest, dep_fmt, dep_expected],
+      implicit_include_directories : false,
     ),
     protocol : 'gtest',
   )
