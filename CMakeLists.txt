@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-file(READ CPS_VERSION VERSION)
+file(READ PROJECT_VERSION VERSION)
 string(STRIP ${VERSION} VERSION_STRIPPED)
 project(
     cps-config
