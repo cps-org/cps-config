@@ -86,7 +86,7 @@ namespace cps::search {
                 cached_paths.reserve(nix.size());
                 cached_paths.insert(cached_paths.end(), nix.begin(), nix.end());
                 auto && paths = utils::split(env.cps_path.value());
-                cached_paths.reserve(paths.size());
+                cached_paths.reserve(cached_paths.size() + paths.size());
                 cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
             } else {
                 cached_paths = nix;
