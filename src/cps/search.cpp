@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright © 2023-2024 Dylan Baker
-// Copyright © 2024 Bret Brown
+// Copyright © 2024 Dylan Baker
 
 #include "cps/search.hpp"
 
@@ -71,36 +71,71 @@ namespace cps::search {
             return out;
         }
 
-        const std::vector<fs::path> nix{"/usr", "/usr/local"};
-        // TODO: const std::vector<std::string> mac{""};
-        // TODO: const std::vector<std::string> win{""};
-
-        std::vector<fs::path> cached_paths{};
-
-        const std::vector<fs::path> search_paths(Env env) {
-            if (!cached_paths.empty()) {
-                return cached_paths;
-            }
-
-            if (env.cps_path) {
-                cached_paths.reserve(nix.size());
-                cached_paths.insert(cached_paths.end(), nix.begin(), nix.end());
-                auto && paths = utils::split(env.cps_path.value());
-                cached_paths.reserve(cached_paths.size() + paths.size());
-                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
-            } else {
-                cached_paths = nix;
-            }
-
-            return cached_paths;
-        }
-
-        const fs::path libdir() {
+        fs::path libdir() {
             // TODO: libdir needs to be configurable based on the personality,
             //       and different name schemes.
             //       This is complicated by the fact that different distros have
             //       different schemes.
             return "lib";
+        }
+
+        fs::path datadir() {
+            // TODO: needs to be configurable. see libdir above.
+            return "share";
+        }
+
+        const std::vector<fs::path> nix_prefix{"/usr", "/usr/local"};
+        // TODO: const std::vector<std::string> mac_prefix{""};
+        // TODO: const std::vector<std::string> win_prefix{""};
+
+        std::vector<fs::path> cached_paths{};
+
+        /// @brief expands a single search prefix into a set of full paths
+        /// @param prefix the prefix to build from
+        /// @return A vector of paths to search, in order
+        std::vector<fs::path> expand_prefix(const fs::path & prefix) {
+            std::vector<fs::path> paths{};
+
+            // TODO: macOS specific paths
+            // TODO: Windows specific paths
+
+            // TODO: handle name-like search paths
+            paths.emplace_back(prefix / libdir() / "cps");
+            paths.emplace_back(prefix / datadir() / "cps");
+
+            return paths;
+        };
+
+        /// @brief Expands CPS search prefixes into concrete paths
+        /// @param env stored environment variables
+        /// @return A vector of paths to search, in order
+        const std::vector<fs::path> search_paths(const Env & env) {
+            if (!cached_paths.empty()) {
+                return cached_paths;
+            }
+
+            if (env.cps_path) {
+                auto && paths = utils::split(env.cps_path.value());
+                cached_paths.reserve(paths.size());
+                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
+            }
+
+            if (env.cps_prefix_path) {
+                auto && prefixes = utils::split(env.cps_prefix_path.value());
+                for (auto && p : prefixes) {
+                    auto && paths = expand_prefix(p);
+                    cached_paths.reserve(cached_paths.size() + paths.size());
+                    cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
+                }
+            }
+
+            for (auto && p : nix_prefix) {
+                auto && paths = expand_prefix(p);
+                cached_paths.reserve(cached_paths.size() + paths.size());
+                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
+            }
+
+            return cached_paths;
         }
 
         /// @brief Find all possible paths for a given CPS name
@@ -119,15 +154,10 @@ namespace cps::search {
             // dependency?
             auto && paths = search_paths(env);
             std::vector<fs::path> found{};
-            for (auto && prefix : paths) {
-                // TODO: <prefix>/<libdir>/cps/<name-like>/
-                // TODO: <prefix>/share/cps/<name-like>/
-                // TODO: <prefix>/share/cps/
-
-                const fs::path dir = prefix / libdir() / "cps";
-                if (fs::is_directory(dir)) {
+            for (auto && path : paths) {
+                if (fs::is_directory(path)) {
                     // TODO: <name-like>
-                    const fs::path file = dir / fmt::format("{}.cps", name);
+                    const fs::path file = path / fmt::format("{}.cps", name);
                     if (fs::is_regular_file(file)) {
                         found.push_back(file);
                     }

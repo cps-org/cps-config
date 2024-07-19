@@ -42,7 +42,7 @@ foreach t : [['cps integration tests', 'cps-config.toml'], ['pkg-config compatib
     python_interpreter,
     args: [files('tests/runner.py'), cps_config, 'tests/cases/' + t[1]],
     protocol : 'tap',
-    env : {'CPS_PATH' : meson.current_source_dir() / 'tests' / 'cps-files' },
+    env : {'CPS_PREFIX_PATH' : meson.current_source_dir() / 'tests' / 'cps-files' },
   )
 endforeach
 
