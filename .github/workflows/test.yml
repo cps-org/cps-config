@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/test.yml"
-      - "PROJECT_VERSION"
+      - "CPS_VERSION"
       - "meson.build"
       - "meson_options.txt"
       - "src/**"
@@ -14,7 +14,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/test.yml"
-      - "PROJECT_VERSION"
+      - "CPS_VERSION"
       - "meson.build"
       - "meson_options.txt"
       - "src/**"
