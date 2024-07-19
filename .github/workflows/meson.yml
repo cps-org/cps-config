@@ -125,3 +125,15 @@ jobs:
         with:
           path: ${{ github.workspace }}/ccache
           key: ${{ matrix.cfg.id }}-ccache-${{ github.run_id }}
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Brew Install
+        run: brew install pkg-config ninja cli11 googletest jsoncpp fmt cmake meson tl-expected
+      - name: Build cps-config
+        run: |
+          meson setup builddir -Dunity=on -Dunity_size=12
+          ninja -C builddir
+      - name: Run tests
+        run: meson test -C builddir
