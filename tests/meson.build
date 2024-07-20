@@ -18,7 +18,10 @@ foreach t : [['cps integration tests', 'cps-config.toml'], ['pkg-config compatib
     python_interpreter,
     args: [runner_args, meson.current_source_dir() / 'cases' / t[1]],
     protocol : 'tap',
-    env : {'CPS_PREFIX_PATH' : meson.current_source_dir() / 'cps-files' },
+    env : {
+      'CPS_PREFIX_PATH' : meson.current_source_dir() / 'cps-files',
+      'PKG_CONFIG_PATH' : meson.current_source_dir() / 'cps-files' / 'lib' / 'pkgconfig'
+    },
   )
 endforeach
 test(
@@ -30,7 +33,10 @@ test(
     meson.current_source_dir() / 'cases' / 'cps-prefix-calculation.toml',
   ],
   protocol : 'tap',
-  env : {'CPS_PREFIX_PATH' : meson.current_build_dir() / 'cps-files' },
+  env : {
+    'CPS_PREFIX_PATH' : meson.current_source_dir() / 'cps-files',
+    'PKG_CONFIG_PATH' : meson.current_source_dir() / 'cps-files' / 'lib' / 'pkgconfig'
+  },
 )
 
 dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
