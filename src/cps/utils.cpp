@@ -4,6 +4,8 @@
 
 #include "cps/utils.hpp"
 
+#include <algorithm>
+
 namespace cps::utils {
 
     std::vector<std::string> split(std::string_view input, std::string_view delim) {
@@ -17,6 +19,18 @@ namespace cps::utils {
         out.emplace_back(input.substr(last));
 
         return out;
+    }
+
+    std::string_view trim(std::string_view input) {
+        const auto is_not_space = [](unsigned char c) { return !std::isspace(c); };
+        const size_t prefix_length =
+            std::distance(input.cbegin(), std::find_if(input.cbegin(), input.cend(), is_not_space));
+        input.remove_prefix(prefix_length);
+        const size_t suffix_length =
+            std::distance(input.crbegin(),
+                          std::find_if(input.crbegin(), input.crend(), is_not_space);
+        input.remove_suffix(suffix_length);
+        return input;
     }
 
 } // namespace cps::utils
