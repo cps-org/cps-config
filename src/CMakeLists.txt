@@ -1,3 +1,10 @@
+# PC file parser
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
+bison_target(PcParser cps/pc_compat/pc.y ${CMAKE_CURRENT_BINARY_DIR}/cps/pc_compat/pc.parser.cpp)
+flex_target(PcScanner cps/pc_compat/pc.l ${CMAKE_CURRENT_BINARY_DIR}/cps/pc_compat/pc.lexer.cpp)
+add_flex_bison_dependency(PcScanner PcParser)
+
 # cps library
 add_library(
     cps
@@ -8,6 +15,9 @@ add_library(
     cps/search.cpp
     cps/utils.cpp
     cps/version.cpp
+    ${BISON_PcParser_OUTPUTS}
+    ${FLEX_PcScanner_OUTPUTS}
+    cps/pc_compat/pc_loader.cpp
 )
 
 # Configure config.hpp
