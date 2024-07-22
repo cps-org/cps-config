@@ -1,0 +1,13 @@
+# Taken from https://manpages.ubuntu.com/manpages/jammy/man5/pc.5.html
+prefix=/home/kaniini/pkg
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libfoo
+Description: an example library called libfoo
+Version: 1.0
+URL: http://www.pkgconf.org
+Libs: -L${libdir} -lfoo
+Libs.private: -lm
+Cflags: -I${includedir}/libfoo
