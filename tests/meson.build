@@ -34,7 +34,7 @@ test(
   ],
   protocol : 'tap',
   env : {
-    'CPS_PREFIX_PATH' : meson.current_source_dir() / 'cps-files',
+    'CPS_PREFIX_PATH' : meson.current_build_dir() / 'cps-files',
     'PKG_CONFIG_PATH' : meson.current_source_dir() / 'cps-files' / 'lib' / 'pkgconfig'
   },
 )
