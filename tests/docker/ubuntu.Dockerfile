@@ -15,7 +15,9 @@ RUN apt-get update && \
         libexpected-dev \
         libgtest-dev \
         libfmt-dev \
-        libcli11-dev && \
+        libcli11-dev \
+        flex \
+        bison && \
     apt-get clean
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip

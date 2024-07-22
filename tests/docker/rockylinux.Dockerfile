@@ -19,7 +19,9 @@ RUN dnf update -y && \
         expected-devel \
         gtest-devel \
         fmt-devel \
-        cli11-devel && \
+        cli11-devel \
+        flex \
+        bison && \
     dnf clean all
 RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.11 10
 # Install meson from pip
