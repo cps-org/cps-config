@@ -1,0 +1,6 @@
+# Comment
+# Name: this should not be parsed as the name
+Name: libfoo #Comment
+# Some more comment
+Description: This is an example library # Abc
+# More comment

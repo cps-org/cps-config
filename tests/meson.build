@@ -34,14 +34,14 @@ test(
   ],
   protocol : 'tap',
   env : {
-    'CPS_PREFIX_PATH' : meson.current_source_dir() / 'cps-files',
+    'CPS_PREFIX_PATH' : meson.current_build_dir() / 'cps-files',
     'PKG_CONFIG_PATH' : meson.current_source_dir() / 'cps-files' / 'lib' / 'pkgconfig'
   },
 )
 
 dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
 
-foreach t : ['loader', 'version', 'utils']
+foreach t : ['loader', 'version', 'utils', 'pc_parser']
   test(
     t,
     executable(
@@ -50,6 +50,9 @@ foreach t : ['loader', 'version', 'utils']
       dependencies : [dep_cps, dep_gtest, dep_fmt, dep_expected],
       implicit_include_directories : false,
     ),
+    env: {
+      'CPS_TEST_DIR' : meson.current_source_dir(),
+    },
     protocol : 'gtest',
   )
 endforeach
