@@ -29,8 +29,7 @@ namespace cps::utils {
             std::distance(input.cbegin(), std::find_if(input.cbegin(), input.cend(), is_not_space));
         input.remove_prefix(prefix_length);
         const size_t suffix_length =
-            std::distance(input.crbegin(),
-                          std::find_if(input.crbegin(), input.crend(), is_not_space);
+            std::distance(input.crbegin(), std::find_if(input.crbegin(), input.crend(), is_not_space));
         input.remove_suffix(suffix_length);
         return input;
     }

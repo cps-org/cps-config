@@ -1,0 +1,4 @@
+Name: libfoo
+Description: An example library
+Version: 1.0
+URL: https://example.com
