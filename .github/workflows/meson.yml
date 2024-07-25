@@ -111,7 +111,7 @@ jobs:
           -e CC="ccache ${{ matrix.cfg.cc }}" -e CXX="ccache ${{ matrix.cfg.cpp }}" \
           -e CCACHE_DIR="/ccache" \
           ${{ matrix.cfg.id }} \
-          bash -c "cd /workdir/ && meson builddir ${{ matrix.cfg.setup_options }} \
+          bash -c "meson setup /workdir/builddir /workdir ${{ matrix.cfg.setup_options }} \
           && ninja -C /workdir/builddir"
       - name: Run Tests
         run: |
