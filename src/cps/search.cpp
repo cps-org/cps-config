@@ -318,11 +318,11 @@ namespace cps::search {
             if (split.back() == "cps") {
                 split.pop_back();
             }
-            if (split.back() == "share") {
+            if (split.back() == platform::datadir()) {
                 split.pop_back();
             }
             // TODO: this needs to be generic
-            if (split.back() == "lib") {
+            if (split.back() == platform::libdir()) {
                 split.pop_back();
             }
             fs::path p{"/"};

@@ -6,6 +6,7 @@ project(
     LANGUAGES CXX
     VERSION ${VERSION_STRIPPED}
 )
+include(GNUInstallDirs)
 
 add_subdirectory(src)
 
