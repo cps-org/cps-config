@@ -3,6 +3,8 @@
 
 conf = configuration_data()
 conf.set_quoted('CPS_CONFIG_VERSION', meson.project_version())
+conf.set_quoted('CPS_CONFIG_LIBDIR', get_option('libdir'))
+conf.set_quoted('CPS_CONFIG_DATADIR', get_option('datadir'))
 
 conf_h = configure_file(
   configuration : conf,

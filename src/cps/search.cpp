@@ -309,7 +309,8 @@ namespace cps::search {
             }
         }
 
-        fs::path calculate_prefix(const std::optional<std::string> & path, const fs::path & filename) {
+        tl::expected<fs::path, std::string> calculate_prefix(const std::optional<std::string> & path,
+                                                             const fs::path & filename) {
             // TODO: Windows
             // TODO: /cps/<name-like>
             if (path) {
@@ -319,31 +320,31 @@ namespace cps::search {
                 }
                 fs::path f = filename.parent_path();
                 while (p != "@prefix@") {
-                    utils::assert_fn(
-                        p.stem() == f.stem(),
-                        fmt::format("filepath and cps_path have non overlapping stems, prefix: {}, filename {}",
-                                    std::string{p}, std::string{f}));
+                    if (p.stem() != f.stem()) {
+                        return tl::unexpected(
+                            fmt::format("filepath and cps_path have non overlapping stems, prefix: {}, filename {}",
+                                        std::string{p}, std::string{f}));
+                    }
                     p = p.parent_path();
                     f = f.parent_path();
                 }
                 return f;
             }
 
-            std::vector<std::string> split = utils::split(std::string{filename.parent_path()}, "/");
-            if (split.back() == "cps") {
-                split.pop_back();
-            }
-            if (split.back() == "share") {
-                split.pop_back();
-            }
-            // TODO: this needs to be generic
-            if (split.back() == "lib") {
-                split.pop_back();
+            fs::path p = filename.parent_path();
+            if (p.stem() == "cps") {
+                p = p.parent_path();
             }
 
-            fs::path p{"/"};
-            for (auto && s : split) {
-                p /= s;
+            fs::path dir = platform::datadir();
+            while (dir.stem() == p.stem()) {
+                dir = dir.parent_path();
+                p = p.parent_path();
+            }
+            dir = platform::libdir();
+            while (dir.stem() == p.stem()) {
+                dir = dir.parent_path();
+                p = p.parent_path();
             }
             return p;
         }
@@ -418,8 +419,8 @@ namespace cps::search {
 
         for (auto && node : flat) {
 
-            const auto prefix =
-                prefix_path.value_or(calculate_prefix(node->data.package.cps_path, node->data.package.filename));
+            const auto prefix = prefix_path.value_or(
+                CPS_TRY(calculate_prefix(node->data.package.cps_path, node->data.package.filename)));
 
             const auto && prefix_replacer = [&](const std::string & s) -> std::string {
                 // TODO: Windows…
