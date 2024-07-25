@@ -1,7 +1,7 @@
 {
     "name": "cps-path-set",
     "cps_version": "0.10.0",
-    "cps_path": "@prefix@/lib/cps/",
+    "cps_path": "@prefix@/${libdir}/cps/",
     "version": "1.0.0",
     "components": {
         "default": {
@@ -11,7 +11,7 @@
                     "@prefix@/err"
                 ]
             },
-            "location": "@prefix@/lib/libfoo.a"
+            "location": "@prefix@/${libdir}/libfoo.a"
         }
     },
     "default_components": [

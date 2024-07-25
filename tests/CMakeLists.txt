@@ -32,6 +32,24 @@ foreach (test_name test_case IN ZIP_LISTS test_names test_cases)
         COMMAND
         ${CMAKE_COMMAND} -E env CPS_PREFIX_PATH=${CMAKE_CURRENT_SOURCE_DIR}/cps-files
         ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/runner.py
-        $<TARGET_FILE:cps-config> ${test_case}
+        $<TARGET_FILE:cps-config> ${test_case} --libdir "${CMAKE_INSTALL_LIBDIR}"
     )
 endforeach ()
+
+set(infiles
+    "cps-files/lib/cps/cps-path-not-set.cps"
+    "cps-files/lib/cps/cps-path-set.cps")
+set(libdir ${CMAKE_INSTALL_LIBDIR})
+set(prefix "@prefix@")  # Work around for not having the inverse of @ONLY
+foreach(infile ${infiles})
+  configure_file("${infile}.in" "${infile}")
+endforeach()
+
+add_test(
+    NAME "prefix calculation tests"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND
+    ${CMAKE_COMMAND} -E env CPS_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/cps-files
+    ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/runner.py
+    $<TARGET_FILE:cps-config> ${CMAKE_CURRENT_SOURCE_DIR}/cases/cps-prefix-calculation.toml --libdir "${CMAKE_INSTALL_LIBDIR}" --prefix ${PROJECT_BINARY_DIR}
+)

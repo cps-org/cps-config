@@ -1,18 +1,37 @@
 # SPDX-License-Identifier: MIT
 # Copyright © 2024 Dylan Baker
 
+subdir('cps-files/lib/cps')
+
 build_tests = get_option('tests')
 
 python_interpreter = find_program('python', version : '>=3.11', required : build_tests, disabler : true)
+runner_args = [
+  files('runner.py'),
+  cps_config,
+  '--libdir', get_option('libdir'),
+]
+
 foreach t : [['cps integration tests', 'cps-config.toml'], ['pkg-config compatibility', 'pkg-config-compat.toml']]
   test(
     t[0],
     python_interpreter,
-    args: [files('runner.py'), cps_config, meson.current_source_dir() / 'cases' / t[1]],
+    args: [runner_args, meson.current_source_dir() / 'cases' / t[1]],
     protocol : 'tap',
     env : {'CPS_PREFIX_PATH' : meson.current_source_dir() / 'cps-files' },
   )
 endforeach
+test(
+  'prefix calculation tests',
+  python_interpreter,
+  args: [
+    runner_args,
+    '--prefix', meson.project_build_root(),
+    meson.current_source_dir() / 'cases' / 'cps-prefix-calculation.toml',
+  ],
+  protocol : 'tap',
+  env : {'CPS_PREFIX_PATH' : meson.current_build_dir() / 'cps-files' },
+)
 
 dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
 

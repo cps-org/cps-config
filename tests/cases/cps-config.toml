@@ -73,24 +73,6 @@ args = ["flags", "--cflags-only-I", "--component", "requires-external"]
 expected = "-I/err"
 
 [[case]]
-name = "prefix set"
-cps = "cps-path-set"
-args = ["flags", "--cflags-only-I", "--libs-only-l"]
-expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
-
-[[case]]
-name = "prefix set (called by path)"
-cps = "{prefix}/cps-path-set.cps"
-args = ["flags", "--cflags-only-I", "--libs-only-l"]
-expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
-
-[[case]]
-name = "prefix calculated"
-cps = "cps-path-not-set"
-args = ["flags", "--cflags-only-I", "--libs-only-l"]
-expected = "-I{prefix}/err -l{prefix}/lib/libfoo.a"
-
-[[case]]
 name = "component diamond"
 cps = "diamond"
 args = ["flags", "--cflags-only-I"]

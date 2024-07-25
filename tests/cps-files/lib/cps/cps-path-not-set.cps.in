@@ -10,7 +10,7 @@
                     "@prefix@/err"
                 ]
             },
-            "location": "@prefix@/lib/libfoo.a"
+            "location": "@prefix@/${libdir}/libfoo.a"
         }
     },
     "default_components": [
