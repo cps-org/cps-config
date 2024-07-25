@@ -6,6 +6,7 @@
 
 #include "cps/error.hpp"
 #include "cps/loader.hpp"
+#include "cps/platform.hpp"
 #include "cps/utils.hpp"
 #include "cps/version.hpp"
 
@@ -71,19 +72,6 @@ namespace cps::search {
             return out;
         }
 
-        fs::path libdir() {
-            // TODO: libdir needs to be configurable based on the personality,
-            //       and different name schemes.
-            //       This is complicated by the fact that different distros have
-            //       different schemes.
-            return "lib";
-        }
-
-        fs::path datadir() {
-            // TODO: needs to be configurable. see libdir above.
-            return "share";
-        }
-
         const std::vector<fs::path> nix_prefix{"/usr", "/usr/local"};
         // TODO: const std::vector<std::string> mac_prefix{""};
         // TODO: const std::vector<std::string> win_prefix{""};
@@ -100,8 +88,8 @@ namespace cps::search {
             // TODO: Windows specific paths
 
             // TODO: handle name-like search paths
-            paths.emplace_back(prefix / libdir() / "cps");
-            paths.emplace_back(prefix / datadir() / "cps");
+            paths.emplace_back(prefix / platform::libdir() / "cps");
+            paths.emplace_back(prefix / platform::datadir() / "cps");
 
             return paths;
         };
