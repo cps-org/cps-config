@@ -178,9 +178,9 @@ namespace cps::loader {
                 const Json::Value obj = *itr;
 
                 ret.emplace(key, Requirement{
-                                     CPS_TRY(get_optional<std::vector<std::string>>(require, name, "components"))
+                                     CPS_TRY(get_optional<std::vector<std::string>>(obj, name, "components"))
                                          .value_or(std::vector<std::string>{}),
-                                     CPS_TRY(get_optional<std::string>(require, name, "version")),
+                                     CPS_TRY(get_optional<std::string>(obj, name, "version")),
                                  });
             }
 
