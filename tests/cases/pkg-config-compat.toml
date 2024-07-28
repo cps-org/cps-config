@@ -53,3 +53,9 @@ args = ["pkg-config", "--modversion", "--print-errors", "--errors-to-stdout"]
 expected = "Tried /.*/cps/multiple-components.cps, which does not specify a version, but the user requires version 1.0"
 returncode = 1
 re = true
+
+[[case]]
+name = "parsing pc file"
+cps = "pc-variables"
+args = ["pkg-config", "--cflags"]
+expected = "-I/home/kaniini/pkg/include/libfoo"

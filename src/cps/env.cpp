@@ -19,6 +19,9 @@ namespace cps {
             // TODO: Windows
             env.cps_prefix_path = utils::split(env_c, ":");
         }
+        if (const char * env_c = std::getenv("PKG_CONFIG_PATH")) {
+            env.pc_path = std::string(env_c);
+        }
         if (std::getenv("PKG_CONFIG_DEBUG_SPEW") || std::getenv("CPS_CONFIG_DEBUG_SPEW")) {
             env.debug_spew = true;
         }
