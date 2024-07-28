@@ -47,7 +47,7 @@ args = ["pkg-config", "--cflags-only-I"]
 expected = "-I/usr/local/include -I/opt/include"
 
 [[case]]
-name = "Requires version, but version not set"
+name = "library not found"
 cps = "needs-version.cps"
 args = ["pkg-config", "--modversion", "--print-errors", "--errors-to-stdout"]
 expected = "Could not find a CPS file for needs-version.cps"
