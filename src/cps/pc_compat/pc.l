@@ -43,6 +43,11 @@ comment #[^\n]*
 <<EOF>>     { return yy::parser::make_YYEOF(); }
 %%
 
-void PcLoader::scan_begin(std::istream &istream) const {
-    yyinput = &istream;
+namespace cps::pc_compat {
+
+    void PcLoader::scan_begin(std::istream &istream) const {
+        yyinput = &istream;
+    }
+
 }
+
