@@ -13,11 +13,13 @@
     #include <string>
     #include <istream>
     #include "cps/utils.hpp"
-    class PcLoader;
+    namespace cps::pc_compat {
+        class PcLoader;
+    }
 }
 
 // The parsing context.
-%param { PcLoader& loader }
+%param { cps::pc_compat::PcLoader& loader }
 
 %define parse.trace
 %define parse.error detailed
