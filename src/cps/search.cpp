@@ -6,6 +6,7 @@
 
 #include "cps/error.hpp"
 #include "cps/loader.hpp"
+#include "cps/pc_compat/pc_loader.hpp"
 #include "cps/platform.hpp"
 #include "cps/utils.hpp"
 #include "cps/version.hpp"
@@ -76,7 +77,14 @@ namespace cps::search {
         // TODO: const std::vector<std::string> mac_prefix{""};
         // TODO: const std::vector<std::string> win_prefix{""};
 
-        std::vector<fs::path> cached_paths{};
+        enum class SearchPathType { cps, pc };
+
+        struct SearchPath {
+            fs::path path;
+            SearchPathType type;
+        };
+
+        std::vector<SearchPath> cached_paths{};
 
         /// @brief expands a single search prefix into a set of full paths
         /// @param prefix the prefix to build from
@@ -94,36 +102,58 @@ namespace cps::search {
             return paths;
         };
 
+        template <typename T> void add_to_search_path(const std::vector<T> & paths, SearchPathType type) {
+            std::transform(paths.begin(), paths.end(), std::back_inserter(cached_paths),
+                           [&type](const auto & path) { return SearchPath{.path = path, .type = type}; });
+        };
+
         /// @brief Expands CPS search prefixes into concrete paths
         /// @param env stored environment variables
         /// @return A vector of paths to search, in order
-        const std::vector<fs::path> search_paths(const Env & env) {
+        std::vector<SearchPath> search_paths(const Env & env) {
+
             if (!cached_paths.empty()) {
                 return cached_paths;
             }
 
             if (env.cps_path) {
                 auto && paths = utils::split(env.cps_path.value());
-                cached_paths.reserve(paths.size());
-                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
+                add_to_search_path(paths, SearchPathType::cps);
             }
 
             if (env.cps_prefix_path) {
                 auto && prefixes = utils::split(env.cps_prefix_path.value());
                 for (auto && p : prefixes) {
                     auto && paths = expand_prefix(p);
-                    cached_paths.reserve(cached_paths.size() + paths.size());
-                    cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
+                    add_to_search_path(paths, SearchPathType::cps);
                 }
+            }
+
+            // If PKG_CONFIG_PATH is defined, search for PC files in the specified directly before falling back to
+            // system default CPS and PC search paths.
+            if (env.pc_path) {
+                cached_paths.emplace_back(SearchPath{.path = *env.pc_path, .type = SearchPathType::pc});
             }
 
             for (auto && p : nix_prefix) {
                 auto && paths = expand_prefix(p);
-                cached_paths.reserve(cached_paths.size() + paths.size());
-                cached_paths.insert(cached_paths.end(), paths.begin(), paths.end());
+                add_to_search_path(paths, SearchPathType::cps);
+                add_to_search_path(paths, SearchPathType::pc);
             }
 
             return cached_paths;
+        }
+
+        std::optional<fs::path> find_library_in_path(std::string_view name, const SearchPath & search_path) {
+            if (fs::is_directory(search_path.path)) {
+                const std::string extension = search_path.type == SearchPathType::cps ? "cps" : "pc";
+                // TODO: <name-like>
+                if (fs::path file = search_path.path / fmt::format("{}.{}", name, extension);
+                    fs::is_regular_file(file)) {
+                    return file;
+                }
+            }
+            return std::nullopt;
         }
 
         /// @brief Find all possible paths for a given CPS name
@@ -142,13 +172,9 @@ namespace cps::search {
             // dependency?
             auto && paths = search_paths(env);
             std::vector<fs::path> found{};
-            for (auto && path : paths) {
-                if (fs::is_directory(path)) {
-                    // TODO: <name-like>
-                    const fs::path file = path / fmt::format("{}.cps", name);
-                    if (fs::is_regular_file(file)) {
-                        found.push_back(file);
-                    }
+            for (auto && search_path : paths) {
+                if (auto file = find_library_in_path(name, search_path)) {
+                    found.push_back(*file);
                 }
             }
 
@@ -208,7 +234,11 @@ namespace cps::search {
 
                 std::ifstream file;
                 file.open(path);
-                auto n = std::make_shared<Node>(CPS_TRY(loader::load(file, path.parent_path())));
+
+                // Assume file is CPS unless file extension is .pc
+                auto n =
+                    std::make_shared<Node>(CPS_TRY(path.extension() == ".pc" ? pc_compat::load(file, path.parent_path())
+                                                                             : loader::load(file, path.parent_path())));
 
                 cache.emplace(name, n);
                 return n;
@@ -222,7 +252,6 @@ namespace cps::search {
         build_node(std::string_view name, const loader::Requirement & requirements, NodeFactory factory, Env env) {
             const std::vector<fs::path> paths = CPS_TRY(find_paths(name, env));
             for (auto && path : paths) {
-
                 auto maybe_node = factory.get(name, path);
                 if (!maybe_node) {
                     continue;
