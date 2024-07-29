@@ -424,7 +424,7 @@ namespace cps::search {
                 auto && f = node->data.package.components.find(c_name);
                 utils::assert_fn(
                     f != node->data.package.components.end(),
-                    fmt::format("Could not find component {} of pacakge {}", c_name, node->data.package.name));
+                    fmt::format("Could not find component {} of package {}", c_name, node->data.package.name));
                 auto && comp = f->second;
 
                 // Convert prefix at this point because:

@@ -92,9 +92,9 @@ expected = "-I/something -I/opt/include"
 
 [[case]]
 name = "Requires version, but version not set"
-cps = "needs-version.cps"
+cps = "needs-version"
 args = ["flags", "--modversion", "--print-errors", "--errors-to-stdout"]
-expected = "Could not find a CPS file for needs-version.cps"
+expected = "Could not find a dependency to satisfy needs-version"
 returncode = 1
 
 [[case]]
