@@ -6,10 +6,13 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import dataclasses
 import enum
 import os
+import shutil
 import sys
+import tempfile
 import tomllib
 import typing
 
@@ -19,6 +22,7 @@ if typing.TYPE_CHECKING:
 
         runner: str
         cases: str
+        libdir: str
 
     class TestCase(typing.TypedDict):
 
@@ -99,15 +103,7 @@ async def test(runner: str, case_: TestCase) -> Result:
     return Result(case_['name'], result, out, err, returncode, expected, cmd)
 
 
-async def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('runner', help="The compiled cps-config binary")
-    parser.add_argument('cases', help="A toml file containing case descriptions")
-    args: Arguments = parser.parse_args()
-
-    with open(os.path.join(SOURCE_DIR, args.cases), 'rb') as f:
-        tests = typing.cast('TestDescription', tomllib.load(f))
-
+async def run_tests(args: Arguments, tests: TestDescription) -> bool:
     print(f'1..{len(tests["case"])}')
 
     results = typing.cast(
@@ -129,8 +125,47 @@ async def main() -> None:
 
             encountered_failure = True
 
-    if encountered_failure:
-        exit(1)
+    return encountered_failure
+
+
+async def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('runner', help="The compiled cps-config binary")
+    parser.add_argument('cases', help="A toml file containing case descriptions")
+    parser.add_argument('--libdir', default='lib', help="the build system configured libdir")
+    args: Arguments = parser.parse_args()
+
+    with open(os.path.join(SOURCE_DIR, args.cases), 'rb') as f:
+        tests = typing.cast('TestDescription', tomllib.load(f))
+
+    with contextlib.ExitStack() as stack:
+        # If the libdir is not "lib" (which tests assume), create a symlink to
+        # the expected libdir
+        if args.libdir != 'lib':
+            prefix = str(os.environ['CPS_PREFIX_PATH'])
+            tmpdir = tempfile.mkdtemp()
+            stack.callback(shutil.rmtree, tmpdir)
+            os.environ['CPS_PREFIX_PATH'] = tmpdir
+
+            # Handle libdir with multiple paths, like lib/x86_64-linux-gnu
+            root, libdir = os.path.split(args.libdir)
+            if root:
+                tmpdir = os.path.join(tmpdir, root)
+                os.makedirs(tmpdir, exist_ok=True)
+
+            source = os.path.join(prefix, 'lib')
+            dest = os.path.join(tmpdir, libdir)
+            os.symlink(source, dest)
+            stack.callback(os.unlink, dest)
+
+            # Also override the PREFIX, which is used to calculate @prefix@
+            global PREFIX
+            PREFIX = os.path.join(tmpdir, libdir)
+
+        failed = await run_tests(args, tests)
+
+    sys.exit(1 if failed else 0)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

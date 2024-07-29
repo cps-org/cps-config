@@ -32,6 +32,6 @@ foreach (test_name test_case IN ZIP_LISTS test_names test_cases)
         COMMAND
         ${CMAKE_COMMAND} -E env CPS_PREFIX_PATH=${CMAKE_CURRENT_SOURCE_DIR}/cps-files
         ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/runner.py
-        $<TARGET_FILE:cps-config> ${test_case}
+        $<TARGET_FILE:cps-config> ${test_case} --libdir "${CMAKE_INSTALL_LIBDIR}"
     )
 endforeach ()
