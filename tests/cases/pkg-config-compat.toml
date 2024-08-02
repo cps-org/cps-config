@@ -52,3 +52,9 @@ cps = "needs-version.cps"
 args = ["pkg-config", "--modversion", "--print-errors", "--errors-to-stdout"]
 expected = "Could not find a CPS file for needs-version.cps"
 returncode = 1
+
+[[case]]
+name = "parsing pc file"
+cps = "pc-variables"
+args = ["pkg-config", "--cflags"]
+expected = "-I/home/kaniini/pkg/include/libfoo"

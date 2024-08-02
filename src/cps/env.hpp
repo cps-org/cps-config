@@ -12,6 +12,7 @@ namespace cps {
     struct Env {
         std::optional<std::string> cps_path = std::nullopt;
         std::optional<std::string> cps_prefix_path = std::nullopt;
+        std::optional<std::string> pc_path = std::nullopt;
         bool debug_spew = false;
     };
 
