@@ -13,6 +13,7 @@
 #include <fmt/core.h>
 #include <tl/expected.hpp>
 
+#include <algorithm>
 #include <deque>
 #include <filesystem>
 #include <fstream>
