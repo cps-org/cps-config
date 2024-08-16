@@ -10,12 +10,8 @@
 %define parse.assert
 
 %code requires {
-    #include <string>
-    #include <istream>
     #include "cps/utils.hpp"
-    namespace cps::pc_compat {
-        class PcLoader;
-    }
+    #include "cps/pc_compat/pc_base.hpp"
 }
 
 // The parsing context.
@@ -26,25 +22,39 @@
 %define parse.lac full
 
 %code {
-#include "cps/pc_compat/pc_loader.hpp"
+    #include "cps/pc_compat/pc_loader.hpp"
 }
 
 %define api.token.prefix {TOK_}
 %token
-    COLON   ":"
-    LF      "\n"
-    EQ      "="
-    DOLLAR  "$"
-    LBRACE  "{"
-    RBRACE  "}"
+    COLON       ":"
+    LF          "\n"
+    EQ          "="
+    LT          "<"
+    LE          "<="
+    NE          "!="
+    GT          ">"
+    GE          ">="
+    DOLLAR      "$"
+    LBRACE      "{"
+    RBRACE      "}"
+    COMMA       ","
+    REQUIRES    "Requires"
+    REQUIRES_P  "Requires.private"
+    CONFLICTS   "Conflicts"
+    PROVIDES    "Provides"
 ;
 
 %token <std::string> STR "str"
 %token <std::string> BLANK "blank"
 %nterm <std::string> literal
 %nterm <std::string> variable
-%nterm <std::string> literal_value
 %nterm <std::string> name
+%nterm <cps::pc_compat::VersionOperation> version_op_token
+%nterm <cps::pc_compat::VersionOperation> version_op
+%nterm <cps::pc_compat::PackageRequirement> package_requirement
+%nterm <std::vector<cps::pc_compat::PackageRequirement>> package_requirements
+%nterm <std::variant<std::string, std::vector<cps::pc_compat::PackageRequirement>>> literal_property
 
 %printer { yyo << $$; } <*>;
 
@@ -60,9 +70,12 @@ lines:
     %empty
   | lines line;
 
+// In this grammar, leading whitespace is handled by this rule.
+// Everything else only takes care of trailing whitespace.
 line:
     "\n"
-  | statement "\n";
+  | statement "\n"
+  | "blank" statement "\n";
 
 // Statement is a meaningful line, not including line feed
 statement:
@@ -71,23 +84,65 @@ statement:
 
 // property is a line that sets a property to a value
 property:
-    name ":" literal_value { loader.properties.emplace($1, cps::utils::trim($3)); };
+    "Requires" colon package_requirements { loader.properties.emplace("Requires", $3); }
+  | "Requires.private" colon package_requirements { loader.properties.emplace("Requires.private", $3); }
+  | "Conflicts" colon package_requirements { loader.properties.emplace("Conflicts", $3); }
+  | "Provides" colon package_requirements { loader.properties.emplace("Provides", $3); }
+  | name colon literal_property { loader.properties.emplace($1, $3); }
+
+// version_op_token captures all the valid tokens for version comparison
+version_op_token:
+    "<" { $$ = cps::pc_compat::VersionOperation::lt; }
+  | "<=" { $$ = cps::pc_compat::VersionOperation::le; }
+  | "=" { $$ = cps::pc_compat::VersionOperation::eq; }
+  | "!=" { $$ = cps::pc_compat::VersionOperation::ne; }
+  | ">" { $$ = cps::pc_compat::VersionOperation::gt; }
+  | ">=" { $$ = cps::pc_compat::VersionOperation::ge; };
+
+// version_op handles trailing space for version comparisons
+version_op:
+    version_op_token
+  | version_op_token "blank" { $$ = $1; };
+
+// package_requirement parses a package name, optionally followed by some version requirement
+package_requirement:
+    name version_op "str" {
+        $$ = cps::pc_compat::PackageRequirement {
+            .package = $1,
+            .operation = $2,
+            .version = $3,
+        };
+    }
+  | package_requirement "blank" { $$ = $1; };
+
+// package_requirements is a comma separated list of package_requirement
+package_requirements:
+    package_requirement { $$ = std::vector{$1}; }
+  | package_requirements comma package_requirement {
+        $1.emplace_back($3);
+        $$ = $1;
+    }
+  | package_requirements comma "str" {
+        $1.emplace_back(cps::pc_compat::PackageRequirement {
+            .package = $3,
+            .operation = std::nullopt,
+            .version = std::nullopt,
+        });
+        $$ = $1;
+    };
 
 // assignment is a line that sets a variable to a value
 assignment:
-    name "=" literal_value { loader.variables.emplace($1, cps::utils::trim($3)); };
+    name "=" literal { loader.variables.emplace($1, cps::utils::trim($3)); };
 
 // name handles surrounding spaces for a variable or property name
 name:
     "str"
-  | "blank" "str" { $$ = $2; }
-  | "str" "blank" { $$ = $1; }
-  | "blank" "str" "blank" { $$ = $2; };
+  | "str" "blank" { $$ = $1; };
 
-// literal_value handles leading spaces.
-literal_value:
-    literal
-  | "blank" literal { $$ = $2; };
+// literal_property constructs a variant with the trimmed literal value
+literal_property:
+    literal { $$ = cps::pc_compat::PcPropertyValue{std::in_place_type<std::string>, cps::utils::trim($1)}; };
 
 // Literal is a literal string. This could contain trailing whitespace so trim the result before using.
 literal:
@@ -97,10 +152,18 @@ literal:
   | literal ":" { $$ = $1 + ":"; }
   | literal "str" { $$ = $1 + $2; }
   | literal variable { $$ = $1 + $2; }
-  | literal "blank" { $$ = $1 + " "; };
+  | literal "blank" { $$ = $1 + $2; };
 
 variable:
     "$" "{" "str" "}" { $$ = loader.variables[$3]; }
+
+// colon and comma handles trailing whitespace
+colon:
+    ":"
+  | ":" "blank";
+comma:
+    ","
+  | "," "blank";
 %%
 
 void
