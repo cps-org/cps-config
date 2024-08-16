@@ -30,17 +30,27 @@ blank   [ \t\r]+
 comment #[^\n]*
 
 %%
-":"         { return yy::parser::make_COLON(); }
-"="         { return yy::parser::make_EQ(); }
-"\n"        { return yy::parser::make_LF(); }
-"$"         { return yy::parser::make_DOLLAR(); }
-"{"         { return yy::parser::make_LBRACE(); }
-"}"         { return yy::parser::make_RBRACE(); }
+":"                 { return yy::parser::make_COLON(); }
+"="                 { return yy::parser::make_EQ(); }
+"<"                 { return yy::parser::make_LT(); }
+"<="                { return yy::parser::make_LE(); }
+"!="                { return yy::parser::make_NE(); }
+">="                { return yy::parser::make_GE(); }
+">"                 { return yy::parser::make_GT(); }
+"\n"                { return yy::parser::make_LF(); }
+"$"                 { return yy::parser::make_DOLLAR(); }
+"{"                 { return yy::parser::make_LBRACE(); }
+"}"                 { return yy::parser::make_RBRACE(); }
+","                 { return yy::parser::make_COMMA(); }
+"Requires"          { return yy::parser::make_REQUIRES(); }
+"Requires.private"  { return yy::parser::make_REQUIRES_P(); }
+"Conflicts"         { return yy::parser::make_CONFLICTS(); }
+"Provides"          { return yy::parser::make_PROVIDES(); }
 
-{comment}   {}
-{blank}     { return yy::parser::make_BLANK(yytext); }
-{str}       { return yy::parser::make_STR(yytext); }
-<<EOF>>     { return yy::parser::make_YYEOF(); }
+{comment}           {}
+{blank}             { return yy::parser::make_BLANK(yytext); }
+{str}               { return yy::parser::make_STR(yytext); }
+<<EOF>>             { return yy::parser::make_YYEOF(); }
 %%
 
 namespace cps::pc_compat {
