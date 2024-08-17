@@ -15,7 +15,7 @@ RUN dnf update -y && \
         g++ \
         ninja-build \
         cmake \
-        jsoncpp-devel \
+        json-devel \
         expected-devel \
         gtest-devel \
         fmt-devel \

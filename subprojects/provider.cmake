@@ -12,9 +12,9 @@ FetchContent_Declare(
   URL_HASH SHA256=1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6
 )
 FetchContent_Declare(
-  jsoncpp
-  URL https://github.com/open-source-parsers/jsoncpp/archive/1.9.5.tar.gz
-  URL_HASH SHA256=f409856e5920c18d0c2fb85276e24ee607d2a09b5e7d5f0a371368903c275da2
+  nlohmann_json
+  URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.2.tar.gz
+  URL_HASH SHA256=d69f9deb6a75e2580465c6c4c5111b89c4dc2fa94e3a85fcd2ffcd9a143d9273
 )
 FetchContent_Declare(
   fmt
@@ -28,7 +28,7 @@ FetchContent_Declare(
 )
 
 macro(provide_dependency method dep_name)
-  if ("${dep_name}" MATCHES "^(GTest|tl-expected|jsoncpp|fmt|CLI11)$")
+  if ("${dep_name}" MATCHES "^(GTest|tl-expected|nlohmann_json|fmt|CLI11)$")
     FetchContent_MakeAvailable(${dep_name})
     set(${dep_name}_FOUND TRUE)
   endif()

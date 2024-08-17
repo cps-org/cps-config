@@ -11,7 +11,7 @@ RUN apt-get update && \
         g++ \
         ninja-build \
         cmake \
-        libjsoncpp-dev \
+        nlohmann-json3-dev \
         libexpected-dev \
         libgtest-dev \
         libfmt-dev \
