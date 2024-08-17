@@ -5,10 +5,9 @@
 #include "cps/loader.hpp"
 
 #include "cps/error.hpp"
-#include "cps/utils.hpp"
 
 #include <fmt/core.h>
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 #include <tl/expected.hpp>
 
 #include <iostream>
@@ -22,23 +21,23 @@ namespace cps::loader {
 
         template <typename T>
         tl::expected<std::optional<T>, std::string>
-        get_optional(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
+        get_optional(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {
             // It's okay for a member to be missing from an optional value
-            if (!parent.isMember(name)) {
+            if (!parent.contains(name)) {
                 return std::nullopt;
             }
-            const Json::Value value = parent[name];
+            const nlohmann::json & value = parent[name];
 
             if constexpr (std::is_same_v<T, std::string>) {
-                if (value.isString()) {
-                    return value.asString();
+                if (value.is_string()) {
+                    return value.get<std::string>();
                 }
             } else if constexpr (std::is_same_v<T, std::vector<std::string>>) {
-                if (value.isArray()) {
+                if (value.is_array()) {
                     std::vector<std::string> ret;
                     for (auto && v : value) {
                         // TODO: Error handling?
-                        ret.emplace_back(v.asString());
+                        ret.emplace_back(v.get<std::string>());
                     }
                     return ret;
                 }
@@ -49,9 +48,9 @@ namespace cps::loader {
         };
 
         template <typename T>
-        tl::expected<T, std::string> get_required(const Json::Value & parent, std::string_view parent_name,
+        tl::expected<T, std::string> get_required(const nlohmann::json & parent, std::string_view parent_name,
                                                   const std::string & name) {
-            if (!parent.isMember(name)) {
+            if (!parent.contains(name)) {
                 // TODO: it would be nice to have the parent name…
                 return tl::unexpected(fmt::format("Required field `{}` in `{}` is missing!", name, parent_name));
             }
@@ -107,25 +106,26 @@ namespace cps::loader {
         }
 
         template <>
-        tl::expected<LangValues, std::string>
-        get_required<LangValues>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
+        tl::expected<LangValues, std::string> get_required<LangValues>(const nlohmann::json & parent,
+                                                                       std::string_view parent_name,
+                                                                       const std::string & name) {
             LangValues ret{};
-            if (!parent.isMember(name)) {
+            if (!parent.contains(name)) {
                 return ret;
             }
 
-            Json::Value value = parent[name];
-            if (value.isObject()) {
+            const nlohmann::json & value = parent[name];
+            if (value.is_object()) {
                 // TODO: simplify this further, maybe with a loop?
                 auto && cb = [](auto && r) { return r.value_or(std::vector<std::string>{}); };
                 ret[KnownLanguages::c] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c").map(cb));
                 ret[KnownLanguages::cxx] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c++").map(cb));
                 ret[KnownLanguages::fortran] =
                     CPS_TRY(get_optional<std::vector<std::string>>(value, name, "fortran").map(cb));
-            } else if (value.isArray()) {
+            } else if (value.is_array()) {
                 std::vector<std::string> fin;
                 for (auto && v : value) {
-                    fin.emplace_back(v.asString());
+                    fin.emplace_back(v.get<std::string>());
                 }
                 for (auto && v : {KnownLanguages::c, KnownLanguages::cxx, KnownLanguages::fortran}) {
                     ret.emplace(v, fin);
@@ -139,7 +139,7 @@ namespace cps::loader {
 
         template <>
         tl::expected<Defines, std::string>
-        get_required<Defines>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
+        get_required<Defines>(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {
             LangValues && lang = CPS_TRY(get_required<LangValues>(parent, parent_name, name));
             Defines ret;
             for (auto && [k, values] : lang) {
@@ -161,21 +161,21 @@ namespace cps::loader {
 
         template <>
         tl::expected<Requires, std::string>
-        get_required<Requires>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
+        get_required<Requires>(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {
             Requires ret{};
-            if (!parent.isMember(name)) {
+            if (!parent.contains(name)) {
                 return ret;
             }
 
-            Json::Value require = parent[name];
-            if (!require.isObject()) {
+            nlohmann::json require = parent[name];
+            if (!require.is_object()) {
                 return tl::unexpected(fmt::format("`{}` field of `{}` is not an object", name, parent_name));
             }
 
-            for (auto && itr = require.begin(); itr != require.end(); ++itr) {
+            for (const auto & item : require.items()) {
                 // TODO: error handling for not a string?
-                const std::string key = itr.key().asString();
-                const Json::Value obj = *itr;
+                const std::string key = item.key();
+                const nlohmann::json & obj = item.value();
 
                 ret.emplace(key, Requirement{
                                      CPS_TRY(get_optional<std::vector<std::string>>(obj, name, "components"))
@@ -190,27 +190,27 @@ namespace cps::loader {
         using Components = std::unordered_map<std::string, Component>;
 
         template <>
-        tl::expected<Components, std::string>
-        get_required<Components>(const Json::Value & parent, std::string_view parent_name, const std::string & name) {
-            Json::Value compmap;
-            if (!parent.isMember(name)) {
+        tl::expected<Components, std::string> get_required<Components>(const nlohmann::json & parent,
+                                                                       std::string_view parent_name,
+                                                                       const std::string & name) {
+            if (!parent.contains(name)) {
                 return tl::unexpected(fmt::format("Required field `components` of `{}` is missing!", parent_name));
             }
 
             std::unordered_map<std::string, Component> components{};
 
             // TODO: error handling for not an object
-            compmap = parent[name];
-            if (!compmap.isObject()) {
+            nlohmann::json compmap = parent[name];
+            if (!compmap.is_object()) {
                 return tl::unexpected(fmt::format("`{}` field of `{}` is not an object", name, parent_name));
             }
 
-            for (auto && itr = compmap.begin(); itr != compmap.end(); ++itr) {
+            for (const auto & item : compmap.items()) {
                 // TODO: Error handling for not a string?
-                const std::string key = itr.key().asString();
-                const Json::Value comp = *itr;
+                const std::string key = item.key();
+                const nlohmann::json & comp = item.value();
 
-                if (!comp.isObject()) {
+                if (!comp.is_object()) {
                     return tl::unexpected(fmt::format("`{}` `{}` is not an object", name, key));
                 }
 
@@ -282,10 +282,10 @@ namespace cps::loader {
     Platform::Platform() = default;
 
     tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & filename) {
-        Json::Value root;
+        nlohmann::json root;
         try {
-            input_buffer >> root;
-        } catch (std::exception const & ex) {
+            root = nlohmann::json::parse(input_buffer);
+        } catch (const nlohmann::json::exception & ex) {
             return tl::make_unexpected(
                 fmt::format("Exception caught while parsing json for `{}.cps`\n{}", filename, ex.what()));
         }

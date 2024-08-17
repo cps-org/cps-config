@@ -23,16 +23,8 @@ target_link_libraries(cps PRIVATE tl::expected)
 find_package(fmt 8 REQUIRED)
 target_link_libraries(cps PRIVATE fmt::fmt)
 
-find_package(jsoncpp 1.9 REQUIRED)
-# Provide jsoncpp namespaced target when it's not available
-if (NOT TARGET JsonCpp::JsonCpp)
-    if (BUILD_SHARED_LIBS)
-        add_library(JsonCpp::JsonCpp ALIAS jsoncpp_lib)
-    else ()
-        add_library(JsonCpp::JsonCpp ALIAS jsoncpp_static)
-    endif ()
-endif ()
-target_link_libraries(cps PRIVATE JsonCpp::JsonCpp)
+find_package(nlohmann_json 3.7 REQUIRED)
+target_link_libraries(cps PRIVATE nlohmann_json::nlohmann_json)
 
 # cps-config
 add_executable(cps-config cps-config/main.cpp)

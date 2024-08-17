@@ -15,7 +15,7 @@ libcps = static_library(
   'cps/utils.cpp',
   'cps/version.cpp',
   conf_h,
-  dependencies : [dep_jsoncpp, dep_expected, dep_fmt],
+  dependencies : [dep_json, dep_expected, dep_fmt],
   cpp_args : warn_args,
   include_directories: [cps_include_dir, conf_include_dir],
 )

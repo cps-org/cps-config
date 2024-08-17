@@ -130,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Brew Install
-        run: brew install pkg-config ninja cli11 googletest jsoncpp fmt cmake meson tl-expected
+        run: brew install pkg-config ninja cli11 googletest nlohmann-json fmt cmake meson tl-expected
       - name: Build cps-config
         run: |
           meson setup builddir -Dunity=on -Dunity_size=12

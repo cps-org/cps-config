@@ -12,7 +12,7 @@ project(
 
 dep_cli11 = dependency('CLI11', version: '>=2.1')
 dep_expected = dependency('tl-expected', version : '>= 1.0', modules : ['tl::expected'])
-dep_jsoncpp = dependency('jsoncpp', version : '>= 1.9')
+dep_json = dependency('nlohmann_json', version : '>= 3.7')
 dep_fmt = dependency('fmt', version : '>= 8')
 
 cpp = meson.get_compiler('cpp')

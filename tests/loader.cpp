@@ -31,7 +31,7 @@ namespace cps::utils::test {
     "components": {
         "default": {
             "type": "archive",
-            "location": "/",
+            "location": "/"
         }
     }
 }
@@ -211,25 +211,25 @@ namespace cps::utils::test {
     "components": {
         "a": {
             "type": "archive",
-            "location": "/",
+            "location": "/"
         },
         "b": {
-            "type": "dylib",
+            "type": "dylib"
         },
         "c": {
-            "type": "module",
+            "type": "module"
         },
         "d": {
-            "type": "jar",
+            "type": "jar"
         },
         "e": {
-            "type": "interface",
+            "type": "interface"
         },
         "f": {
-            "type": "symbolic",
+            "type": "symbolic"
         },
         "g": {
-            "type": "executable",
+            "type": "executable"
         }
     }
 }
@@ -246,11 +246,11 @@ namespace cps::utils::test {
     "components": {
         "a": {
             "type": "archive",
-            "location": "/",
+            "location": "/"
         },
         "b": {
-            "type": "not_recognized_type_is_valid_but_ignored",
-        },
+            "type": "not_recognized_type_is_valid_but_ignored"
+        }
     }
 }
 )"s);
