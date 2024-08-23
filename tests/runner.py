@@ -122,13 +122,13 @@ async def main() -> None:
     for r in results:
         if r.status is not Status.PASS:
             print(f'{r.name}:', file=sys.stderr)
-            print('  result:', 'timeout' if r.status is Status.TIMEOUT else 'fail')
+            print('  result:', 'timeout' if r.status is Status.TIMEOUT else 'fail', file=sys.stderr)
             print('  returncode:', r.returncode, file=sys.stderr)
             print('  stdout:  ', r.stdout, file=sys.stderr)
             print('  expected:', r.expected, file=sys.stderr)
             print('  stderr:', r.stderr, file=sys.stderr)
             print('  command:', ' '.join(r.command), file=sys.stderr)
-            print('\n')
+            print('\n', file=sys.stderr)
 
             encountered_failure = True
 
