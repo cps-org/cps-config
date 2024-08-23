@@ -332,21 +332,31 @@ namespace cps::search {
             }
 
             fs::path p = filename.parent_path();
+
+            const auto reducer = [&p](fs::path dir) -> std::optional<fs::path> {
+                fs::path np = p;
+
+                // remove a trailing slash
+                if (dir.stem() == "") {
+                    dir = dir.parent_path();
+                }
+
+                while (dir.stem() == np.stem()) {
+                    dir = dir.parent_path();
+                    np = np.parent_path();
+                }
+
+                // If our new path has changed and we have consumed the entire
+                // directory, then return that, otherwise this was not
+                // successful.
+                return np != p && dir == dir.root_path() ? std::optional{np} : std::nullopt;
+            };
+
             if (p.stem() == "cps") {
                 p = p.parent_path();
             }
 
-            fs::path dir = platform::datadir();
-            while (dir.stem() == p.stem()) {
-                dir = dir.parent_path();
-                p = p.parent_path();
-            }
-            dir = platform::libdir();
-            while (dir.stem() == p.stem()) {
-                dir = dir.parent_path();
-                p = p.parent_path();
-            }
-            return p;
+            return reducer(platform::libdir()).value_or(reducer(platform::datadir()).value_or(p));
         }
 
         /// @brief Calculate the required components in the graph
