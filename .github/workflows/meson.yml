@@ -115,7 +115,7 @@ jobs:
           && ninja -C /workdir/builddir"
       - name: Run Tests
         run: |
-          docker exec ${{ matrix.cfg.id }} ninja -C /workdir/builddir
+          docker exec ${{ matrix.cfg.id }} ninja -C /workdir/builddir test
       - name: Stop Docker Container
         run: |
           docker stop ${{ matrix.cfg.id }}
