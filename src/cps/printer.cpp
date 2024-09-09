@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <tl/expected.hpp>
 
 namespace cps::printer {
