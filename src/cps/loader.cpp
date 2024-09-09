@@ -1,5 +1,5 @@
 // Copyright © 2023-2024 Dylan Baker
-// Copyright © 2024 Bret Brown
+// Copyright © 2024 Dylan Baker
 // SPDX-License-Identifier: MIT
 
 #include "cps/loader.hpp"
@@ -293,8 +293,7 @@ namespace cps::loader {
         auto const name = CPS_TRY(get_required<std::string>(root, "package", "name"));
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
         auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
-        auto const cps_path =
-            CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(filename.parent_path());
+        auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path"));
         auto const default_components =
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
         auto const platform = std::nullopt; // TODO: parse platform
@@ -315,6 +314,7 @@ namespace cps::loader {
             .cps_version = std::move(cps_version),
             .components = std::move(components),
             .cps_path = std::move(cps_path),
+            .filename = filename,
             .default_components = std::move(default_components),
             .platform = std::move(platform),
             .require = std::move(require), // requires is a keyword
