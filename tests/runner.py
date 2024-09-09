@@ -67,7 +67,8 @@ def unordered_compare(out, expected):
     return sorted(out_parts) == sorted(expected_parts)
 
 async def test(runner: str, case_: TestCase) -> Result:
-    cmd = [runner] + case_['args'] + [case_['cps']]
+    cmd = [runner] + case_['args']
+    cmd.append(case_['cps'].replace('{prefix}', os.path.join(PREFIX, 'lib/cps')))
     if 'mode' in case_:
         cmd.extend([f"--format={case_['mode']}"])
 

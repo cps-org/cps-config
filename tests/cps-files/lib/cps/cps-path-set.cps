@@ -1,7 +1,7 @@
 {
     "name": "cps-path-set",
     "cps_version": "0.10.0",
-    "cps_path": "/sentinel/lib/cps/",
+    "cps_path": "@prefix@/lib/cps/",
     "version": "1.0.0",
     "components": {
         "default": {

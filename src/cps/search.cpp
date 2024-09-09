@@ -309,13 +309,27 @@ namespace cps::search {
             }
         }
 
-        fs::path calculate_prefix(const fs::path & path) {
+        fs::path calculate_prefix(const std::optional<std::string> & path, const fs::path & filename) {
             // TODO: Windows
             // TODO: /cps/<name-like>
-            std::vector<std::string> split = utils::split(std::string{path}, "/");
-            if (split.back() == "") {
-                split.pop_back();
+            if (path) {
+                fs::path p{path.value()};
+                if (p.stem() == "") {
+                    p = p.parent_path();
+                }
+                fs::path f = filename.parent_path();
+                while (p != "@prefix@") {
+                    utils::assert_fn(
+                        p.stem() == f.stem(),
+                        fmt::format("filepath and cps_path have non overlapping stems, prefix: {}, filename {}",
+                                    std::string{p}, std::string{f}));
+                    p = p.parent_path();
+                    f = f.parent_path();
+                }
+                return f;
             }
+
+            std::vector<std::string> split = utils::split(std::string{filename.parent_path()}, "/");
             if (split.back() == "cps") {
                 split.pop_back();
             }
@@ -326,6 +340,7 @@ namespace cps::search {
             if (split.back() == "lib") {
                 split.pop_back();
             }
+
             fs::path p{"/"};
             for (auto && s : split) {
                 p /= s;
@@ -398,20 +413,19 @@ namespace cps::search {
 
         result.version = root->data.package.version.value_or("unknown");
 
-        const auto prefix_path = [&]() -> std::optional<fs::path> {
-            if (prefix_variable) {
-                return fs::path{prefix_variable.value()};
-            }
-            return std::nullopt;
-        }();
+        const auto prefix_path =
+            prefix_variable.has_value() ? std::optional{fs::path{prefix_variable.value()}} : std::nullopt;
 
         for (auto && node : flat) {
+
+            const auto prefix =
+                prefix_path.value_or(calculate_prefix(node->data.package.cps_path, node->data.package.filename));
 
             const auto && prefix_replacer = [&](const std::string & s) -> std::string {
                 // TODO: Windows…
                 auto && split = utils::split(s, "/");
                 if (split[0] == "@prefix@") {
-                    auto p = prefix_path.value_or(calculate_prefix(node->data.package.cps_path));
+                    fs::path p = prefix;
                     for (auto it = split.begin() + 1; it != split.end(); ++it) {
                         p /= *it;
                     }

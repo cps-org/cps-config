@@ -135,7 +135,8 @@ namespace cps::loader {
         // TODO: compat-version
         // TODO: configuration
         // TODO: configurations
-        std::string cps_path;
+        std::optional<std::string> cps_path;
+        std::string filename;
         std::optional<std::vector<std::string>> default_components;
         std::optional<Platform> platform;
         Requires require; // Requires is a keyword
