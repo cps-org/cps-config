@@ -8,6 +8,7 @@
 
 #include <tl/expected.hpp>
 
+#include <filesystem>
 #include <istream>
 #include <optional>
 #include <string>
@@ -142,6 +143,6 @@ namespace cps::loader {
         version::Schema version_schema;
     };
 
-    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & filename);
+    tl::expected<Package, std::string> load(std::istream & input_buffer, const std::filesystem::path & filename);
 
 } // namespace cps::loader

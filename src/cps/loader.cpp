@@ -281,19 +281,20 @@ namespace cps::loader {
 
     Platform::Platform() = default;
 
-    tl::expected<Package, std::string> load(std::istream & input_buffer, std::string const & filename) {
+    tl::expected<Package, std::string> load(std::istream & input_buffer, const std::filesystem::path & filename) {
         nlohmann::json root;
         try {
             root = nlohmann::json::parse(input_buffer);
         } catch (const nlohmann::json::exception & ex) {
             return tl::make_unexpected(
-                fmt::format("Exception caught while parsing json for `{}.cps`\n{}", filename, ex.what()));
+                fmt::format("Exception caught while parsing json for `{}.cps`\n{}", std::string{filename}, ex.what()));
         }
 
         auto const name = CPS_TRY(get_required<std::string>(root, "package", "name"));
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
         auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
-        auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(filename);
+        auto const cps_path =
+            CPS_TRY(get_optional<std::string>(root, "package", "cps_path")).value_or(filename.parent_path());
         auto const default_components =
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
         auto const platform = std::nullopt; // TODO: parse platform

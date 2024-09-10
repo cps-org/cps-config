@@ -209,7 +209,7 @@ namespace cps::search {
 
                 std::ifstream file;
                 file.open(path);
-                auto n = std::make_shared<Node>(CPS_TRY(loader::load(file, path.parent_path())));
+                auto n = std::make_shared<Node>(CPS_TRY(loader::load(file, path)));
 
                 cache.emplace(name, n);
                 return n;
