@@ -33,30 +33,4 @@ cps_config = executable(
   implicit_include_directories : false,
 )
 
-build_tests = get_option('tests')
-
-python_interpreter = find_program('python', version : '>=3.11', required : build_tests, disabler : true)
-foreach t : [['cps integration tests', 'cps-config.toml'], ['pkg-config compatibility', 'pkg-config-compat.toml']]
-  test(
-    t[0],
-    python_interpreter,
-    args: [files('tests/runner.py'), cps_config, 'tests/cases/' + t[1]],
-    protocol : 'tap',
-    env : {'CPS_PREFIX_PATH' : meson.current_source_dir() / 'tests' / 'cps-files' },
-  )
-endforeach
-
-dep_gtest = dependency('gtest_main', required : build_tests, disabler : true, allow_fallback : true)
-
-foreach t : ['loader', 'version', 'utils']
-  test(
-    t,
-    executable(
-      f'@t@_test',
-      f'tests/@t@.cpp',
-      dependencies : [dep_cps, dep_gtest, dep_fmt, dep_expected],
-      implicit_include_directories : false,
-    ),
-    protocol : 'gtest',
-  )
-endforeach
+subdir('tests')
