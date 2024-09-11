@@ -110,7 +110,7 @@ namespace cps::search {
             }
 
             if (env.cps_prefix_path) {
-                auto && prefixes = utils::split(env.cps_prefix_path.value());
+                auto && prefixes = env.cps_prefix_path.value();
                 for (auto && p : prefixes) {
                     auto && paths = expand_prefix(p);
                     cached_paths.reserve(cached_paths.size() + paths.size());
