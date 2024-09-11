@@ -58,13 +58,15 @@ class Result:
     expected: str
     command: list[str]
 
-def unordered_compare(out, expected):
+
+def unordered_compare(out: str, expected: str) -> bool:
     if out == expected:
         return True
 
     out_parts = out.split()
     expected_parts = expected.split()
     return sorted(out_parts) == sorted(expected_parts)
+
 
 async def test(runner: str, case_: TestCase) -> Result:
     cmd = [runner] + case_['args']
