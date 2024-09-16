@@ -40,12 +40,10 @@ namespace cps::printer {
             if (auto && f = r.definitions.find(loader::KnownLanguages::c);
                 f != r.definitions.end() && !f->second.empty()) {
                 auto && transformer = [](auto && d) {
-                    if (d.is_define()) {
-                        return fmt::format("-D{}", d.get_name());
-                    } else if (d.is_undefine()) {
-                        return fmt::format("-U{}", d.get_name());
+                    if (auto && v = d.get_value()) {
+                        return fmt::format("-D{}={}", d.get_name(), v.value());
                     } else {
-                        return fmt::format("-D{}={}", d.get_name(), d.get_value());
+                        return fmt::format("-D{}", d.get_name());
                     }
                 };
                 args.reserve(args.size() + f->second.size());

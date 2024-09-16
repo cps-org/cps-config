@@ -47,17 +47,13 @@ namespace cps::loader {
       public:
         Define(std::string name);
         Define(std::string name, std::string value);
-        Define(std::string name, bool define);
 
-        bool is_undefine() const;
-        bool is_define() const;
         std::string get_name() const;
-        std::string get_value() const;
+        std::optional<std::string> get_value() const;
 
       private:
         std::string name;
-        std::string value;
-        bool define;
+        std::optional<std::string> value;
     };
 
     using LangValues = std::unordered_map<KnownLanguages, std::vector<std::string>>;
