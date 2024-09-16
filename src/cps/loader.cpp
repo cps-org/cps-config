@@ -116,12 +116,14 @@ namespace cps::loader {
 
             const nlohmann::json & value = parent[name];
             if (value.is_object()) {
-                // TODO: simplify this further, maybe with a loop?
-                auto && cb = [](auto && r) { return r.value_or(std::vector<std::string>{}); };
-                ret[KnownLanguages::c] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c").map(cb));
-                ret[KnownLanguages::cxx] = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c++").map(cb));
+                auto && fallback = CPS_TRY(get_optional<std::vector<std::string>>(value, name, "*"))
+                                       .value_or(std::vector<std::string>{});
+                ret[KnownLanguages::c] =
+                    CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c")).value_or(fallback);
+                ret[KnownLanguages::cxx] =
+                    CPS_TRY(get_optional<std::vector<std::string>>(value, name, "c++")).value_or(fallback);
                 ret[KnownLanguages::fortran] =
-                    CPS_TRY(get_optional<std::vector<std::string>>(value, name, "fortran").map(cb));
+                    CPS_TRY(get_optional<std::vector<std::string>>(value, name, "fortran")).value_or(fallback);
             } else if (value.is_array()) {
                 std::vector<std::string> fin;
                 for (auto && v : value) {
@@ -150,12 +152,13 @@ namespace cps::loader {
                 return tl::unexpected(fmt::format("Section `{}` of `{}` is not an object", parent_name, name));
             }
 
-            const auto getter = [&](const std::string & lang) -> tl::expected<std::vector<Define>, std::string> {
-                std::vector<Define> ret2;
+            const auto getter =
+                [&](const std::string & lang) -> tl::expected<std::optional<std::vector<Define>>, std::string> {
                 if (!defines.contains(lang)) {
-                    return ret2;
+                    return std::nullopt;
                 }
 
+                std::vector<Define> ret2;
                 for (auto && [k, v] : defines.at(lang).items()) {
                     if (v.is_null()) {
                         ret2.emplace_back(Define{k});
@@ -172,9 +175,10 @@ namespace cps::loader {
                 return ret2;
             };
 
-            ret[KnownLanguages::c] = CPS_TRY(getter("c"));
-            ret[KnownLanguages::cxx] = CPS_TRY(getter("cxx"));
-            ret[KnownLanguages::fortran] = CPS_TRY(getter("fortran"));
+            auto && fallback = CPS_TRY(getter("*")).value_or(std::vector<Define>{});
+            ret[KnownLanguages::c] = CPS_TRY(getter("c")).value_or(fallback);
+            ret[KnownLanguages::cxx] = CPS_TRY(getter("cxx")).value_or(fallback);
+            ret[KnownLanguages::fortran] = CPS_TRY(getter("fortran")).value_or(fallback);
 
             return ret;
         };

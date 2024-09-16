@@ -108,3 +108,15 @@ name = "component link-flags only other"
 cps = "multiple-components"
 args = ["flags", "--component", "link-flags", "--libs-only-other"]
 expected = "-flto"
+
+[[case]]
+name = "Star components"
+cps = "full"
+args = ["flags", "--component", "star_values", "--cflags", "--print-errors"]
+expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"
+
+[[case]]
+name = "Star components override by name"
+cps = "full"
+args = ["flags", "--component", "star_values_override", "--cflags", "--print-errors"]
+expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"
