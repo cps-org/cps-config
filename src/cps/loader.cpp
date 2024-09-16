@@ -279,17 +279,11 @@ namespace cps::loader {
 
     } // namespace
 
-    Define::Define(std::string name_) : name{std::move(name_)}, value{}, define{true} {};
-    Define::Define(std::string name_, std::string value_)
-        : name{std::move(name_)}, value{std::move(value_)}, define{true} {};
-    Define::Define(std::string name_, bool define_) : name{std::move(name_)}, value{}, define{define_} {};
-
-    bool Define::is_undefine() const { return !define; }
-
-    bool Define::is_define() const { return define && value.empty(); }
+    Define::Define(std::string name_) : name{std::move(name_)}, value{std::nullopt} {};
+    Define::Define(std::string name_, std::string value_) : name{std::move(name_)}, value{std::move(value_)} {};
 
     std::string Define::get_name() const { return name; }
-    std::string Define::get_value() const { return value; }
+    std::optional<std::string> Define::get_value() const { return value; }
 
     Configuration::Configuration() = default;
     Configuration::Configuration(LangValues cflags) : compile_flags{std::move(cflags)} {};
