@@ -15,7 +15,7 @@
                     "/usr/local/include"
                 ]
             },
-            "defines": [],
+            "definitions": [],
             "location": "fake"
         },
         "sample2": {
@@ -26,7 +26,7 @@
             "includes": [
                 "/opt/include"
             ],
-            "defines": {
+            "definitions": {
                 "c": [
                     "FOO=1"
                 ],
