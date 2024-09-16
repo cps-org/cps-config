@@ -217,7 +217,7 @@ namespace cps::loader {
                 auto const type = CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type));
                 auto const compile_flags = CPS_TRY(get_required<LangValues>(comp, name, "compile_flags"));
                 auto const includes = CPS_TRY(get_required<LangValues>(comp, name, "includes"));
-                auto const defines = CPS_TRY(get_required<Defines>(comp, name, "definitions"));
+                auto const definitions = CPS_TRY(get_required<Defines>(comp, name, "definitions"));
                 auto const link_flags = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
                                             .value_or(std::vector<std::string>{});
                 auto const link_libraries =
@@ -241,7 +241,7 @@ namespace cps::loader {
                     .type = std::move(type),
                     .compile_flags = std::move(compile_flags),
                     .includes = std::move(includes),
-                    .defines = std::move(defines),
+                    .definitions = std::move(definitions),
                     .link_flags = std::move(link_flags),
                     .link_libraries = std::move(link_libraries),
                     .location = std::move(location),

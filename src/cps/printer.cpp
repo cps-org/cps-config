@@ -37,7 +37,8 @@ namespace cps::printer {
         }
 
         if (conf.defines) {
-            if (auto && f = r.defines.find(loader::KnownLanguages::c); f != r.defines.end() && !f->second.empty()) {
+            if (auto && f = r.definitions.find(loader::KnownLanguages::c);
+                f != r.definitions.end() && !f->second.empty()) {
                 auto && transformer = [](auto && d) {
                     if (d.is_define()) {
                         return fmt::format("-D{}", d.get_name());
