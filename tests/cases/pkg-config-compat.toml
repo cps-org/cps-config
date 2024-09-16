@@ -32,13 +32,13 @@ expected = "-flto"
 name = "cflags"
 cps = "full"
 args = ["pkg-config", "--cflags"]
-expected = "-fvectorize -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+expected = "-fvectorize -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -DOTHER"
 
 [[case]]
 name = "cflags-only-other"
 cps = "full"
 args = ["pkg-config", "--cflags-only-other"]
-expected = "-fvectorize -DFOO=1 -DBAR=2 -UBAR -DOTHER"
+expected = "-fvectorize -DFOO=1 -DBAR=2 -DOTHER"
 
 [[case]]
 name = "cflags-only-I"

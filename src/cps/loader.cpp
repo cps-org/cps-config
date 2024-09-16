@@ -140,22 +140,42 @@ namespace cps::loader {
         template <>
         tl::expected<Defines, std::string>
         get_required<Defines>(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {
-            LangValues && lang = CPS_TRY(get_required<LangValues>(parent, parent_name, name));
             Defines ret;
-            for (auto && [k, values] : lang) {
-                ret[k] = {};
-                for (auto && value : values) {
-                    if (value.front() == '!') {
-                        ret[k].emplace_back(Define{value.substr(1), false});
-                    } else if (const size_t sep = value.find("="); sep != value.npos) {
-                        std::string dkey = value.substr(0, sep);
-                        std::string dvalue = value.substr(sep + 1);
-                        ret[k].emplace_back(Define{dkey, dvalue});
-                    } else {
-                        ret[k].emplace_back(Define{value});
-                    }
-                }
+            if (!parent.contains(name)) {
+                return ret;
             }
+
+            const nlohmann::json & defines = parent[name];
+            if (!defines.is_object()) {
+                return tl::unexpected(fmt::format("Section `{}` of `{}` is not an object", parent_name, name));
+            }
+
+            const auto getter = [&](const std::string & lang) -> tl::expected<std::vector<Define>, std::string> {
+                std::vector<Define> ret2;
+                if (!defines.contains(lang)) {
+                    return ret2;
+                }
+
+                for (auto && [k, v] : defines[lang].items()) {
+                    if (v.is_null()) {
+                        ret2.emplace_back(Define{k});
+                        continue;
+                    }
+                    if (!v.is_string()) {
+                        return tl::unexpected(fmt::format(
+                            "key `{}` of language `{}` of section `{}` of `{}` has a value that is not a string", k,
+                            lang, parent_name, name));
+                    }
+                    ret2.emplace_back(Define{k, v.get<std::string>()});
+                }
+
+                return ret2;
+            };
+
+            ret[KnownLanguages::c] = CPS_TRY(getter("c"));
+            ret[KnownLanguages::cxx] = CPS_TRY(getter("cxx"));
+            ret[KnownLanguages::fortran] = CPS_TRY(getter("fortran"));
+
             return ret;
         };
 
