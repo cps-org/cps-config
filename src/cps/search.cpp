@@ -459,7 +459,7 @@ namespace cps::search {
                 // 2. if we do it at the search point we have to plumb overrides
                 // deep into that
                 merge_result<loader::KnownLanguages, std::string>(comp.includes, result.includes, prefix_replacer);
-                merge_result(comp.defines, result.defines);
+                merge_result(comp.definitions, result.definitions);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);
                 merge_result(comp.link_flags, result.link_flags);

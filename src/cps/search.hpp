@@ -20,7 +20,7 @@ namespace cps::search {
         std::string version;
         loader::LangValues includes;
         loader::LangValues compile_flags;
-        loader::Defines defines;
+        loader::Defines definitions;
         std::vector<std::string> link_flags;
         std::vector<std::string> link_libraries;
         std::vector<std::string> link_location;

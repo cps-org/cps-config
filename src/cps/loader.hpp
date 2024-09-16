@@ -68,7 +68,7 @@ namespace cps::loader {
         Type type;
         LangValues compile_flags;
         LangValues includes;
-        Defines defines;
+        Defines definitions;
         // TODO: configurations
         // TODO: std::vector<std::string> link_features;
         std::vector<std::string> link_flags;
