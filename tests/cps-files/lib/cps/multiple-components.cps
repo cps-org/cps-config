@@ -15,7 +15,7 @@
                     "/usr/local/include"
                 ]
             },
-            "definitions": [],
+            "definitions": {},
             "location": "fake"
         },
         "sample2": {
@@ -27,12 +27,9 @@
                 "/opt/include"
             ],
             "definitions": {
-                "c": [
-                    "FOO=1"
-                ],
-                "c++": [
-                    "!FOO"
-                ]
+                "c": {
+                    "FOO": "1"
+                }
             },
             "location": "/something/lib/libfoo.so.1.2.0"
         },

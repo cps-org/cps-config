@@ -15,9 +15,9 @@
                 ]
             },
             "definitions": {
-                "c": [
-                    "-DFAIL"
-                ]
+                "c": {
+                    "FAIL": null
+                }
             },
             "location": "fake"
         },
@@ -34,15 +34,11 @@
             },
             "link_flags": ["-L/usr/lib/", "-lbar", "-flto"],
             "definitions": {
-                "c": [
-                    "FOO=1",
-                    "BAR=2",
-                    "!BAR",
-                    "OTHER"
-                ],
-                "c++": [
-                    "!FOO"
-                ]
+                "c": {
+                    "FOO": "1",
+                    "BAR": "2",
+                    "OTHER": null
+                }
             },
             "location": "/something/lib/libfoo.so.1.2.0",
             "link_location": "/something/lib/libfoo.so"

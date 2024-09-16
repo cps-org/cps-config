@@ -14,9 +14,9 @@
                 ]
             },
             "definitions": {
-                "c": [
-                    "-DFAIL"
-                ]
+                "c": {
+                    "FAIL": null
+                }
             },
             "location": "fake"
         },
@@ -32,15 +32,11 @@
                 ]
             },
             "definitions": {
-                "c": [
-                    "FOO=1",
-                    "BAR=2",
-                    "!BAR",
-                    "OTHER"
-                ],
-                "c++": [
-                    "!FOO"
-                ]
+                "c": {
+                    "FOO": "1",
+                    "BAR": "2",
+                    "OTHER": null
+                }
             },
             "location": "fake"
         }
