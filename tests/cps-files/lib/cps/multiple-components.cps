@@ -1,6 +1,6 @@
 {
     "name": "multiple-components",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "requires": {
         "minimal": {}
     },
@@ -55,7 +55,11 @@
         },
         "link-flags": {
             "type": "dylib",
-            "link_flags": ["-L/usr/lib/", "-lbar", "-flto"],
+            "link_flags": [
+                "-L/usr/lib/",
+                "-lbar",
+                "-flto"
+            ],
             "location": "/something/lib/libfoo.so"
         },
         "requires-external": {

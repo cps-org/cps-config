@@ -17,7 +17,7 @@ namespace cps::loader {
 
     namespace {
 
-        constexpr static std::string_view CPS_VERSION = "0.10.0";
+        constexpr static std::string_view CPS_VERSION = "0.12.0";
 
         template <typename T>
         tl::expected<std::optional<T>, std::string>
@@ -156,7 +156,7 @@ namespace cps::loader {
                     return ret2;
                 }
 
-                for (auto && [k, v] : defines[lang].items()) {
+                for (auto && [k, v] : defines.at(lang).items()) {
                     if (v.is_null()) {
                         ret2.emplace_back(Define{k});
                         continue;

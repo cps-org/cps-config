@@ -1,6 +1,6 @@
 {
     "name": "diamond",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "requires": {
         "needs-components1": {},
         "needs-components2": {}

@@ -236,7 +236,7 @@ namespace cps::search {
                 //  1. the provided version (or Compat-Version) is < the required version
                 //  2. This package lacks required components
                 if (requirements.version) {
-                    // From the CPS spec, version 0.10.0, for package::version,
+                    // From the CPS spec, version 0.12.0, for package::version,
                     // which as the same semantics as requirement::version:
                     //
                     // > If not provided, the CPS will not satisfy any request for

@@ -27,7 +27,7 @@ namespace cps::utils::test {
         TEST(Loader, minimal_complete_package) {
             std::stringstream ss(R"({
     "name": "minimal_complete_package",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "default": {
             "type": "archive",
@@ -43,7 +43,7 @@ namespace cps::utils::test {
         TEST(Loader, components_must_not_be_empty) {
             std::stringstream ss(R"({
     "name": "components_must_not_be_empty",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {}
 }
 )"s);
@@ -55,7 +55,7 @@ namespace cps::utils::test {
         TEST(Loader, archive_missing_location) {
             std::stringstream ss(R"({
     "name": "archive_missing_location",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "default": {
             "type": "archive",
@@ -70,7 +70,7 @@ namespace cps::utils::test {
 
         TEST(Loader, missing_name) {
             std::stringstream ss(R"({
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "default": {
             "type": "archive",
@@ -101,7 +101,7 @@ namespace cps::utils::test {
         TEST(Loader, missing_components) {
             std::stringstream ss(R"({
     "name": "missing_components",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
 }
 )"s);
             auto const package = cps::loader::load(ss, "missing_components");
@@ -111,7 +111,7 @@ namespace cps::utils::test {
         TEST(Loader, name_is_string) {
             std::stringstream ss(R"({
     "name": [],
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "default": {
             "type": "archive",
@@ -144,7 +144,7 @@ namespace cps::utils::test {
         TEST(Loader, components_is_object) {
             std::stringstream ss(R"({
     "name": "components_is_object",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": [],
 }
 )"s);
@@ -201,13 +201,13 @@ namespace cps::utils::test {
 )"s);
             auto const package = cps::loader::load(ss, "cps_version_is_0_10_0");
             ASSERT_FALSE(package.has_value())
-                << "should not have parsed, root requires `cps_version` value to exactly `0.10.0`";
+                << "should not have parsed, root requires `cps_version` value to exactly `0.12.0`";
         }
 
         TEST(Loader, valid_component_types) {
             std::stringstream ss(R"({
     "name": "valid_component_types",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "a": {
             "type": "archive",
@@ -242,7 +242,7 @@ namespace cps::utils::test {
         TEST(Loader, valid_component_type_extension) {
             std::stringstream ss(R"({
     "name": "valid_component_type_extension",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "a": {
             "type": "archive",
@@ -264,7 +264,7 @@ namespace cps::utils::test {
         TEST(Loader, not_recognized_type_is_valid_but_ignored_can_make_empty_component) {
             std::stringstream ss(R"({
     "name": "not_recognized_type_is_valid_but_ignored_can_make_empty_component",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "components": {
         "a": {
             "type": "not_recognized_type_is_valid_but_ignored",
