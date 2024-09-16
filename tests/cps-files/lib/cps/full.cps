@@ -14,7 +14,7 @@
                     "/err"
                 ]
             },
-            "defines": {
+            "definitions": {
                 "c": [
                     "-DFAIL"
                 ]
@@ -33,7 +33,7 @@
                 ]
             },
             "link_flags": ["-L/usr/lib/", "-lbar", "-flto"],
-            "defines": {
+            "definitions": {
                 "c": [
                     "FOO=1",
                     "BAR=2",

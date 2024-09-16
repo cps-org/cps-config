@@ -13,7 +13,7 @@
                     "/err"
                 ]
             },
-            "defines": {
+            "definitions": {
                 "c": [
                     "-DFAIL"
                 ]
@@ -31,7 +31,7 @@
                     "/opt/include"
                 ]
             },
-            "defines": {
+            "definitions": {
                 "c": [
                     "FOO=1",
                     "BAR=2",
