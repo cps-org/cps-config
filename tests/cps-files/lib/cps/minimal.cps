@@ -1,6 +1,6 @@
 {
     "name": "minimal",
-    "cps_version": "0.10.0",
+    "cps_version": "0.12.0",
     "version": "1.0.0",
     "components": {
         "sample0": {
