@@ -15,6 +15,7 @@
 #include <tl/expected.hpp>
 
 #include <algorithm>
+#include <cctype>
 #include <deque>
 #include <filesystem>
 #include <fstream>
@@ -139,19 +140,46 @@ namespace cps::search {
                 return std::vector<fs::path>{name};
             }
 
+            // If the given name is not all lower, we need to search that as well.
+            std::vector<std::string> names{std::string{name}};
+            std::string lc{name};
+            std::transform(lc.begin(), lc.end(), lc.begin(), [](const unsigned char ch) { return std::tolower(ch); });
+            if (name != lc) {
+                names.push_back(lc);
+            }
+
             // TODO: Need something like pkgconf's --personality option
             // TODO: we likely either need to return all possible files, or load
             // a file
             // TODO: what to do about finding multiple versions of the same
             // dependency?
+
+            // Each prefix must be searched for (assuming Name is the term):
+            //
+            //   - Name/*.cps
+            //   - name/*.cps
+            //   - Name.cps
+            //   - name.cps
+            //
+            // TODO: should we allow symlinks?
             auto && paths = search_paths(env);
             std::vector<fs::path> found{};
-            for (auto && path : paths) {
-                if (fs::is_directory(path)) {
-                    // TODO: <name-like>
-                    const fs::path file = path / fmt::format("{}.cps", name);
-                    if (fs::is_regular_file(file)) {
-                        found.push_back(file);
+            for (auto && cname : names) {
+                for (auto && path : paths) {
+                    if (fs::is_directory(path)) {
+                        const fs::path namelike = path / cname;
+                        if (fs::is_directory(namelike)) {
+                            for (auto && trial : fs::directory_iterator(namelike)) {
+                                auto && tpath = trial.path();
+                                if (fs::is_regular_file(tpath) && tpath.extension() == ".cps") {
+                                    found.push_back(tpath);
+                                }
+                            }
+                        }
+                        const fs::path file = path / fmt::format("{}.cps", cname);
+                        if (fs::is_regular_file(file)) {
+                            found.push_back(file);
+                        }
                     }
                 }
             }

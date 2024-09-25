@@ -127,3 +127,21 @@ name = "Sets compat_version"
 cps = "needs-compat-version"
 args = ["flags", "--libs", "--print-errors"]
 expected = "-l/usr/lib/libfoo.a"
+
+[[case]]
+name = "name-like search in directory"
+cps = "dir"
+args = ["flags", "--cflags", "--libs", "--print-errors"]
+expected = "-I/usr/include/dir -l/usr/lib/libdir.so"
+
+[[case]]
+name = "name-like search in directory different case"
+cps = "DiR"
+args = ["flags", "--cflags", "--libs", "--print-errors"]
+expected = "-I/usr/include/dir -l/usr/lib/libdir.so"
+
+[[case]]
+name = "name-like search with different case"
+cps = "MiNimAl"
+args = ["flags", "--cflags", "--print-errors"]
+expected = "-fopenmp -I/usr/local/include -I/opt/include -DFOO=1 -DBAR=2 -DOTHER"
