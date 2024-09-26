@@ -323,7 +323,7 @@ namespace cps::search {
                     if (p.stem() != f.stem()) {
                         return tl::unexpected(
                             fmt::format("filepath and cps_path have non overlapping stems, prefix: {}, filename {}",
-                                        std::string{p}, std::string{f}));
+                                        p.string(), f.string()));
                     }
                     p = p.parent_path();
                     f = f.parent_path();
@@ -440,7 +440,7 @@ namespace cps::search {
                     for (auto it = split.begin() + 1; it != split.end(); ++it) {
                         p /= *it;
                     }
-                    return p;
+                    return p.string();
                 }
                 return s;
             };
