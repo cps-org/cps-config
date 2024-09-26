@@ -18,7 +18,7 @@ target_include_directories(cps PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Dependencies
 find_package(tl-expected 1.0 REQUIRED)
-target_link_libraries(cps PRIVATE tl::expected)
+target_link_libraries(cps PUBLIC tl::expected)
 
 find_package(fmt 8 REQUIRED)
 target_link_libraries(cps PRIVATE fmt::fmt)

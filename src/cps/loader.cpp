@@ -305,7 +305,7 @@ namespace cps::loader {
             root = nlohmann::json::parse(input_buffer);
         } catch (const nlohmann::json::exception & ex) {
             return tl::make_unexpected(
-                fmt::format("Exception caught while parsing json for `{}.cps`\n{}", std::string{filename}, ex.what()));
+                fmt::format("Exception caught while parsing json for `{}.cps`\n{}", filename.string(), ex.what()));
         }
 
         auto const name = CPS_TRY(get_required<std::string>(root, "package", "name"));
@@ -332,7 +332,7 @@ namespace cps::loader {
             .cps_version = std::move(cps_version),
             .components = std::move(components),
             .cps_path = std::move(cps_path),
-            .filename = filename,
+            .filename = filename.string(),
             .default_components = std::move(default_components),
             .platform = std::move(platform),
             .require = std::move(require), // requires is a keyword
