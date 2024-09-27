@@ -8,6 +8,9 @@
 #include "cps/utils.hpp"
 
 #include <fmt/core.h>
+#ifdef CPS_HAVE_RPM_VERSION
+#include <rpm-version/version.hpp>
+#endif
 
 #include <cstdint>
 
@@ -97,16 +100,52 @@ namespace cps::version {
             return (op == Operator::eq || op == Operator::le || op == Operator::ge);
         }
 
+#ifdef CPS_HAVE_RPM_VERSION
+        RPMVersion::Operator to_rpm_op(const Operator op) {
+            switch (op) {
+            case Operator::eq:
+                return RPMVersion::Operator::eq;
+            case Operator::ne:
+                return RPMVersion::Operator::ne;
+            case Operator::ge:
+                return RPMVersion::Operator::ge;
+            case Operator::gt:
+                return RPMVersion::Operator::gt;
+            case Operator::le:
+                return RPMVersion::Operator::le;
+            case Operator::lt:
+                return RPMVersion::Operator::lt;
+            default:
+                throw std::runtime_error{"This should not be possible"};
+            }
+        }
+#endif
+
     } // namespace
 
     tl::expected<bool, std::string> compare(std::string_view left, Operator op, std::string_view right, Schema schema) {
+        std::string msg{};
+
         switch (schema) {
         case Schema::simple:
             return simple_compare(left, op, right);
+        case Schema::rpm:
+#ifdef CPS_HAVE_RPM_VERSION
+            return RPMVersion::compare(left, to_rpm_op(op), right);
+#else
+            msg = "RPM Compatible version comparison is not enabled";
+            break;
+#endif
+        case Schema::dpkg:
+            msg = "DPKG Compatible version comparison is not implemented";
+            break;
         default:
-            fmt::print(stderr, "Only the simple schema is implemented");
-            return "Only the simple schema is implemented.";
+            msg = "The requested version comparison method is not implemented";
+            break;
         }
+
+        fmt::print(stderr, msg);
+        return tl::unexpected{msg};
     }
 
 } // namespace cps::version

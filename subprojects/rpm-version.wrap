@@ -1,0 +1,10 @@
+[wrap-file]
+directory = rpm-version-0.3.0
+
+source_url = https://github.com/dcbaker/rpm-version/archive/refs/tags/0.3.0.tar.gz
+source_filename = rpm-version-0.3.0.tar.gz
+source_hash = a5b7ae1a1e69fbe3ee529af719ef8a7e46a97a2cfc94c470834b83a346750623
+
+[provide]
+rpm-version-c = dep_rpm_ver_c
+rpm-version-c++ = dep_rpm_ver_cpp

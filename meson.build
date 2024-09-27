@@ -14,6 +14,19 @@ dep_cli11 = dependency('CLI11', version: '>=2.1')
 dep_expected = dependency('tl-expected', version : '>= 1.0', modules : ['tl::expected'])
 dep_json = dependency('nlohmann_json', version : '>= 3.7')
 dep_fmt = dependency('fmt', version : '>= 8')
+dep_rpm_version = dependency(
+  'rpm-version-c++',
+  version : '>= 0.3.0',
+  required : false,
+  allow_fallback  : true,
+  default_options : ['default_library=static'],
+)
+if dep_rpm_version.found()
+  dep_rpm_version = declare_dependency(
+    dependencies : dep_rpm_version,
+    compile_args : '-DCPS_HAVE_RPM_VERSION',
+  )
+endif
 
 cpp = meson.get_compiler('cpp')
 
