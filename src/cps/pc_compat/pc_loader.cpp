@@ -127,7 +127,9 @@ namespace cps::pc_compat {
         return loader::Package{.name = name,
                                .cps_version = std::string{loader::CPS_VERSION},
                                .components = components,
-                               .cps_path = filename.string(),
+                               // TODO: treat PREFIX in pc file specially and translate it to @prefix@
+                               .cps_path = std::nullopt,
+                               .filename = filename.string(),
                                .default_components = std::vector{name},
                                .platform = std::nullopt,
                                .require = {}, // TODO: Parse requires
