@@ -51,7 +51,6 @@ namespace cps::loader {
         tl::expected<T, std::string> get_required(const nlohmann::json & parent, std::string_view parent_name,
                                                   const std::string & name) {
             if (!parent.contains(name)) {
-                // TODO: it would be nice to have the parent name…
                 return tl::unexpected(fmt::format("Required field `{}` in `{}` is missing!", name, parent_name));
             }
 
