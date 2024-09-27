@@ -7,10 +7,11 @@
 #include "cps/pc_compat/pc.parser.hpp"
 #include "cps/pc_compat/pc_base.hpp"
 
+#include <filesystem>
 #include <unordered_map>
+#include <variant>
 
 #include <tl/expected.hpp>
-#include <variant>
 
 namespace cps::pc_compat {
 
@@ -29,7 +30,7 @@ namespace cps::pc_compat {
         // For example, libdir=${PREFIX}/lib
         std::unordered_map<std::string, std::string> variables;
 
-        tl::expected<loader::Package, std::string> load(std::istream & istream, std::string const & filename);
+        tl::expected<loader::Package, std::string> load(std::istream & istream, std::filesystem::path const & filename);
 
         void scan_begin(std::istream & istream) const;
 
@@ -42,7 +43,7 @@ namespace cps::pc_compat {
     };
 
     // Free function to keep a consistent interface with `cps::loader::load`
-    tl::expected<loader::Package, std::string> load(std::istream & istream, std::string const & filename);
+    tl::expected<loader::Package, std::string> load(std::istream & istream, std::filesystem::path const & filename);
 
 } // namespace cps::pc_compat
 

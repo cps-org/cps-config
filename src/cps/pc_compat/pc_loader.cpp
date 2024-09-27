@@ -9,15 +9,19 @@
 #include "cps/version.hpp"
 
 #include <algorithm>
-#include <fmt/format.h>
+#include <filesystem>
 #include <iterator>
 #include <optional>
 #include <ostream>
 #include <stdexcept>
-#include <tl/expected.hpp>
 #include <variant>
 
+#include <fmt/format.h>
+#include <tl/expected.hpp>
+
 namespace cps::pc_compat {
+
+    namespace fs = std::filesystem;
 
     std::ostream & operator<<(std::ostream & ost, const std::optional<VersionOperation> & version_operation) {
         if (!version_operation) {
@@ -76,7 +80,7 @@ namespace cps::pc_compat {
 
     PcLoader::PcLoader() = default;
 
-    tl::expected<loader::Package, std::string> PcLoader::load(std::istream & istream, std::string const & filename) {
+    tl::expected<loader::Package, std::string> PcLoader::load(std::istream & istream, fs::path const & filename) {
         scan_begin(istream);
         yy::parser parse(*this);
         // To debug parser, uncomment the following line
@@ -124,7 +128,7 @@ namespace cps::pc_compat {
         return loader::Package{.name = name,
                                .cps_version = std::string{loader::CPS_VERSION},
                                .components = components,
-                               .cps_path = filename,
+                               .cps_path = filename.string(),
                                .default_components = std::vector{name},
                                .platform = std::nullopt,
                                .require = {}, // TODO: Parse requires
@@ -154,7 +158,7 @@ namespace cps::pc_compat {
         return tl::make_unexpected("Property expected to hold package requirement list");
     }
 
-    tl::expected<loader::Package, std::string> load(std::istream & istream, std::string const & filename) {
+    tl::expected<loader::Package, std::string> load(std::istream & istream, fs::path const & filename) {
         PcLoader loader;
         return loader.load(istream, filename);
     }
