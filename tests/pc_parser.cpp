@@ -2,18 +2,20 @@
 
 #include <filesystem>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <variant>
+
+#include <gtest/gtest.h>
 
 namespace fs = std::filesystem;
 
 namespace cps::utils::test {
     using namespace cps::pc_compat;
+    namespace fs = std::filesystem;
 
     namespace {
 
-        std::ifstream open_pc_test_file(const std::string & file_name) {
-            return std::ifstream{std::string(std::getenv("CPS_TEST_DIR")) + file_name};
+        std::ifstream open_pc_test_file(const fs::path & file_name) {
+            return std::ifstream{std::string(std::getenv("CPS_TEST_DIR")) + file_name.string()};
         }
 
         void assert_string_value(const PcPropertyValue & property_value, std::string_view expected) {
@@ -34,8 +36,8 @@ namespace cps::utils::test {
         TEST(PcLoader, comments) {
             PcLoader pc_loader;
             fs::path file_path = "/cps-files/lib/pkgconfig/pc-comments.pc";
-            std::ifstream input = open_pc_test_file(file_path);
-            pc_loader.load(input, file_path.parent_path());
+            std::ifstream input = open_pc_test_file(file_path.string());
+            pc_loader.load(input, file_path.parent_path().string());
             assert_string_value(pc_loader.properties["Name"], "libfoo");
             assert_string_value(pc_loader.properties["Description"], "This is an example library");
         }
@@ -43,8 +45,8 @@ namespace cps::utils::test {
         TEST(PcLoader, minimal) {
             PcLoader pc_loader;
             fs::path file_path = "/cps-files/lib/pkgconfig/pc-minimal.pc";
-            std::ifstream input = open_pc_test_file(file_path);
-            pc_loader.load(input, file_path.parent_path());
+            std::ifstream input = open_pc_test_file(file_path.string());
+            pc_loader.load(input, file_path.parent_path().string());
             assert_string_value(pc_loader.properties["Name"], "libfoo");
             assert_string_value(pc_loader.properties["Description"], "An example library");
             assert_string_value(pc_loader.properties["Version"], "1.0");
