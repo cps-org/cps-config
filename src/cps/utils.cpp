@@ -4,6 +4,8 @@
 
 #include "cps/utils.hpp"
 
+#include <fmt/core.h>
+
 namespace cps::utils {
 
     std::vector<std::string> split(std::string_view input, std::string_view delim) {
@@ -17,6 +19,14 @@ namespace cps::utils {
         out.emplace_back(input.substr(last));
 
         return out;
+    }
+
+    void assert_fn(bool expr, std::string_view msg) {
+        if (!expr) {
+            fmt::print(stderr, "{}\n", msg);
+            fflush(stderr);
+            abort();
+        }
     }
 
 } // namespace cps::utils
