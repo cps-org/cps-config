@@ -111,7 +111,7 @@ namespace cps::pc_compat {
             name, loader::Component{.type = loader::Type::unknown,
                                     .compile_flags = compile_flags,
                                     .includes = loader::LangValues{},
-                                    .defines = loader::Defines{},
+                                    .definitions = loader::Defines{},
                                     .link_flags = link_flags,
                                     .link_libraries = {},
                                     // TODO: Currently lib location is hard coded to appease assertions. This would
