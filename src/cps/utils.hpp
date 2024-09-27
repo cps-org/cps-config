@@ -6,20 +6,12 @@
 
 #include "cps/config.hpp"
 
-#include <fmt/core.h>
-
 #include <string>
 #include <vector>
 
 namespace cps::utils {
 
-    inline void assert_fn(bool expr, std::string_view msg) {
-        if (!expr) {
-            fmt::print(stderr, "{}\n", msg);
-            fflush(stderr);
-            abort();
-        }
-    }
+    void assert_fn(bool expr, std::string_view msg);
 
     std::vector<std::string> split(std::string_view input, std::string_view delim = ":");
 
