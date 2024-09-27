@@ -21,10 +21,6 @@ namespace cps::utils {
         }
     }
 
-} // namespace cps::utils
-
-namespace cps::utils {
-
     std::vector<std::string> split(std::string_view input, std::string_view delim = ":");
 
 } // namespace cps::utils
