@@ -82,7 +82,8 @@ expected = "-I/something -I/opt/include"
 name = "Requires version, but version not set"
 cps = "needs-version"
 args = ["flags", "--modversion", "--print-errors", "--errors-to-stdout"]
-expected = "Could not find a dependency to satisfy needs-version"
+expected = "Tried /.*/cps/multiple-components.cps, which does not specify a version, but the user requires version 1.0"
+re = true
 returncode = 1
 
 [[case]]
