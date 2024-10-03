@@ -99,13 +99,27 @@ namespace cps::version {
 
     } // namespace
 
+    std::string to_string(const Schema schema) {
+        switch (schema) {
+        case Schema::simple:
+            return "simple";
+        case Schema::dpkg:
+            return "dpkg";
+        case Schema::rpm:
+            return "rpm";
+        case Schema::custom:
+            return "custom";
+        default:
+            abort();
+        };
+    }
+
     tl::expected<bool, std::string> compare(std::string_view left, Operator op, std::string_view right, Schema schema) {
         switch (schema) {
         case Schema::simple:
             return simple_compare(left, op, right);
         default:
-            fmt::print(stderr, "Only the simple schema is implemented");
-            return "Only the simple schema is implemented.";
+            return tl::unexpected{fmt::format("The {} schema is not implemented", to_string(schema))};
         }
     }
 
