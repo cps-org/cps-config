@@ -309,6 +309,7 @@ namespace cps::loader {
 
         auto const name = CPS_TRY(get_required<std::string>(root, "package", "name"));
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
+        auto const compat_version = CPS_TRY(get_optional<std::string>(root, "package", "compat_version"));
         auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
         auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path"));
         auto const default_components =
@@ -330,6 +331,7 @@ namespace cps::loader {
             .name = std::move(name),
             .cps_version = std::move(cps_version),
             .components = std::move(components),
+            .compat_version = std::move(compat_version),
             .cps_path = std::move(cps_path),
             .filename = filename.string(),
             .default_components = std::move(default_components),
