@@ -11,6 +11,7 @@
 %}
 
 /* To debug scanner, set debug as an option */
+/* TODO: Add a way to debug scanner without rebuilding */
 %option noyywrap nounput noinput batch
 
 %{
