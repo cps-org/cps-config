@@ -252,8 +252,13 @@ namespace cps::search {
                                         path.string(), requirements.version.value()));
                         continue;
                     }
-                    if (version::compare(p.version.value(), version::Operator::lt, requirements.version.value(),
-                                         p.version_schema)) {
+                    auto && v = version::compare(p.version.value(), version::Operator::lt, requirements.version.value(),
+                                                 p.version_schema);
+                    if (!v) {
+                        errors.emplace_back(fmt::format("{}: {}", path.string(), v.error()));
+                    }
+
+                    if (v.value()) {
                         errors.emplace_back(fmt::format(
                             "{} has a version of {}, which is less than the required {}, using the schema {}",
                             path.string(), p.version.value(), requirements.version.value(),
