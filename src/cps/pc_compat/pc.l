@@ -27,15 +27,6 @@ str     [^ \t\r\n#:=${}]+
 blank   [ \t\r]+
 comment #[^\n]*
 
-/* "Name"              { return yy::parser::make_NAME(); }
-"Version"           { return yy::parser::make_VERSION(); }
-"Description"       { return yy::parser::make_DESCRIPTION(); }
-"URL"               { return yy::parser::make_URL(); }
-"Cflags"            { return yy::parser::make_CFLAGS(); }
-"Cflags.private"    { return yy::parser::make_CFLAGS_P(); }
-"Libs"              { return yy::parser::make_LIBS(); }
-"Libs.private"      { return yy::parser::make_LIBS_P(); } */
-
 %%
 ":"                 { return yy::parser::make_COLON(); }
 "="                 { return yy::parser::make_EQ(); }
