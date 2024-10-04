@@ -17,8 +17,6 @@ namespace cps::loader {
 
     namespace {
 
-        constexpr static std::string_view CPS_VERSION = "0.12.0";
-
         template <typename T>
         tl::expected<std::optional<T>, std::string>
         get_optional(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {

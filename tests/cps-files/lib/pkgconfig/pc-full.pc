@@ -1,0 +1,15 @@
+# Taken from https://manpages.ubuntu.com/manpages/mantic/man5/pc.5.html
+prefix=/home/kaniini/pkg   # this defines a variable
+exec_prefix=${prefix}      # defining another variable with a substitution
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libfoo                                  # human-readable name
+Description: an example library called libfoo # human-readable description
+Version: 1.0
+URL: http://www.pkgconf.org
+Requires: libbar > 2.0.0
+Conflicts: libbaz <= 3.0.0
+Libs: -L${libdir} -lfoo
+Libs.private: -lm
+Cflags: -I${includedir}/libfoo
