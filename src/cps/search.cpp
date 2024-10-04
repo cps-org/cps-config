@@ -11,6 +11,7 @@
 #include "cps/version.hpp"
 
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <tl/expected.hpp>
 
 #include <algorithm>
@@ -26,6 +27,8 @@ namespace fs = std::filesystem;
 namespace cps::search {
 
     namespace {
+
+        using version::to_string;
 
         /// @brief A CPS file, along with the components in that CPS file to
         /// load
@@ -222,17 +225,19 @@ namespace cps::search {
         tl::expected<std::shared_ptr<Node>, std::string>
         build_node(std::string_view name, const loader::Requirement & requirements, NodeFactory factory, Env env) {
             const std::vector<fs::path> paths = CPS_TRY(find_paths(name, env));
+            std::vector<std::string> errors{};
             for (auto && path : paths) {
 
                 auto maybe_node = factory.get(name, path);
                 if (!maybe_node) {
+                    errors.emplace_back(fmt::format("No CPS file for {} in path {}", name, path.string()));
                     continue;
                 }
                 auto node = maybe_node.value();
                 const loader::Package & p = node->data.package;
 
                 // If this package doesn't meet the requirements then reject it and continue on.
-                // The conditions it could fail to meet are:
+                // The conditions it couldIf we  fail to meet are:
                 //  1. the provided version (or Compat-Version) is < the required version
                 //  2. This package lacks required components
                 if (requirements.version) {
@@ -241,17 +246,43 @@ namespace cps::search {
                     //
                     // > If not provided, the CPS will not satisfy any request for
                     // > a specific version of the package.
-                    if (!p.version) {
+                    if (!(p.version && p.compat_version)) {
+                        errors.emplace_back(fmt::format("Tried {}, which does not specify a version or compat_version, "
+                                                        "but the user requires version {}",
+                                                        path.string(), requirements.version.value()));
                         continue;
                     }
-                    if (version::compare(p.version.value(), version::Operator::lt, requirements.version.value(),
-                                         p.version_schema)) {
+                    // From the CPS spec, version 0.12.0, for package::compat_version
+                    //
+                    // > Specifies the oldest version of the package with which
+                    // > this version is compatible. This information is used when
+                    // > a consumer requests a specific version. If the version
+                    // > requested is equal to or newer than the compat_version,
+                    // > the package may be used.
+                    //
+                    // > If not specified, the package is not compatible with
+                    // > previous versions (i.e. compat_version is implicitly
+                    // > equal to version).
+                    auto && v = version::compare(p.compat_version.value_or(p.version.value()), version::Operator::lt,
+                                                 requirements.version.value(), p.version_schema);
+                    if (!v) {
+                        errors.emplace_back(fmt::format("{}: {}", path.string(), v.error()));
+                    }
+
+                    if (v.value()) {
+                        errors.emplace_back(fmt::format(
+                            "{} has a version of {}, which is less than the required {}, using the schema {}",
+                            path.string(), p.compat_version.value_or(p.version.value()), requirements.version.value(),
+                            to_string(p.version_schema)));
                         continue;
                     }
                 }
 
                 if (!std::all_of(requirements.components.begin(), requirements.components.end(),
                                  [p](const std::string & c) { return p.components.find(c) != p.components.end(); })) {
+                    // TODO: more fine grained error message
+                    errors.emplace_back(fmt::format("{} does not implement all of the required components '{}'",
+                                                    path.string(), fmt::join(requirements.components, ", ")));
                     continue;
                 }
 
@@ -259,9 +290,11 @@ namespace cps::search {
                 found.reserve(p.require.size());
                 for (auto && [n, r] : p.require) {
                     auto && child = build_node(n, r, factory, env);
+
                     if (child) {
                         found.emplace_back(child.value());
                     } else {
+                        errors.emplace_back(child.error());
                         break;
                     }
                 }
@@ -273,7 +306,7 @@ namespace cps::search {
                 return node;
             }
 
-            return tl::unexpected(fmt::format("Could not find a dependency to satisfy {}", name));
+            return tl::unexpected(fmt::format("{}:\n  {}", name, fmt::join(errors, "\n  ")));
         }
 
         tl::expected<std::shared_ptr<Node>, std::string> build_node(std::string_view name,

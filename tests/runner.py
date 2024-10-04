@@ -10,6 +10,7 @@ import contextlib
 import dataclasses
 import enum
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -33,6 +34,7 @@ if typing.TYPE_CHECKING:
         expected: str
         mode: typing.NotRequired[typing.Literal['pkgconf']]
         returncode: typing.NotRequired[int]
+        re: typing.NotRequired[bool]
 
     class TestDescription(typing.TypedDict):
 
@@ -64,12 +66,22 @@ class Result:
 
 
 def unordered_compare(out: str, expected: str) -> bool:
-    if out == expected:
-        return True
-
     out_parts = out.split()
     expected_parts = expected.split()
     return sorted(out_parts) == sorted(expected_parts)
+
+
+def is_success(rt: int, case_: TestCase, out: str, expected: str) -> bool:
+    if rt != case_.get('returncode', 0):
+        return False
+
+    if case_.get('re', False):
+        return re.search(expected, out) is not None
+
+    if out == expected:
+        return True
+
+    return unordered_compare(out, expected)
 
 
 async def test(args: Arguments, case_: TestCase) -> Result:
@@ -93,7 +105,7 @@ async def test(args: Arguments, case_: TestCase) -> Result:
         out = bout.decode().strip()
         err = berr.decode().strip()
 
-        success = proc.returncode == case_.get('returncode', 0) and unordered_compare(out, expected)
+        success = is_success(proc.returncode, case_, out, expected)
         result = Status.PASS if success else Status.FAIL
         returncode = proc.returncode
     except asyncio.TimeoutError:
