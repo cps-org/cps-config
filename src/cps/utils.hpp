@@ -15,4 +15,6 @@ namespace cps::utils {
 
     std::vector<std::string> split(std::string_view input, std::string_view delim = ":");
 
+    std::string_view trim(std::string_view input);
+
 } // namespace cps::utils
