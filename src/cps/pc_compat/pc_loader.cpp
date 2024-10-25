@@ -28,22 +28,22 @@ namespace cps::pc_compat {
             return ost;
         }
         switch (*version_operation) {
-        case VersionOperation::EQ:
+        case VersionOperation::eq:
             ost << "=";
             break;
-        case VersionOperation::NE:
+        case VersionOperation::ne:
             ost << "!=";
             break;
-        case VersionOperation::LT:
+        case VersionOperation::lt:
             ost << "<";
             break;
-        case VersionOperation::LE:
+        case VersionOperation::le:
             ost << "<=";
             break;
-        case VersionOperation::GT:
+        case VersionOperation::gt:
             ost << ">";
             break;
-        case VersionOperation::GE:
+        case VersionOperation::ge:
             ost << ">=";
             break;
         }

@@ -19,7 +19,7 @@ namespace cps::pc_compat {
     // PackageRequirement is the type of a non-terminal. bison needs
     // to do a sizeof on this type and cannot do so with a forward
     // declaration.
-    enum class VersionOperation { LT, LE, NE, EQ, GT, GE };
+    enum class VersionOperation { lt, le, ne, eq, gt, ge };
     struct PackageRequirement {
         std::string package;
         std::optional<VersionOperation> operation;

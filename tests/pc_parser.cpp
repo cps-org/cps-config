@@ -81,7 +81,7 @@ namespace cps::utils::test {
             assert_string_value(pc_loader.properties["Cflags"], "-I/home/kaniini/pkg/include/libfoo");
             assert_package_requirements(
                 pc_loader.properties["Requires"],
-                {PackageRequirement{.package = "libbar", .operation = VersionOperation::GT, .version = "2.0.0"}});
+                {PackageRequirement{.package = "libbar", .operation = VersionOperation::gt, .version = "2.0.0"}});
         }
     } // namespace
 } // namespace cps::utils::test

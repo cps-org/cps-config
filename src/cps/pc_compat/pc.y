@@ -92,12 +92,12 @@ property:
 
 // version_op_token captures all the valid tokens for version comparison
 version_op_token:
-    "<" { $$ = cps::pc_compat::VersionOperation::LT; }
-  | "<=" { $$ = cps::pc_compat::VersionOperation::LE; }
-  | "=" { $$ = cps::pc_compat::VersionOperation::EQ; }
-  | "!=" { $$ = cps::pc_compat::VersionOperation::NE; }
-  | ">" { $$ = cps::pc_compat::VersionOperation::GT; }
-  | ">=" { $$ = cps::pc_compat::VersionOperation::GE; };
+    "<" { $$ = cps::pc_compat::VersionOperation::lt; }
+  | "<=" { $$ = cps::pc_compat::VersionOperation::le; }
+  | "=" { $$ = cps::pc_compat::VersionOperation::eq; }
+  | "!=" { $$ = cps::pc_compat::VersionOperation::ne; }
+  | ">" { $$ = cps::pc_compat::VersionOperation::gt; }
+  | ">=" { $$ = cps::pc_compat::VersionOperation::ge; };
 
 // version_op handles trailing space for version comparisons
 version_op:
