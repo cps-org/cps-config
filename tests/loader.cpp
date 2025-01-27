@@ -293,5 +293,39 @@ namespace cps::utils::test {
                 << "should not have parsed, components only has non-standard type entry making it empty";
         }
 
+        TEST(Loader, cps_path_and_prefix_cannot_both_be_set) {
+            std::stringstream ss(R"({
+    "name": "cps_path_and_prefix_cannot_both_be_set",
+    "cps_version": "0.12.0",
+    "cps_path": "/some/path",
+    "prefix": "/prefix",
+    "components": {
+        "a": {
+            "type": "archive",
+            "location": "/"
+        }
+    }
+    })"s);
+            auto const package = cps::loader::load(ss, "cps_path_and_prefix_cannot_both_be_set");
+            ASSERT_FALSE(package.has_value()) << "should not have parsed, prefix and cps_path cannot both be set"
+                                              << "actual error:" << package.error();
+        }
+
+        TEST(Loader, one_of_cps_path_and_prefix_must_be_set) {
+            std::stringstream ss(R"({
+    "name": "one_of_cps_path_and_prefix_must_be_set",
+    "cps_version": "0.12.0",
+    "components": {
+        "a": {
+            "type": "archive",
+            "location": "/"
+        }
+    }
+    })"s);
+            auto const package = cps::loader::load(ss, "one_of_cps_path_and_prefix_must_be_Set");
+            ASSERT_FALSE(package.has_value()) << "should not have parsed, either prefix or cps_path must be set. "
+                                              << "actual error:" << package.error();
+        }
+
     } // unnamed namespace
 } // namespace cps::utils::test

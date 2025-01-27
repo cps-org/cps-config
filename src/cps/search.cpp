@@ -362,56 +362,6 @@ namespace cps::search {
             }
         }
 
-        tl::expected<fs::path, std::string> calculate_prefix(const std::optional<std::string> & path,
-                                                             const fs::path & filename) {
-            // TODO: Windows
-            // TODO: /cps/<name-like>
-            if (path) {
-                fs::path p{path.value()};
-                if (p.stem() == "") {
-                    p = p.parent_path();
-                }
-                fs::path f = filename.parent_path();
-                while (p != "@prefix@") {
-                    if (p.stem() != f.stem()) {
-                        return tl::unexpected(
-                            fmt::format("filepath and cps_path have non overlapping stems, prefix: {}, filename {}",
-                                        p.string(), f.string()));
-                    }
-                    p = p.parent_path();
-                    f = f.parent_path();
-                }
-                return f;
-            }
-
-            fs::path p = filename.parent_path();
-
-            const auto reducer = [&p](fs::path dir) -> std::optional<fs::path> {
-                fs::path np = p;
-
-                // remove a trailing slash
-                if (dir.stem() == "") {
-                    dir = dir.parent_path();
-                }
-
-                while (dir.stem() == np.stem()) {
-                    dir = dir.parent_path();
-                    np = np.parent_path();
-                }
-
-                // If our new path has changed and we have consumed the entire
-                // directory, then return that, otherwise this was not
-                // successful.
-                return np != p && dir == dir.root_path() ? std::optional{np} : std::nullopt;
-            };
-
-            if (p.stem() == "cps") {
-                p = p.parent_path();
-            }
-
-            return reducer(platform::libdir()).value_or(reducer(platform::datadir()).value_or(p));
-        }
-
         /// @brief Calculate the required components in the graph
         /// @param node The node to process
         /// @param components the components required from this node
@@ -482,8 +432,7 @@ namespace cps::search {
 
         for (auto && node : flat) {
 
-            const auto prefix = prefix_path.value_or(node->data.package.prefix.value_or(
-                CPS_TRY(calculate_prefix(node->data.package.cps_path, node->data.package.filename))));
+            const auto prefix = prefix_path.value_or(node->data.package.prefix);
 
             const auto && prefix_replacer = [&](const std::string & s) -> std::string {
                 // TODO: Windows…
