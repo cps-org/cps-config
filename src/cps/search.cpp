@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2023-2025 Dylan Baker
 // Copyright © 2024 Bret Brown
 
 #include "cps/search.hpp"
@@ -230,7 +230,9 @@ namespace cps::search {
 
                 auto maybe_node = factory.get(name, path);
                 if (!maybe_node) {
-                    errors.emplace_back(fmt::format("No CPS file for {} in path {}", name, path.string()));
+                    errors.emplace_back(
+                        fmt::format("CPS file for '{}', in path '{}', generated the following error: '{}'", name,
+                                    path.string(), maybe_node.error()));
                     continue;
                 }
                 auto node = maybe_node.value();
