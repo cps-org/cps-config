@@ -42,6 +42,7 @@ foreach (test_name test_case IN ZIP_LISTS test_names test_cases)
 endforeach ()
 
 set(infiles
+    "cps-files/lib/cps/prefix.cps"
     "cps-files/lib/cps/cps-path-set.cps")
 set(libdir ${CMAKE_INSTALL_LIBDIR})
 set(prefix "@prefix@")  # Work around for not having the inverse of @ONLY

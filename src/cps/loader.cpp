@@ -10,12 +10,15 @@
 #include <nlohmann/json.hpp>
 #include <tl/expected.hpp>
 
+#include <filesystem>
 #include <iostream>
 #include <optional>
 
 namespace cps::loader {
 
     namespace {
+
+        namespace fs = std::filesystem;
 
         template <typename T>
         tl::expected<std::optional<T>, std::string>
@@ -278,6 +281,23 @@ namespace cps::loader {
             return components;
         };
 
+        tl::expected<fs::path, std::string> calculate_prefix(fs::path p, const fs::path & filename) {
+            if (p.stem() == "") {
+                p = p.parent_path();
+            }
+            fs::path f = filename.parent_path();
+            while (p != "@prefix@") {
+                if (p.stem() != f.stem()) {
+                    return tl::unexpected(
+                        fmt::format("filepath and cps_path have non overlapping stems, prefix: {}, filename {}",
+                                    p.string(), f.string()));
+                }
+                p = p.parent_path();
+                f = f.parent_path();
+            }
+            return f;
+        }
+
     } // namespace
 
     Define::Define(std::string name_) : name{std::move(name_)}, value{std::nullopt} {};
@@ -309,7 +329,7 @@ namespace cps::loader {
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
         auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
         auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path"));
-        auto const prefix = CPS_TRY(get_optional<std::string>(root, "package", "prefix"));
+        auto prefix = CPS_TRY(get_optional<std::string>(root, "package", "prefix"));
         auto const default_components =
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
         auto const platform = std::nullopt; // TODO: parse platform
@@ -320,13 +340,18 @@ namespace cps::loader {
                 return string_to_schema(v.value_or("simple"));
             }));
 
-        // if (cps_path.has_value() == prefix.has_value()) {
-        //     return tl::make_unexpected("must define exactly one of 'prefix' or 'cps_path'");
-        // }
+        if (cps_path.has_value() == prefix.has_value()) {
+            return tl::make_unexpected("must define exactly one of 'prefix' or 'cps_path'");
+        }
 
         if (cps_version != CPS_VERSION) {
             return tl::make_unexpected(fmt::format("cps-config only supports CPS_VERSION `{}` found `{}` in `{}`",
                                                    CPS_VERSION, cps_version, name));
+        }
+
+        // If we don't have a prefix, calculate it now from the cps_path.
+        if (!prefix) {
+            prefix = CPS_TRY(calculate_prefix(cps_path.value(), filename));
         }
 
         return Package{
@@ -334,7 +359,7 @@ namespace cps::loader {
             .cps_version = std::move(cps_version),
             .components = std::move(components),
             .cps_path = std::move(cps_path),
-            .prefix = std::move(prefix),
+            .prefix = std::move(prefix.value()),
             .filename = filename.string(),
             .default_components = std::move(default_components),
             .platform = std::move(platform),
