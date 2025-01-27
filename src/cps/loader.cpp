@@ -1,5 +1,5 @@
 // Copyright © 2023-2024 Dylan Baker
-// Copyright © 2024 Dylan Baker
+// Copyright © 2024 Bret Brown
 // SPDX-License-Identifier: MIT
 
 #include "cps/loader.hpp"
