@@ -141,7 +141,7 @@ namespace cps::loader {
         version::Schema version_schema;
     };
 
-    constexpr inline std::string_view CPS_VERSION = "0.12.0";
+    constexpr inline std::string_view CPS_VERSION = "0.13.0";
 
     tl::expected<Package, std::string> load(std::istream & input_buffer, const std::filesystem::path & filename);
 
