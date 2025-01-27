@@ -1,4 +1,4 @@
-// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2023-2025 Dylan Baker
 // Copyright © 2024 Bret Brown
 // SPDX-License-Identifier: MIT
 
@@ -132,7 +132,7 @@ namespace cps::loader {
         // TODO: configuration
         // TODO: configurations
         std::optional<std::string> cps_path;
-        std::optional<std::string> prefix;
+        std::string prefix;
         std::string filename;
         std::optional<std::vector<std::string>> default_components;
         std::optional<Platform> platform;
