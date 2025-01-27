@@ -1,6 +1,7 @@
 {
     "name": "multiple-components",
     "cps_version": "0.12.0",
+    "prefix": "/sentinel/",
     "requires": {
         "minimal": {}
     },
