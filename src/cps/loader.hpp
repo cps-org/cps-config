@@ -128,7 +128,7 @@ namespace cps::loader {
         std::string name;
         std::string cps_version;
         std::unordered_map<std::string, Component> components;
-        // TODO: compat-version
+        std::optional<std::string> compat_version;
         // TODO: configuration
         // TODO: configurations
         std::optional<std::string> cps_path;

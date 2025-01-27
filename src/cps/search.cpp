@@ -15,6 +15,7 @@
 #include <tl/expected.hpp>
 
 #include <algorithm>
+#include <cctype>
 #include <deque>
 #include <filesystem>
 #include <fstream>
@@ -139,19 +140,46 @@ namespace cps::search {
                 return std::vector<fs::path>{name};
             }
 
+            // If the given name is not all lower, we need to search that as well.
+            std::vector<std::string> names{std::string{name}};
+            std::string lc{name};
+            std::transform(lc.begin(), lc.end(), lc.begin(), [](const unsigned char ch) { return std::tolower(ch); });
+            if (name != lc) {
+                names.push_back(lc);
+            }
+
             // TODO: Need something like pkgconf's --personality option
             // TODO: we likely either need to return all possible files, or load
             // a file
             // TODO: what to do about finding multiple versions of the same
             // dependency?
+
+            // Each prefix must be searched for (assuming Name is the term):
+            //
+            //   - Name/*.cps
+            //   - name/*.cps
+            //   - Name.cps
+            //   - name.cps
+            //
+            // TODO: should we allow symlinks?
             auto && paths = search_paths(env);
             std::vector<fs::path> found{};
-            for (auto && path : paths) {
-                if (fs::is_directory(path)) {
-                    // TODO: <name-like>
-                    const fs::path file = path / fmt::format("{}.cps", name);
-                    if (fs::is_regular_file(file)) {
-                        found.push_back(file);
+            for (auto && cname : names) {
+                for (auto && path : paths) {
+                    if (fs::is_directory(path)) {
+                        const fs::path namelike = path / cname;
+                        if (fs::is_directory(namelike)) {
+                            for (auto && trial : fs::directory_iterator(namelike)) {
+                                auto && tpath = trial.path();
+                                if (fs::is_regular_file(tpath) && tpath.extension() == ".cps") {
+                                    found.push_back(tpath);
+                                }
+                            }
+                        }
+                        const fs::path file = path / fmt::format("{}.cps", cname);
+                        if (fs::is_regular_file(file)) {
+                            found.push_back(file);
+                        }
                     }
                 }
             }
@@ -239,7 +267,7 @@ namespace cps::search {
                 const loader::Package & p = node->data.package;
 
                 // If this package doesn't meet the requirements then reject it and continue on.
-                // The conditions it could fail to meet are:
+                // The conditions it couldIf we  fail to meet are:
                 //  1. the provided version (or Compat-Version) is < the required version
                 //  2. This package lacks required components
                 if (requirements.version) {
@@ -248,14 +276,25 @@ namespace cps::search {
                     //
                     // > If not provided, the CPS will not satisfy any request for
                     // > a specific version of the package.
-                    if (!p.version) {
-                        errors.emplace_back(
-                            fmt::format("Tried {}, which does not specify a version, but the user requires version {}",
-                                        path.string(), requirements.version.value()));
+                    if (!(p.version || p.compat_version)) {
+                        errors.emplace_back(fmt::format("Tried {}, which does not specify a version or compat_version, "
+                                                        "but the user requires version {}",
+                                                        path.string(), requirements.version.value()));
                         continue;
                     }
-                    auto && v = version::compare(p.version.value(), version::Operator::lt, requirements.version.value(),
-                                                 p.version_schema);
+                    // From the CPS spec, version 0.12.0, for package::compat_version
+                    //
+                    // > Specifies the oldest version of the package with which
+                    // > this version is compatible. This information is used when
+                    // > a consumer requests a specific version. If the version
+                    // > requested is equal to or newer than the compat_version,
+                    // > the package may be used.
+                    //
+                    // > If not specified, the package is not compatible with
+                    // > previous versions (i.e. compat_version is implicitly
+                    // > equal to version).
+                    auto && v = version::compare(p.compat_version.value_or(p.version.value()), version::Operator::lt,
+                                                 requirements.version.value(), p.version_schema);
                     if (!v) {
                         errors.emplace_back(fmt::format("{}: {}", path.string(), v.error()));
                         continue;
@@ -264,7 +303,7 @@ namespace cps::search {
                     if (v.value()) {
                         errors.emplace_back(fmt::format(
                             "{} has a version of {}, which is less than the required {}, using the schema {}",
-                            path.string(), p.version.value(), requirements.version.value(),
+                            path.string(), p.compat_version.value_or(p.version.value()), requirements.version.value(),
                             to_string(p.version_schema)));
                         continue;
                     }
