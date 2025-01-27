@@ -1,6 +1,6 @@
 {
     "name": "cps-path-set",
-    "cps_version": "0.12.0",
+    "cps_version": "0.13.0",
     "cps_path": "@prefix@/${libdir}/cps/",
     "version": "1.0.0",
     "components": {

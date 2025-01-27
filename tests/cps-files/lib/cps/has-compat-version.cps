@@ -1,6 +1,6 @@
 {
     "name": "has-compat-version",
-    "cps_version": "0.12.0",
+    "cps_version": "0.13.0",
     "version": "1.0.700344",
     "compat_version": "1.0.0",
     "prefix": "/sentinel/",
