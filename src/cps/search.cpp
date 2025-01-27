@@ -482,8 +482,8 @@ namespace cps::search {
 
         for (auto && node : flat) {
 
-            const auto prefix = prefix_path.value_or(
-                CPS_TRY(calculate_prefix(node->data.package.cps_path, node->data.package.filename)));
+            const auto prefix = prefix_path.value_or(node->data.package.prefix.value_or(
+                CPS_TRY(calculate_prefix(node->data.package.cps_path, node->data.package.filename))));
 
             const auto && prefix_replacer = [&](const std::string & s) -> std::string {
                 // TODO: Windows…

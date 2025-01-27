@@ -1,4 +1,4 @@
-// Copyright © 2024 Dylan Baker
+// Copyright © 2024-2025 Dylan Baker
 // Copyright © 2024 Bret Brown
 // Copyright © 2024 Tyler Weaver
 // SPDX-License-Identifier: MIT
@@ -28,6 +28,7 @@ namespace cps::utils::test {
             std::stringstream ss(R"({
     "name": "minimal_complete_package",
     "cps_version": "0.12.0",
+    "prefix": "/sentinel/",
     "components": {
         "default": {
             "type": "archive",
@@ -44,6 +45,7 @@ namespace cps::utils::test {
             std::stringstream ss(R"({
     "name": "components_must_not_be_empty",
     "cps_version": "0.12.0",
+    "prefix": "/sentinel/",
     "components": {}
 }
 )"s);
@@ -56,6 +58,7 @@ namespace cps::utils::test {
             std::stringstream ss(R"({
     "name": "archive_missing_location",
     "cps_version": "0.12.0",
+    "prefix": "/sentinel/",
     "components": {
         "default": {
             "type": "archive",
@@ -71,6 +74,7 @@ namespace cps::utils::test {
         TEST(Loader, missing_name) {
             std::stringstream ss(R"({
     "cps_version": "0.12.0",
+    "prefix": "/sentinel/",
     "components": {
         "default": {
             "type": "archive",
@@ -86,6 +90,7 @@ namespace cps::utils::test {
         TEST(Loader, missing_cps_version) {
             std::stringstream ss(R"({
     "name": "missing_cps_version",
+    "prefix": "/sentinel/",
     "components": {
         "default": {
             "type": "archive",
@@ -101,6 +106,7 @@ namespace cps::utils::test {
         TEST(Loader, missing_components) {
             std::stringstream ss(R"({
     "name": "missing_components",
+    "prefix": "/sentinel/",
     "cps_version": "0.12.0",
 }
 )"s);
@@ -111,6 +117,7 @@ namespace cps::utils::test {
         TEST(Loader, name_is_string) {
             std::stringstream ss(R"({
     "name": [],
+    "prefix": "/sentinel/",
     "cps_version": "0.12.0",
     "components": {
         "default": {
@@ -127,6 +134,7 @@ namespace cps::utils::test {
         TEST(Loader, cps_version_is_string) {
             std::stringstream ss(R"({
     "name": "cps_version_is_string",
+    "prefix": "/sentinel/",
     "cps_version": [],
     "components": {
         "default": {
@@ -144,6 +152,7 @@ namespace cps::utils::test {
         TEST(Loader, components_is_object) {
             std::stringstream ss(R"({
     "name": "components_is_object",
+    "prefix": "/sentinel/",
     "cps_version": "0.12.0",
     "components": [],
 }
@@ -156,6 +165,7 @@ namespace cps::utils::test {
         TEST(Loader, component_type_is_string) {
             std::stringstream ss(R"({
     "name": "component_type_is_string",
+    "prefix": "/sentinel/",
     "cps_version": [],
     "components": {
         "default": {
@@ -173,6 +183,7 @@ namespace cps::utils::test {
         TEST(Loader, component_location_is_string) {
             std::stringstream ss(R"({
     "name": "component_location_is_string",
+    "prefix": "/sentinel/",
     "cps_version": [],
     "components": {
         "default": {
@@ -190,6 +201,7 @@ namespace cps::utils::test {
         TEST(Loader, cps_version_is_0_10_0) {
             std::stringstream ss(R"({
     "name": "cps_version_is_0_10_0",
+    "prefix": "/sentinel/",
     "cps_version": "0.9.0",
     "components": {
         "default": {
@@ -207,6 +219,7 @@ namespace cps::utils::test {
         TEST(Loader, valid_component_types) {
             std::stringstream ss(R"({
     "name": "valid_component_types",
+    "prefix": "/sentinel/",
     "cps_version": "0.12.0",
     "components": {
         "a": {
@@ -242,6 +255,7 @@ namespace cps::utils::test {
         TEST(Loader, valid_component_type_extension) {
             std::stringstream ss(R"({
     "name": "valid_component_type_extension",
+    "prefix": "/sentinel/",
     "cps_version": "0.12.0",
     "components": {
         "a": {
@@ -264,6 +278,7 @@ namespace cps::utils::test {
         TEST(Loader, not_recognized_type_is_valid_but_ignored_can_make_empty_component) {
             std::stringstream ss(R"({
     "name": "not_recognized_type_is_valid_but_ignored_can_make_empty_component",
+    "prefix": "/sentinel/",
     "cps_version": "0.12.0",
     "components": {
         "a": {
