@@ -1,4 +1,4 @@
-// Copyright © 2023-2024 Dylan Baker
+// Copyright © 2023-2025 Dylan Baker
 // Copyright © 2024 Bret Brown
 // SPDX-License-Identifier: MIT
 
@@ -309,6 +309,7 @@ namespace cps::loader {
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
         auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
         auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path"));
+        auto const prefix = CPS_TRY(get_optional<std::string>(root, "package", "prefix"));
         auto const default_components =
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
         auto const platform = std::nullopt; // TODO: parse platform
@@ -318,6 +319,10 @@ namespace cps::loader {
             CPS_TRY(get_optional<std::string>(root, "package", "version_schema").map([](auto && v) {
                 return string_to_schema(v.value_or("simple"));
             }));
+
+        // if (cps_path.has_value() == prefix.has_value()) {
+        //     return tl::make_unexpected("must define exactly one of 'prefix' or 'cps_path'");
+        // }
 
         if (cps_version != CPS_VERSION) {
             return tl::make_unexpected(fmt::format("cps-config only supports CPS_VERSION `{}` found `{}` in `{}`",
@@ -329,6 +334,7 @@ namespace cps::loader {
             .cps_version = std::move(cps_version),
             .components = std::move(components),
             .cps_path = std::move(cps_path),
+            .prefix = std::move(prefix),
             .filename = filename.string(),
             .default_components = std::move(default_components),
             .platform = std::move(platform),
