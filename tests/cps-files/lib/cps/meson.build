@@ -3,7 +3,8 @@
 
 conf = configuration_data()
 conf.set('libdir', get_option('libdir'))
-# Should be required, but: https://github.com/mesonbuild/meson/issues/13665
+# This is a work around for a bug fixed in Meson 1.7.0
+# See: https://github.com/mesonbuild/meson/issues/13665
 conf.set('prefix', '@prefix@')
 
 foreach infile : ['cps-path-set.cps.in']
