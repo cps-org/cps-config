@@ -50,7 +50,6 @@ namespace cps::version {
 
         tl::expected<bool, std::string> simple_compare(std::string_view l, Operator op, std::string_view r) {
             // TODO: handle the -.* or +.* ending
-            // TODO: 32 bit probably needs stoull…
             std::vector<uint64_t> left = CPS_TRY(as_numbers(l));
             std::vector<uint64_t> right = CPS_TRY(as_numbers(r));
             equalize_length(left, right);
