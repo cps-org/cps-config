@@ -1,6 +1,6 @@
 {
     "name": "diamond",
-    "cps_version": "0.12.0",
+    "cps_version": "0.13.0",
     "prefix": "/sentinel/",
     "requires": {
         "needs-components1": {},

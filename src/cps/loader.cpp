@@ -18,7 +18,7 @@ namespace cps::loader {
 
     namespace {
 
-        constexpr static std::string_view CPS_VERSION = "0.12.0";
+        constexpr static std::string_view CPS_VERSION = "0.13.0";
 
         namespace fs = std::filesystem;
 

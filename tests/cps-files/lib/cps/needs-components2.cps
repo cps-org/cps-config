@@ -1,6 +1,6 @@
 {
     "name": "needs-components2",
-    "cps_version": "0.12.0",
+    "cps_version": "0.13.0",
     "prefix": "/sentinel/",
     "requires": {
         "multiple-components": {

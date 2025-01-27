@@ -1,6 +1,6 @@
 {
     "name": "full",
-    "cps_version": "0.12.0",
+    "cps_version": "0.13.0",
     "version": "1.2.1",
     "compat_version": "1.0.0",
     "prefix": "/sentinel/",
@@ -51,7 +51,9 @@
         "star_values": {
             "type": "dylib",
             "compile_flags": {
-                "*": ["-fvectorize"]
+                "*": [
+                    "-fvectorize"
+                ]
             },
             "includes": {
                 "*": [
@@ -77,15 +79,21 @@
         "star_values_override": {
             "type": "dylib",
             "compile_flags": {
-                "c": ["-fvectorize"],
-                "*": ["-bad-value"]
+                "c": [
+                    "-fvectorize"
+                ],
+                "*": [
+                    "-bad-value"
+                ]
             },
             "includes": {
                 "c": [
                     "/usr/local/include",
                     "/opt/include"
                 ],
-                "*": ["/dev/null"]
+                "*": [
+                    "/dev/null"
+                ]
             },
             "link_flags": [
                 "-L/usr/lib/",
