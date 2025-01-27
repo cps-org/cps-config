@@ -82,7 +82,7 @@ expected = "-I/something -I/opt/include"
 name = "Requires version, but version not set"
 cps = "needs-version"
 args = ["flags", "--modversion", "--print-errors", "--errors-to-stdout"]
-expected = "Tried /.*/cps/multiple-components.cps, which does not specify a version, but the user requires version 1.0"
+expected = "Tried /.*/cps/multiple-components.cps, which does not specify a version or compat_version, but the user requires version 1.0"
 re = true
 returncode = 1
 
@@ -121,3 +121,9 @@ name = "Star components override by name"
 cps = "full"
 args = ["flags", "--component", "star_values_override", "--cflags", "--print-errors"]
 expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"
+
+[[case]]
+name = "Sets compat_version"
+cps = "needs-compat-version"
+args = ["flags", "--libs", "--print-errors"]
+expected = "-l/usr/lib/libfoo.a"

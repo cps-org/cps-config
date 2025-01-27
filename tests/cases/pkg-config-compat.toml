@@ -50,6 +50,6 @@ expected = "-I/usr/local/include -I/opt/include"
 name = "Requires version, but version not set"
 cps = "needs-version"
 args = ["pkg-config", "--modversion", "--print-errors", "--errors-to-stdout"]
-expected = "Tried /.*/cps/multiple-components.cps, which does not specify a version, but the user requires version 1.0"
+expected = "Tried /.*/cps/multiple-components.cps, which does not specify a version or compat_version, but the user requires version 1.0"
 returncode = 1
 re = true
