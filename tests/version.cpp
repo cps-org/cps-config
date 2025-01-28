@@ -53,7 +53,13 @@ namespace cps::version::test {
                 std::tuple("0.0.0", Operator::gt, "3.0", false), std::tuple("0.0.0", Operator::le, "0.0", true),
                 std::tuple("0.0.0", Operator::le, "3.0", true), std::tuple("6.0.0", Operator::le, "3.0", false),
                 std::tuple("0.0.0", Operator::lt, "3.0", true), std::tuple("0.4.0", Operator::lt, "0.0", false),
-                std::tuple("001.0.0", Operator::eq, "1", true),
-                std::tuple("0.0.0", Operator::ne, "10.0", true), std::tuple("0.0.0", Operator::ne, "0", false)));
+                std::tuple("001.0.0", Operator::eq, "1", true), std::tuple("001.0.0+5", Operator::eq, "1", false),
+                std::tuple("001.0.0-1", Operator::eq, "1-1", true), std::tuple("1+1", Operator::gt, "1", true),
+                std::tuple("1-1", Operator::gt, "1", true), std::tuple("1+1", Operator::gt, "1", true),
+                std::tuple("1+1", Operator::eq, "1-1", true), std::tuple("1+1", Operator::ge, "1-1", true),
+                std::tuple("1+1", Operator::le, "1-1", true), std::tuple("1+1", Operator::ne, "1-1", false),
+                std::tuple("1+1", Operator::lt, "1-1", false), std::tuple("1+1", Operator::gt, "1-1", false),
+                std::tuple("001.0.0-1", Operator::eq, "1+001", true), std::tuple("0.0.0", Operator::ne, "10.0", true),
+                std::tuple("0.0.0", Operator::ne, "0", false)));
     } // unnamed namespace
 } // namespace cps::version::test
