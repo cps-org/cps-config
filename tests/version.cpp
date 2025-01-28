@@ -53,6 +53,7 @@ namespace cps::version::test {
                 std::tuple("0.0.0", Operator::gt, "3.0", false), std::tuple("0.0.0", Operator::le, "0.0", true),
                 std::tuple("0.0.0", Operator::le, "3.0", true), std::tuple("6.0.0", Operator::le, "3.0", false),
                 std::tuple("0.0.0", Operator::lt, "3.0", true), std::tuple("0.4.0", Operator::lt, "0.0", false),
+                std::tuple("001.0.0", Operator::eq, "1", true),
                 std::tuple("0.0.0", Operator::ne, "10.0", true), std::tuple("0.0.0", Operator::ne, "0", false)));
     } // unnamed namespace
 } // namespace cps::version::test
