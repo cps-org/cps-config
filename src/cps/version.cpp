@@ -48,6 +48,48 @@ namespace cps::version {
             }
         }
 
+        enum comp_value {
+            eq,
+            ne,
+            unknown,
+        };
+
+        comp_value compare(const uint64_t & left, Operator op, const uint64_t & right) {
+            switch (op) {
+            case Operator::eq:
+                if (left != right) {
+                    return comp_value::ne;
+                }
+                break;
+            case Operator::le:
+                if (left > right) {
+                    return comp_value::ne;
+                }
+                break;
+            case Operator::ge:
+                if (left < right) {
+                    return comp_value::ne;
+                }
+                break;
+            case Operator::lt:
+                if (left < right) {
+                    return comp_value::eq;
+                }
+                break;
+            case Operator::gt:
+                if (left > right) {
+                    return comp_value::eq;
+                }
+                break;
+            case Operator::ne:
+                if (left != right) {
+                    return comp_value::eq;
+                }
+                break;
+            }
+            return comp_value::unknown;
+        }
+
         tl::expected<bool, std::string> simple_compare(std::string_view l, Operator op, std::string_view r) {
             // TODO: handle the -.* or +.* ending
             std::vector<uint64_t> left = CPS_TRY(as_numbers(l));
@@ -59,36 +101,12 @@ namespace cps::version {
                 const uint64_t lv = left[i];
                 const uint64_t rv = right[i];
 
-                switch (op) {
-                case Operator::eq:
-                    if (lv != rv) {
-                        return false;
-                    }
-                    break;
-                case Operator::le:
-                    if (lv > rv) {
-                        return false;
-                    }
-                    break;
-                case Operator::ge:
-                    if (lv < rv) {
-                        return false;
-                    }
-                    break;
-                case Operator::lt:
-                    if (lv < rv) {
-                        return true;
-                    }
-                    break;
-                case Operator::gt:
-                    if (lv > rv) {
-                        return true;
-                    }
-                    break;
-                case Operator::ne:
-                    if (lv != rv) {
-                        return true;
-                    }
+                switch (compare(lv, op, rv)) {
+                case comp_value::eq:
+                    return true;
+                case comp_value::ne:
+                    return false;
+                case comp_value::unknown:
                     break;
                 }
             }
