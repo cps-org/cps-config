@@ -378,13 +378,50 @@ namespace cps::search {
         /// @param components the components required from this node
         void set_components(std::shared_ptr<Node> node, const std::vector<std::string> & components,
                             bool default_components) {
-            // Set the components that this package's depndees want
+            // If this package needs the default_components, then add to the list of used components
             if (default_components && node->data.package.default_components) {
                 const std::vector<std::string> & defs = node->data.package.default_components.value();
                 node->data.components.insert(node->data.components.end(), defs.begin(), defs.end());
             }
+            // Then add all of the explicitly listed components
             node->data.components.insert(node->data.components.end(), components.begin(), components.end());
 
+            // Handle self requirements first
+            // This takes the form `"requires": [":a", ":b"]`
+            // These must be handled before child dependencies, as they may alter the requirements placed on the
+            // children..
+            std::vector<std::string> self_requires = node->data.components;
+            std::unordered_set<std::string> processed;
+            bool self_defaults = default_components;
+            while (!self_requires.empty()) {
+                const std::string c_name = self_requires.back();
+                self_requires.pop_back();
+                if (processed.find(c_name) != processed.end()) {
+                    continue;
+                }
+                processed.emplace(c_name);
+
+                const loader::Component & component = node->data.package.components.at(c_name);
+                auto && required = process_requires(component.require);
+                if (auto && self = required.find(""); self != required.end()) {
+                    // Don't insert these twice
+                    if (!self_defaults && self->second.defaults && node->data.package.default_components) {
+                        self_defaults = true;
+                        const std::vector<std::string> & defs = node->data.package.default_components.value();
+                        node->data.components.insert(node->data.components.end(), defs.begin(), defs.end());
+                    }
+                    for (auto && comp : self->second.components) {
+                        if (processed.find(comp) != processed.end()) {
+                            continue;
+                        }
+                        self_requires.emplace_back(comp);
+                        node->data.components.emplace_back(comp);
+                    }
+                }
+            }
+
+            // Walk the list of components for this component, adding component
+            // requirements recursively for external requirements.
             for (const std::string & c_name : node->data.components) {
                 // It's possible that the Package::Requires section listed
                 // dependencies we don't actually need. If we don't need them we
@@ -401,16 +438,6 @@ namespace cps::search {
                     }
                 }
                 node->depends = trimmed;
-
-                if (auto && self = required.find(""); self != required.end()) {
-                    // Don't insert these twice
-                    if (!default_components && self->second.defaults && node->data.package.default_components) {
-                        const std::vector<std::string> & defs = node->data.package.default_components.value();
-                        node->data.components.insert(node->data.components.end(), defs.begin(), defs.end());
-                    }
-                    node->data.components.insert(node->data.components.end(), self->second.components.begin(),
-                                                 self->second.components.end());
-                }
             }
         }
 
