@@ -123,7 +123,13 @@ args = ["flags", "--component", "star_values_override", "--cflags", "--print-err
 expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"
 
 [[case]]
-name = "Sets compat_version"
-cps = "needs-compat-version"
-args = ["flags", "--libs", "--print-errors"]
-expected = "-l/usr/lib/libfoo.a"
+name = "requires component from self"
+cps = "full"
+args = ["flags", "--component", "requires-self-helper", "--cflags", "--print-errors"]
+expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"
+
+[[case]]
+name = "requires component from self nested"
+cps = "full"
+args = ["flags", "--component", "requires-self", "--cflags", "--print-errors"]
+expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"

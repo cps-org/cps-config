@@ -112,6 +112,20 @@
             },
             "location": "/something/lib/libfoo.so.1.2.0",
             "link_location": "/something/lib/libfoo.so"
+        },
+        "requires-self-helper": {
+            "type": "interface",
+            "requires": [
+                ":star_values"
+            ]
+        },
+        "requires-self": {
+            "type": "dylib",
+            "location": "/something/lib/libbar.so.1.8.1",
+            "link_location": "/something/lib/libbar.so",
+            "requires": [
+                ":requires-self-helper"
+            ]
         }
     },
     "default_components": [
