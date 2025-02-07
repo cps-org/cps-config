@@ -111,10 +111,10 @@ namespace cps::loader {
       public:
         Platform();
 
-        std::optional<std::string> c_runtime_vendor;
-        std::optional<std::string> c_runtime_version;
-        std::optional<std::string> cpp_runtime_vendor;
-        std::optional<std::string> cpp_runtime_version;
+        // TODO: std::optional<std::string> c_runtime_vendor;
+        // TODO: std::optional<std::string> c_runtime_version;
+        // TODO: std::optional<std::string> cpp_runtime_vendor;
+        // TODO: std::optional<std::string> cpp_runtime_version;
         // TODO: clr_vendor
         // TODO: clr_clr_version
         // TODO: ISA
