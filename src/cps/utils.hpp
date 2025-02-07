@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
-// Copyright © 2024 Dylan Baker
+// Copyright © 2024-2025 Dylan Baker
 // Copyright © 2024 Bret Brown
 
 #pragma once
-
-#include "cps/config.hpp"
 
 #include <string>
 #include <vector>
