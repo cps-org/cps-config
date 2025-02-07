@@ -133,3 +133,15 @@ name = "requires component from self nested"
 cps = "full"
 args = ["flags", "--component", "requires-self", "--cflags", "--print-errors"]
 expected = "-fvectorize -I/usr/local/include -I/opt/include -DBAR=2 -DFOO=1 -DOTHER"
+
+[[case]]
+name = "link requires nested"
+cps = "link-requires"
+args = ["flags", "--component", "nested", "--cflags", "--libs", "--print-errors"]
+expected = "-lfake"
+
+[[case]]
+name = "same component twice"
+cps = "multiple-components"
+args = ["flags", "--component", "same-component-twice", "--cflags", "--print-errors"]
+expected = "-I/something"
