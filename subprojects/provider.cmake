@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.24)
 include(FetchContent)
 FetchContent_Declare(
   GTest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
-  URL_HASH SHA256=8ad598c73ad796e0d8280b082cebd82a630d73e73cd3c70057938a6501bba5d7
+  URL https://github.com/google/googletest/archive/refs/tags/v1.16.0.tar.gz
+  URL_HASH SHA256=78c676fc63881529bf97bf9d45948d905a66833fbfa5318ea2cd7478cb98f399
 )
 FetchContent_Declare(
   tl-expected
