@@ -119,6 +119,7 @@ namespace cps::pc_compat {
                                     .definitions = loader::Defines{},
                                     .link_flags = link_flags,
                                     .link_libraries = {},
+                                    .link_requires = {},
                                     // TODO: Currently lib location is hard coded to appease assertions. This would
                                     // need to implement linker-like search to replicate current behavior.
                                     .location = fmt::format("@prefix@/lib/{}.a", name),

@@ -70,7 +70,7 @@ namespace cps::loader {
         std::vector<std::string> link_flags;
         // TODO: std::vector<LinkLanguage> link_languages;
         std::vector<std::string> link_libraries;
-        // TODO: link_requires
+        std::vector<std::string> link_requires;
         std::optional<std::string> location;
         std::optional<std::string> link_location;
         std::vector<std::string> require; // requires is a keyword

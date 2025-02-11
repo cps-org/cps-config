@@ -249,6 +249,8 @@ namespace cps::loader {
                         .value_or(std::vector<std::string>{});
                 auto const location = CPS_TRY(get_optional<std::string>(comp, name, "location"));
                 auto const link_location = CPS_TRY(get_optional<std::string>(comp, name, "link_location"));
+                auto const link_requires = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_requires"))
+                                               .value_or(std::vector<std::string>{});
                 auto const require = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "requires"))
                                          .value_or(std::vector<std::string>{});
 
@@ -268,6 +270,7 @@ namespace cps::loader {
                     .definitions = std::move(definitions),
                     .link_flags = std::move(link_flags),
                     .link_libraries = std::move(link_libraries),
+                    .link_requires = std::move(link_requires),
                     .location = std::move(location),
                     .link_location = std::move(link_location),
                     .require = std::move(require),

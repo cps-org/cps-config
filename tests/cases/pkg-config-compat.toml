@@ -59,3 +59,9 @@ name = "parsing pc file"
 cps = "pc-variables"
 args = ["pkg-config", "--cflags"]
 expected = "-I/home/kaniini/pkg/include/libfoo"
+
+[[case]]
+name = "link requires"
+cps = "link-requires"
+args = ["pkg-config", "--cflags", "--libs", "--print-errors"]
+expected = "-L/usr/lib/ -flto -l/something/lib/libfoo.so -lbar"
