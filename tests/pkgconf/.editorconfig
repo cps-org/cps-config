@@ -1,0 +1,6 @@
+# We need these mostly unset because we're testing weird whitespaces and formats
+[*.pc]
+end_of_line = unset
+indent_style = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
