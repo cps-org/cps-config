@@ -1,0 +1,11 @@
+[setup]
+  [setup.env]
+    PKG_CONFIG_PATH="{test_root}/lib1"
+
+[libs]
+  args = ["--libs", "conflicts"]
+  stdout = "-L/test/lib -lconflicts\n"
+
+[ignore]
+  args = ["--ignore-conflicts", "--libs", "conflicts"]
+  stdout = "-L/test/lib -lconflicts\n"

@@ -127,9 +127,11 @@ namespace cps::pc_compat {
 
         const auto version = CPS_TRY(get_property("Version").and_then(get_string));
 
-        return loader::Package{.name = name,
+         return loader::Package{.name = name,
                                .cps_version = std::string{loader::CPS_VERSION},
                                .components = components,
+                               // TODO: consider how pkg-config actually handles version and 
+                               .compat_version = version,
                                // TODO: treat PREFIX in pc file specially and translate it to @prefix@
                                .cps_path = std::nullopt,
                                .filename = filename.string(),

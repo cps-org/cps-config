@@ -56,3 +56,28 @@ foreach t : ['loader', 'version', 'utils', 'pc_parser']
     protocol : 'gtest',
   )
 endforeach
+
+
+pkg_conf_suites = files(
+'pkgconf/basic.toml',
+'pkgconf/provides.toml',
+'pkgconf/parser.toml',
+'pkgconf/sysroot.toml',
+'pkgconf/version.toml',
+'pkgconf/framework.toml',
+'pkgconf/conflicts.toml',
+)
+
+pkg_conf_suites += [
+  configure_file(
+    input : 'pkgconf/builtins.toml.in',
+    output : '@BASENAME@',
+    configuration : {'PKGCONF_VERSION' : meson.project_version()},
+  ),
+]
+
+test(
+  'pkgconf tests',
+  find_program('pkgconf/runner.py'),
+  args: [cps_config, pkg_conf_suites],
+)

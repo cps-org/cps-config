@@ -1,0 +1,137 @@
+[setup]
+  [setup.env]
+    PKG_CONFIG_PATH="{test_root}/lib1"
+
+[comments]
+  args = ["--libs", "comments"]
+  stdout = "-lfoo\n"
+
+[comments_in_fields]
+  args = ["--libs", "comments-in-fields"]
+  stdout = "-lfoo\n"
+
+[dos]
+  args = ["--libs", "dos-lineendings"]
+  stdout = "-L/test/lib/dos-lineendings -ldos-lineendings\n"
+
+[no_trailing_newline]
+  args = ["--cflags", "no-trailing-newline"]
+  stdout = "-I/test/include/no-trailing-newline\n"
+
+[argv_parse_body]
+  args = ["--libs", "argv-parse"]
+  stdout = "-llib-3 -llib-1 -llib-2 -lpthread\n"
+
+[bad_option]
+  args = ["--exists", "-foo"]
+  exitcode = 1
+  stderr = '<ignore>'
+
+[argv_parse_3]
+  args = ["--libs", "argv-parse-3"]
+  stdout = "-llib-1 -pthread /test/lib/lib2.so\n"
+
+[tilde_quoting_body]
+  args = ["--cflags", "--libs", "tilde-quoting"]
+  stdout = "-I~ -L~ -ltilde\n"
+
+[paren_quoting]
+  args = ["--libs", "paren-quoting"]
+  stdout = "-L$(libdir) -ltilde\n"
+
+[multiline_field_body]
+  args = ["--list-all"]
+  stdout_contains = "multiline description"
+  stderr = '<ignore>'
+
+[multiline_bogus_header]
+  args = ["--exists", "multiline-bogus"]
+
+[escaped_backslash]
+  args = ["--cflags", "escaped-backslash"]
+  stderr = '<ignore>'
+  stdout = "-IC:\\\\A\n"
+
+[quoted_body]
+  args = ["--cflags", "quotes"]
+  stdout = "-DQUOTED=\\\"bla\\\" -DA=\\\"escaped\\ string\\'\\ literal\\\" -DB=\\\\1$ -DC=bla\n"
+
+[flag_order_1]
+  args = ["--libs", "flag-order-1"]
+  stdout = "-L/test/lib -Bdynamic -lfoo -Bstatic -lbar\n"
+
+[flag_order_2]
+  args = ["--libs", "flag-order-1", "foo"]
+  stdout = "-L/test/lib -Bdynamic -lfoo -Bstatic -lbar -lfoo\n"
+
+[flag_order_3]
+  args = ["--libs", "flag-order-3"]
+  stdout = "-L/test/lib -Wl,--start-group -lfoo -lbar -Wl,--end-group\n"
+
+[flag_order_4]
+  args = ["--libs", "flag-order-3", "foo"]
+  stdout = "-L/test/lib -Wl,--start-group -lfoo -lbar -Wl,--end-group -lfoo\n"
+
+[variable_whitespace]
+  args = ["--cflags", "variable-whitespace"]
+  stdout = "-I/test/include\n"
+
+[fragment_quoting]
+  args = ["--cflags", "fragment-quoting"]
+  stdout = "-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\"\n"
+
+[fragment_quoting_2]
+  args = ["--cflags", "fragment-quoting-2"]
+  stdout = "-fPIC -I/test/include/foo -DQUOTED=/test/share/doc\n"
+
+[fragment_quoting_3]
+  args = ["--cflags", "fragment-quoting-3"]
+  stdout = "-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\"\n"
+
+[fragment_quoting_5]
+  args = ["--cflags", "fragment-quoting-5"]
+  stdout = "-fPIC -I/test/include/foo -DQUOTED=/test/share/doc\n"
+
+[fragment_quoting_7]
+  args = ["--cflags", "fragment-quoting-7"]
+  stdout = "-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world\n"
+
+[fragment_escaping_1]
+  args = ["--cflags", "fragment-escaping-1"]
+  stdout = "-IC:\\\\D\\ E\n"
+
+[fragment_escaping_2]
+  args = ["--cflags", "fragment-escaping-2"]
+  stdout = "-IC:\\\\D\\ E\n"
+
+[fragment_escaping_3]
+  args = ["--cflags", "fragment-escaping-3"]
+  stdout = "-IC:\\\\D\\ E\n"
+
+# TODO: quoting 7a
+
+[comment_body]
+  args = ["--cflags", "fragment-comment"]
+  stdout = "kuku=\\#ttt\n"
+
+# TODO: fragment_comment
+
+[msvc_fragment_quoting]
+  args = ["--libs", "--msvc-syntax", "fragment-escaping-1"]
+  stdout = "/libpath:\"C:\\D E\" E.lib \n"
+
+[msvc_fragment_render_cflags]
+  args = ["--cflags", "--static", "--msvc-syntax", "foo"]
+  stdout = "/I/test/include/foo /DFOO_STATIC \n"
+
+[tuple_dequote]
+  args = ["--libs", "tuple-quoting"]
+  stdout = "-L/test/lib -lfoo\n"
+
+[version_with_whitespace]
+  args = ["--modversion", "malformed-version"]
+  stdout = "3.922\n"
+
+[version_with_whitespace_diagnostic]
+  args = ["--validate", "malformed-version"]
+  stdout_contains = "warning: malformed version field with whitespace, trimming to [3.922]"
