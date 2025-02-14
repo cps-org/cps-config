@@ -48,6 +48,14 @@ namespace cps::loader {
                 fmt::format("Optional field `{}` in `{}` is not of type `{}`!", name, parent_name, typeid(T).name()));
         };
 
+        template <>
+        tl::expected<std::optional<fs::path>, std::string>
+        get_optional(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {
+            return get_optional<std::string>(parent, parent_name, name).map([](const std::optional<std::string> & v) {
+                return v ? std::optional{fs::path{v.value()}} : std::nullopt;
+            });
+        };
+
         template <typename T>
         tl::expected<T, std::string> get_required(const nlohmann::json & parent, std::string_view parent_name,
                                                   const std::string & name) {
@@ -56,9 +64,9 @@ namespace cps::loader {
             }
 
             return get_optional<T>(parent, parent_name, name).and_then([](auto && v) -> tl::expected<T, std::string> {
-                if (v)
-                    return v.value();
-                return "bad";
+                // v should always have a value, if not, there's a bug
+                assert(v.has_value());
+                return v.value();
             });
             // TODO: also need to fixup error message for "Optional type ..."
         }
@@ -106,10 +114,10 @@ namespace cps::loader {
         }
 
         template <>
-        tl::expected<LangValues, std::string> get_required<LangValues>(const nlohmann::json & parent,
-                                                                       std::string_view parent_name,
-                                                                       const std::string & name) {
-            LangValues ret{};
+        tl::expected<LangStrings, std::string> get_required<LangStrings>(const nlohmann::json & parent,
+                                                                         std::string_view parent_name,
+                                                                         const std::string & name) {
+            LangStrings ret{};
             if (!parent.contains(name)) {
                 return ret;
             }
@@ -137,6 +145,24 @@ namespace cps::loader {
                     fmt::format("Section `{}` of `{}` is neither an object nor an array!", parent_name, name));
             }
             return ret;
+        }
+
+        template <>
+        tl::expected<LangPaths, std::string>
+        get_required<LangPaths>(const nlohmann::json & parent, std::string_view parent_name, const std::string & name) {
+            const auto expected_lang_strings = get_required<LangStrings>(parent, parent_name, name);
+            const auto result = expected_lang_strings.map([](const LangStrings & lang_strings) {
+                LangPaths lang_paths;
+                std::transform(lang_strings.begin(), lang_strings.end(), std::inserter(lang_paths, lang_paths.end()),
+                               [](const auto & pair) {
+                                   std::vector<fs::path> paths;
+                                   std::transform(pair.second.begin(), pair.second.end(), std::back_inserter(paths),
+                                                  [](const std::string & s) { return fs::path{s}; });
+                                   return std::make_pair(pair.first, paths);
+                               });
+                return lang_paths;
+            });
+            return result;
         }
 
         template <>
@@ -239,8 +265,8 @@ namespace cps::loader {
                 }
 
                 auto const type = CPS_TRY(get_required<std::string>(comp, name, "type").map(string_to_type));
-                auto const compile_flags = CPS_TRY(get_required<LangValues>(comp, name, "compile_flags"));
-                auto const includes = CPS_TRY(get_required<LangValues>(comp, name, "includes"));
+                auto const compile_flags = CPS_TRY(get_required<LangStrings>(comp, name, "compile_flags"));
+                auto const includes = CPS_TRY(get_required<LangPaths>(comp, name, "includes"));
                 auto const definitions = CPS_TRY(get_required<Defines>(comp, name, "definitions"));
                 auto const link_flags = CPS_TRY(get_optional<std::vector<std::string>>(comp, name, "link_flags"))
                                             .value_or(std::vector<std::string>{});
@@ -307,7 +333,7 @@ namespace cps::loader {
     std::optional<std::string> Define::get_value() const { return value; }
 
     Configuration::Configuration() = default;
-    Configuration::Configuration(LangValues cflags) : compile_flags{std::move(cflags)} {};
+    Configuration::Configuration(LangStrings cflags) : compile_flags{std::move(cflags)} {};
 
     Requirement::Requirement() = default;
     Requirement::Requirement(std::vector<std::string> comps) : components{std::move(comps)} {};
@@ -329,8 +355,8 @@ namespace cps::loader {
         auto const cps_version = CPS_TRY(get_required<std::string>(root, "package", "cps_version"));
         auto const compat_version = CPS_TRY(get_optional<std::string>(root, "package", "compat_version"));
         auto const components = CPS_TRY(get_required<Components>(root, "package", "components"));
-        auto const cps_path = CPS_TRY(get_optional<std::string>(root, "package", "cps_path"));
-        auto prefix = CPS_TRY(get_optional<std::string>(root, "package", "prefix"));
+        auto const cps_path = CPS_TRY(get_optional<fs::path>(root, "package", "cps_path"));
+        auto prefix = CPS_TRY(get_optional<fs::path>(root, "package", "prefix"));
         auto const default_components =
             CPS_TRY(get_optional<std::vector<std::string>>(root, "package", "default_components"));
         auto const platform = std::nullopt; // TODO: parse platform

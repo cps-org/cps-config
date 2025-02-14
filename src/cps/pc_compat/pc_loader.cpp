@@ -92,7 +92,7 @@ namespace cps::pc_compat {
 
         std::string name = CPS_TRY(get_property("Name").and_then(get_string));
 
-        loader::LangValues compile_flags;
+        loader::LangStrings compile_flags;
         if (auto compile_flags_input = get_property("Cflags").and_then(get_string)) {
             auto compile_flags_vec = utils::split(*compile_flags_input);
             compile_flags.emplace(loader::KnownLanguages::c, compile_flags_vec);
@@ -115,7 +115,7 @@ namespace cps::pc_compat {
         components.emplace(
             name, loader::Component{.type = loader::Type::unknown,
                                     .compile_flags = compile_flags,
-                                    .includes = loader::LangValues{},
+                                    .includes = loader::LangPaths{},
                                     .definitions = loader::Defines{},
                                     .link_flags = link_flags,
                                     .link_libraries = {},

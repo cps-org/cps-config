@@ -18,6 +18,8 @@
 
 namespace cps::loader {
 
+    namespace fs = std::filesystem;
+
     /// @brief  Known Programming languages
     enum class KnownLanguages {
         c,
@@ -56,14 +58,15 @@ namespace cps::loader {
         std::optional<std::string> value;
     };
 
-    using LangValues = std::unordered_map<KnownLanguages, std::vector<std::string>>;
+    using LangStrings = std::unordered_map<KnownLanguages, std::vector<std::string>>;
+    using LangPaths = std::unordered_map<KnownLanguages, std::vector<fs::path>>;
 
     using Defines = std::unordered_map<KnownLanguages, std::vector<Define>>;
 
     struct Component {
         Type type;
-        LangValues compile_flags;
-        LangValues includes;
+        LangStrings compile_flags;
+        LangPaths includes;
         Defines definitions;
         // TODO: configurations
         // TODO: std::vector<std::string> link_features;
@@ -79,9 +82,9 @@ namespace cps::loader {
     class Configuration {
       public:
         Configuration();
-        Configuration(LangValues cflags);
+        Configuration(LangStrings cflags);
 
-        LangValues compile_flags;
+        LangStrings compile_flags;
         // TODO: LangValues definitions;
         // TODO: LangValues includes;
         // TODO: std::vector<std::string> link_features;
@@ -131,8 +134,8 @@ namespace cps::loader {
         std::optional<std::string> compat_version;
         // TODO: configuration
         // TODO: configurations
-        std::optional<std::string> cps_path;
-        std::string prefix;
+        std::optional<fs::path> cps_path;
+        fs::path prefix;
         std::string filename;
         std::optional<std::vector<std::string>> default_components;
         std::optional<Platform> platform;
