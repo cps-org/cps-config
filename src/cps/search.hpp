@@ -8,22 +8,25 @@
 
 #include <tl/expected.hpp>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
 namespace cps::search {
+
+    namespace fs = std::filesystem;
 
     class Result {
       public:
         Result();
 
         std::string version;
-        loader::LangValues includes;
-        loader::LangValues compile_flags;
+        loader::LangPaths includes;
+        loader::LangStrings compile_flags;
         loader::Defines definitions;
         std::vector<std::string> link_flags;
         std::vector<std::string> link_libraries;
-        std::vector<std::string> link_location;
+        std::vector<fs::path> link_location;
     };
 
     // TODO: restrictions like versions
