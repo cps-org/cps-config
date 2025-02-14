@@ -106,7 +106,7 @@ namespace cps::search {
             return paths;
         };
 
-        template <typename T> void add_to_search_path(const std::vector<T> & paths, SearchPathType type) {
+        void add_to_search_path(const std::vector<fs::path> & paths, SearchPathType type) {
             std::transform(paths.begin(), paths.end(), std::back_inserter(cached_paths),
                            [&type](const auto & path) { return SearchPath{.path = path, .type = type}; });
         };
@@ -121,8 +121,7 @@ namespace cps::search {
             }
 
             if (env.cps_path) {
-                auto && paths = utils::split(env.cps_path.value());
-                add_to_search_path(paths, SearchPathType::cps);
+                add_to_search_path(*env.cps_path, SearchPathType::cps);
             }
 
             if (env.cps_prefix_path) {
@@ -136,7 +135,7 @@ namespace cps::search {
             // If PKG_CONFIG_PATH is defined, search for PC files in the specified directly before falling back to
             // system default CPS and PC search paths.
             if (env.pc_path) {
-                cached_paths.emplace_back(SearchPath{.path = *env.pc_path, .type = SearchPathType::pc});
+                add_to_search_path(*env.pc_path, SearchPathType::pc);
             }
 
             for (auto && p : nix_prefix) {
@@ -279,7 +278,7 @@ namespace cps::search {
                     if (!(p.version || p.compat_version)) {
                         errors.emplace_back(fmt::format("Tried {}, which does not specify a version or compat_version, "
                                                         "but the user requires version {}",
-                                                        path.string(), requirements.version.value()));
+                                                        path.generic_string(), requirements.version.value()));
                         continue;
                     }
                     // From the CPS spec, version 0.12.0, for package::compat_version
@@ -472,17 +471,15 @@ namespace cps::search {
 
             const auto prefix = prefix_path.value_or(node->data.package.prefix);
 
-            const auto && prefix_replacer = [&](const std::string & s) -> std::string {
-                // TODO: Windows…
-                auto && split = utils::split(s, "/");
-                if (split[0] == "@prefix@") {
-                    fs::path p = prefix;
-                    for (auto it = split.begin() + 1; it != split.end(); ++it) {
-                        p /= *it;
+            const auto && prefix_replacer = [&](const fs::path & p) -> fs::path {
+                if (p.begin()->generic_string() == "@prefix@") {
+                    fs::path replacedPath = prefix;
+                    for (auto it = ++p.begin(); it != p.end(); ++it) {
+                        replacedPath /= *it;
                     }
-                    return p.string();
+                    return replacedPath.string();
                 }
-                return s;
+                return p;
             };
 
             for (const auto & c_name : node->data.components) {
@@ -498,7 +495,7 @@ namespace cps::search {
                 // from
                 // 2. if we do it at the search point we have to plumb overrides
                 // deep into that
-                merge_result<loader::KnownLanguages, std::string>(comp.includes, result.includes, prefix_replacer);
+                merge_result<loader::KnownLanguages, fs::path>(comp.includes, result.includes, prefix_replacer);
                 merge_result(comp.definitions, result.definitions);
                 merge_result(comp.compile_flags, result.compile_flags);
                 merge_result(comp.link_libraries, result.link_libraries);

@@ -5,11 +5,14 @@
 #include "cps/printer.hpp"
 
 #include <algorithm>
+#include <filesystem>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <tl/expected.hpp>
 
 namespace cps::printer {
+
+    namespace fs = std::filesystem;
 
     int pkgconf(const search::Result & r, const Config & conf) {
         std::vector<std::string> args{};
@@ -32,7 +35,7 @@ namespace cps::printer {
         if (conf.includes) {
             if (auto && f = r.includes.find(loader::KnownLanguages::c); f != r.includes.end() && !f->second.empty()) {
                 std::transform(f->second.begin(), f->second.end(), std::back_inserter(args),
-                               [](std::string_view s) { return fmt::format("-I{}", s); });
+                               [](const fs::path & p) { return fmt::format("-I{}", p.generic_string()); });
             }
         }
 
@@ -71,7 +74,7 @@ namespace cps::printer {
             if (auto && f = r.link_location; !f.empty()) {
                 args.reserve(args.size() + f.size());
                 std::transform(f.begin(), f.end(), std::back_inserter(args),
-                               [](std::string_view s) { return fmt::format("-l{}", s); });
+                               [](const fs::path & p) { return fmt::format("-l{}", p.generic_string()); });
             }
             if (auto && f = r.link_libraries; !f.empty()) {
                 args.reserve(args.size() + f.size());
