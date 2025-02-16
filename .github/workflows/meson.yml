@@ -138,3 +138,32 @@ jobs:
           ninja -C builddir
       - name: Run tests
         run: meson test -C builddir
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            flex
+            bison
+            mingw-w64-x86_64-meson
+            mingw-w64-x86_64-python-pip
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-python-certifi
+      - uses: actions/checkout@v3
+      - name: Install system certs for python
+        run: |
+          pip install pip-system-certs
+          echo "REQUESTS_CA_BUNDLE=$(python -m certifi)" >> $GITHUB_ENV
+          echo "SSL_CERT_FILE=$(python -m certifi)" >> $GITHUB_ENV
+      - name: Build cps-config
+        run: |
+          meson setup builddir -Dunity=on -Dunity_size=12
+          ninja -C builddir
+      - name: Run tests
+        run: meson test -C builddir
