@@ -197,7 +197,7 @@ namespace cps::search {
         };
 
         /// @brief Extract all required dependencies with their components
-        /// @param components The requested componenets
+        /// @param components The requested components
         /// @return a map of dependency to (components[], use_defaults)
         std::unordered_map<std::string, ProcessedRequires>
         process_requires(const std::vector<std::string> & components) {
@@ -455,8 +455,8 @@ namespace cps::search {
         // XXX: do we need process_requires here?
         auto && root = CPS_TRY(build_node(name, loader::Requirement{components}, env));
         // This has to be done as a two step pass, since we want to trim any
-        // unecessary nodes from the graph, but we cannot do that while finding,
-        // since we could hae a diamond dependency, where the two dependees have
+        // unnecessary nodes from the graph, but we cannot do that while finding,
+        // since we could have a diamond dependency, where the two dependees have
         // different components they want.
         set_components(root, components, default_components);
         auto && flat = tsort(root);

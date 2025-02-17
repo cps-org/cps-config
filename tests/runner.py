@@ -150,7 +150,7 @@ async def main() -> None:
     parser.add_argument('runner', help="The compiled cps-config binary")
     parser.add_argument('cases', help="A toml file containing case descriptions")
     parser.add_argument('--libdir', default='lib', help="the build system configured libdir")
-    parser.add_argument('--prefix', default=None, help="The prefix tests are realtive to")
+    parser.add_argument('--prefix', default=None, help="The prefix tests are relative to")
     args: Arguments = parser.parse_args()
 
     with open(os.path.join(SOURCE_DIR, args.cases), 'rb') as f:
