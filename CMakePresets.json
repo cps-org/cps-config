@@ -7,10 +7,6 @@
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": true,
         "BUILD_TESTING": true
-      },
-      "environment": {
-        "CC": "gcc",
-        "CXX": "g++"
       }
     },
     {
