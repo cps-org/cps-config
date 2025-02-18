@@ -4,7 +4,7 @@ prog_flex = find_program('', required : false)
 flex_args = []
 prog_bison = find_program('', required : false)
 if host_machine.system() == 'windows'
-  prog_flex = find_program('win_flex', required : false, version : _flex_vesrion)
+  prog_flex = find_program('win_flex', required : false, version : _flex_version)
   if prog_flex.found()
     # This uses <io.h> instead of <unistd.h>
     flex_args = ['--wincompat']
