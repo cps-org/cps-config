@@ -29,8 +29,8 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { id: ubuntu-gcc, platform: ubuntu, preset: default }
-          - { id: ubuntu-gcc-fetch, platform: ubuntu, preset: fetch-deps }
+          - { id: ubuntu-gcc, platform: ubuntu, preset: default, cc: gcc, cxx: g++ }
+          - { id: ubuntu-gcc-fetch, platform: ubuntu, preset: fetch-deps, cc: gcc, cxx: g++ }
 
     steps:
       - uses: actions/checkout@v2
@@ -67,7 +67,8 @@ jobs:
           docker exec \
           -e CCACHE_DIR="/ccache" \
           ${{ matrix.cfg.id }} \
-          bash -c "cmake -S /workdir -B /build/ --preset ${{ matrix.cfg.preset }} && \
+          bash -c "CC=${{ matrix.cfg.cc }} CXX=${{ matrix.cfg.cxx }} \
+          cmake -S /workdir -B /build/ --preset ${{ matrix.cfg.preset }} && \
           cmake --build build --config RelWithDebInfo"
       - name: Run Tests
         run: |
