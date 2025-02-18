@@ -9,6 +9,7 @@ import asyncio
 import contextlib
 import dataclasses
 import enum
+import pathlib
 import os
 import re
 import shutil
@@ -86,6 +87,7 @@ def is_success(rt: int, case_: TestCase, out: str, expected: str) -> bool:
 
 async def test(args: Arguments, case_: TestCase) -> Result:
     prefix = args.prefix or SOURCE_DIR
+    prefix = pathlib.Path(prefix).as_posix()
 
     cmd = [args.runner] + case_['args']
     cmd.append(case_['cps'].replace('{prefix}', os.path.join(prefix, args.libdir, 'cps')))
