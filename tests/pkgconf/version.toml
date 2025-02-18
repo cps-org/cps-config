@@ -1,0 +1,24 @@
+[setup]
+  [setup.env]
+    PKG_CONFIG_PATH="{test_root}/lib1"
+
+[atleast_valid]
+  args = ["--atleast-version", "1.0", "foo"]
+
+[atleast_invalid]
+  args = ["--atleast-version", "2.0", "foo"]
+  exitcode = 1
+
+[exact_valid]
+  args = ["--exact-version", "1.2.3", "foo"]
+
+[exact_invalid]
+  args = ["--exact-version", "1.0", "foo"]
+  exitcode = 1
+
+[max_valid]
+  args = ["--max-version", "2.0", "foo"]
+
+[max_invalid]
+  args = ["--max-version", "1.0", "foo"]
+  exitcode = 1

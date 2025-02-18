@@ -1,0 +1,311 @@
+[setup]
+  [setup.env]
+    PKG_CONFIG_PATH="{test_root}/lib1"
+
+[simple1]
+  args = ["--print-provides", "provides"]
+  stdout = """
+provides-test-foo = 1.0.0
+provides-test-bar > 1.1.0
+provides-test-baz >= 1.1.0
+provides-test-quux < 1.2.0
+provides-test-moo <= 1.2.0
+provides-test-meow != 1.3.0
+provides = 1.2.3
+"""
+
+[simple2]
+  args = ["--libs", "provides-request-simple"]
+  stdout = "-lfoo\n"
+
+[simple3]
+  args = ["--no-provides", "--libs", "provides-request-simple"]
+  stderr = '<ignore>'
+  exitcode = 1
+
+[foo]
+  args = ["--libs", "provides-test-foo"]
+  stdout = '<ignore>'
+
+[foo_eq]
+  args = ["--libs", "provides-test-foo = 1.0.0"]
+  stdout = '<ignore>'
+
+[foo_ge]
+  args = ["--libs", "provides-test-foo >= 1.0.0"]
+  stdout = '<ignore>'
+
+[foo_le]
+  args = ["--libs", "provides-test-foo <= 1.0.0"]
+  stdout = '<ignore>'
+
+[foo_ne]
+  args = ["--libs", "provides-test-foo != 1.0.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[foo_gt]
+  args = ["--libs", "provides-test-foo > 1.0.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[foo_lt]
+  args = ["--libs", "provides-test-foo < 1.0.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[bar]
+  args = ["--libs", "provides-test-bar"]
+  stdout = '<ignore>'
+
+[bar_eq]
+  args = ["--libs", "provides-test-bar = 1.1.1"]
+  stdout = '<ignore>'
+
+[bar_ge]
+  args = ["--libs", "provides-test-bar >= 1.1.1"]
+  stdout = '<ignore>'
+
+[bar_le]
+  args = ["--libs", "provides-test-bar <= 1.1.1"]
+  stdout = '<ignore>'
+
+[bar_le2]
+  args = ["--libs", "provides-test-bar <= 1.1.0"]
+  exitcode = 1
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+
+[bar_le3]
+  args = ["--libs", "provides-test-bar <= 1.2.0"]
+  stdout = '<ignore>'
+
+[bar_ne]
+  args = ["--libs", "provides-test-bar != 1.1.0"]
+  stdout = '<ignore>'
+
+[bar_ne2]
+  args = ["--libs", "provides-test-bar != 1.1.1"]
+  exitcode = 1
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+
+[bar_gt]
+  args = ["--libs", "provides-test-bar > 1.1.1"]
+  stdout = '<ignore>'
+
+[baz]
+  args = ["--libs", "provides-test-baz"]
+  stdout = '<ignore>'
+
+[baz_eq]
+  args = ["--libs", "provides-test-baz = 1.1.0"]
+  stdout = '<ignore>'
+
+[baz_ge]
+  args = ["--libs", "provides-test-baz >= 1.1.0"]
+  stdout = '<ignore>'
+
+[baz_le]
+  args = ["--libs", "provides-test-baz <= 1.1.0"]
+  stdout = '<ignore>'
+
+[baz_ne]
+  args = ["--libs", "provides-test-baz != 1.1.0"]
+  exitcode = 1
+  stderr = '<ignore>'
+  stdout = '<ignore>'
+
+[baz_ne2]
+  args = ["--libs", "provides-test-baz != 1.0.0"]
+  stdout = '<ignore>'
+
+[baz_gt1]
+  args = ["--libs", "provides-test-baz > 1.1.1"]
+  stdout = '<ignore>'
+
+[baz_gt2]
+  args = ["--libs", "provides-test-baz > 1.1.0"]
+  stdout = '<ignore>'
+
+[baz_lt1]
+  args = ["--libs", "provides-test-baz < 1.1.0"]
+  exitcode = 1
+  stderr = '<ignore>'
+  stdout = '<ignore>'
+
+[baz_lt2]
+  args = ["--libs", "provides-test-baz < 1.2.0"]
+  stdout = '<ignore>'
+
+[quux]
+  args = ["--libs", "provides-test-quux"]
+  stdout = '<ignore>'
+
+[quux_eq]
+  args = ["--libs", "provides-test-quux = 1.1.9"]
+  stdout = '<ignore>'
+
+[quux_ge]
+  args = ["--libs", "provides-test-quux >= 1.1.0"]
+  stdout = '<ignore>'
+
+[quux_ge2]
+  args = ["--libs", "provides-test-quux >= 1.2.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[quux_le]
+  args = ["--libs", "provides-test-quux <= 1.1.9"]
+  stdout = '<ignore>'
+
+[quux_ne]
+  args = ["--libs", "provides-test-quux != 1.2.0"]
+  stdout = '<ignore>'
+
+[quux_ne2]
+  args = ["--libs", "provides-test-quux != 1.1.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[quux_ne3]
+  args = ["--libs", "provides-test-quux != 1.0.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[quux_gt]
+  args = ["--libs", "provides-test-quux > 1.1.9"]
+  stdout = '<ignore>'
+
+[quux_gt2]
+  args = ["--libs", "provides-test-quux > 1.2.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[quux_lt]
+  args = ["--libs", "provides-test-quux < 1.1.0"]
+  stdout = '<ignore>'
+
+[quux_lt2]
+  args = ["--libs", "provides-test-quux < 1.2.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[moo]
+  args = ["--libs", "provides-test-moo"]
+  stdout = '<ignore>'
+
+[moo_eq]
+  args = ["--libs", "provides-test-moo = 1.2.0"]
+  stdout = '<ignore>'
+
+[moo_ge]
+  args = ["--libs", "provides-test-moo >= 1.1.0"]
+  stdout = '<ignore>'
+
+[moo_ge2]
+  args = ["--libs", "provides-test-moo >= 1.2.1"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[moo_le]
+  args = ["--libs", "provides-test-moo <= 1.2.0"]
+  stdout = '<ignore>'
+
+[moo_ne]
+  args = ["--libs", "provides-test-moo != 1.1.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[moo_ne2]
+  args = ["--libs", "provides-test-moo != 1.0.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[moo_gt]
+  args = ["--libs", "provides-test-moo > 1.1.9"]
+  stdout = '<ignore>'
+
+[moo_gt2]
+  args = ["--libs", "provides-test-moo > 1.2.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[moo_lt]
+  args = ["--libs", "provides-test-moo < 1.1.0"]
+  stdout = '<ignore>'
+
+[moo_lt2]
+  args = ["--libs", "provides-test-moo < 1.2.0"]
+  stdout = '<ignore>'
+
+[meow]
+  args = ["--libs", "provides-test-meow"]
+  stdout = '<ignore>'
+
+[meow_eq]
+  args = ["--libs", "provides-test-meow = 1.3.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[meow_ne]
+  args = ["--libs", "provides-test-meow != 1.3.0"]
+  stdout = '<ignore>'
+
+[meow_gt]
+  args = ["--libs", "provides-test-meow > 1.2.9"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[meow_lt]
+  args = ["--libs", "provides-test-meow < 1.3.1"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[meow_lt2]
+  args = ["--libs", "provides-test-meow < 1.3.0"]
+  stdout = '<ignore>'
+
+[meow_ge]
+  args = ["--libs", "provides-test-meow >= 1.3.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[meow_ge2]
+  args = ["--libs", "provides-test-meow >= 1.3.1"]
+  stdout = '<ignore>'
+
+[meow_le]
+  args = ["--libs", "provides-test-meow <= 1.3.0"]
+  stdout = '<ignore>'
+  stderr = '<ignore>'
+  exitcode = 1
+
+[meow_lt3]
+  args = ["--libs", "provides-test-meow < 1.2.9"]
+  stdout = '<ignore>'
+
+[indirect_dependency_node_1]
+  args = ["--modversion", "provides-test-meow"]
+  stdout = "1.2.3\n"
+
+[indirect_dependency_node_2]
+  args = ["--modversion", "provides-test-meow = 1.3.0"]
+  stderr = '<ignore>'
+  exitcode = 1

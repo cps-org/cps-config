@@ -1,0 +1,20 @@
+[setup]
+  [setup.env]
+    PKG_CONFIG_PATH="{test_root}/lib1"
+
+[modversion]
+  args = ["--modversion", "pkg-config"]
+  stdout = "@PKGCONF_VERSION@\n"
+
+[variable]
+  args = ["--variable=prefix", "foo"]
+  stdout = "/test\n"
+
+[define_variable]
+  args = ["--define-variable=prefix=/test2", "--variable=prefix", "foo"]
+  stdout = "/test2\n"
+
+# TODO: global_variable
+# TODO: argv_parser_3
+# TODO: tilde_quoting
+# TODO: paren_quoting

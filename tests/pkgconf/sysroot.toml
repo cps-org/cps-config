@@ -1,0 +1,82 @@
+[setup]
+  [setup.env]
+    PKG_CONFIG_PATH = "{test_root}/lib1"
+    PKG_CONFIG_SYSROOT_DIR = "/sentinal"
+
+[do_not_eat_slash]
+  args = ["--cflags", "baz"]
+  stdout = "-fPIC -I/test/include/foo\n"
+
+  [do_not_eat_slash.env]
+    PKG_CONFIG_SYSROOT_DIR = "/"
+
+[cflags]
+  args = ["--cflags", "baz"]
+  stdout = "-fPIC -I/sentinal/test/include/foo\n"
+
+[variable_prefix]
+  args = ["--variable=prefix", "foo"]
+  stdout = "{test_root}/test\n"
+
+  [variable_prefix.env]
+    PKG_CONFIG_SYSROOT_DIR = "{test_root}"
+
+[variable_includedir]
+  args = ["--variable=includedir", "foo"]
+  stdout = "{test_root}/test/include\n"
+
+  [variable_includedir.env]
+    PKG_CONFIG_SYSROOT_DIR = "{test_root}"
+
+[do_not_duplicate_sysroot_dir_2]
+  args = ["--cflags", "sysroot-dir-2"]
+  stdout = "-I/sysroot/usr/include\n"
+
+  [do_not_duplicate_sysroot_dir_2.env]
+    PKG_CONFIG_SYSROOT_DIR = "/sysroot"
+
+[do_not_duplicate_sysroot_dir_3]
+  args = ["--cflags", "sysroot-dir-3"]
+  stdout = "-I/sysroot/usr/include\n"
+
+  [do_not_duplicate_sysroot_dir_3.env]
+    PKG_CONFIG_SYSROOT_DIR = "/sysroot"
+
+[do_not_duplicate_sysroot_dir_4]
+  args = ["--cflags", "sysroot-dir-4"]
+  stdout = "-I/sentinal/usr/include\n"
+
+[do_not_duplicate_sysroot_dir_5]
+  args = ["--cflags", "sysroot-dir-5"]
+  stdout = "-I/sysroot/usr/include\n"
+
+  [do_not_duplicate_sysroot_dir_5.env]
+    PKG_CONFIG_SYSROOT_DIR = "/sysroot"
+
+[uninstalled]
+  args = ["--libs", "omg"]
+  stdout = "-L/test/lib -lomg\n"
+
+[uninstalled_pkgconf1]
+  args = ["--libs", "omg"]
+  stdout = "-L/sysroot/test/lib -lomg\n"
+
+  [uninstalled_pkgconf1.env]
+    PKG_CONFIG_SYSROOT_DIR = "/sysroot"
+    PKG_CONFIG_PKGCONF1_SYSROOT_RULES = "1"
+
+[uninstalled_fdo]
+  args = ["--libs", "omg"]
+  stdout = "-L/test/lib -lomg\n"
+
+  [uninstalled_fdo.env]
+    PKG_CONFIG_SYSROOT_DIR = "/sysroot"
+    PKG_CONFIG_FDO_SYSROOT_RULES = "1"
+
+[uninstalled_fdo_pc_sysrootdir]
+  args = ["--libs", "omg-sysroot"]
+  stdout = "-L/sysroot/test/lib -lomg\n"
+
+  [uninstalled_fdo_pc_sysrootdir.env]
+    PKG_CONFIG_SYSROOT_DIR = "/sysroot"
+    PKG_CONFIG_FDO_SYSROOT_RULES = "1"
