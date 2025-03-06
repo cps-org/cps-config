@@ -56,3 +56,5 @@ foreach t : ['loader', 'version', 'utils', 'pc_parser']
     protocol : 'gtest',
   )
 endforeach
+
+subdir('pkgconf')
