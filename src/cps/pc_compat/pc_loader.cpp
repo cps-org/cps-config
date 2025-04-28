@@ -130,8 +130,10 @@ namespace cps::pc_compat {
         return loader::Package{.name = name,
                                .cps_version = std::string{loader::CPS_VERSION},
                                .components = components,
-                               // TODO: treat PREFIX in pc file specially and translate it to @prefix@
+                               .compat_version = std::nullopt,
                                .cps_path = std::nullopt,
+                               // TODO: treat PREFIX in pc file specially and translate it to @prefix@
+                               .prefix = "",
                                .filename = filename.string(),
                                .default_components = std::vector{name},
                                .platform = std::nullopt,
