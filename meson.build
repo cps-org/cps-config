@@ -20,6 +20,7 @@ cpp = meson.get_compiler('cpp')
 warn_args = cpp.get_supported_arguments(
   '-Werror=shadow',
   '-Werror=implicit-fallthrough',
+  '-Werror=missing-field-initializers',
 )
 
 subdir('src')
